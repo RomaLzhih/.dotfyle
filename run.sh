@@ -59,6 +59,21 @@ if [[ ${kUpdate} == 1 ]]; then
 	tmux source "${HOME}/.tmux.conf"
 
 	# NOTE: neovim
+	cd "${HOME}/bin/repos/neovim" || exit
+	git fetch
+	if [[ "$(git rev-parse HEAD)" != "$(git rev-parse @{u})" ]]; then
+		git pull
+		make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
+		make install
+		export PATH="$HOME/neovim/bin:$PATH"
+
+		#NOTE: once recompiled, needs to rebuilds the neovim config
+		rm -rf ~/.config/nvim
+		rm -rf ~/.local/share/nvim
+		git clone git@github.com:RomaLzhih/NvChad_x.git ~/.config/nvim --depth 1
+	fi
+
+	# NOTE: neovim configuration
 	if [[ ${kForceUpdate} == 0 ]]; then
 		CheckDiffStatus "${HOME}/.config/nvim" "${debug}"
 	else
@@ -132,8 +147,8 @@ if [[ ${kInstall} == 1 ]]; then
 	if ! [ -x "$(command -v nvim)" ]; then
 		cur_path=${PWD}
 
-		mkdir -p "${HOME}/bin/repo"
-		cd "${HOME}/bin/repo" || exit
+		mkdir -p "${HOME}/bin/repos"
+		cd "${HOME}/bin/repos" || exit
 		git clone https://github.com/neovim/neovim
 		cd "neovim" || exit
 		make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
