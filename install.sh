@@ -10,12 +10,13 @@ while getopts u:s:i:p: flag; do
 	esac
 done
 
-# git diff --quiet
-# changes=$?
-# if [[ ${changes} == "1" ]]; then
-# 	echo "Changes detected, please commit first."
-# 	exit 1
-# fi
+# TODO: rewrite it as a function
+git diff --quiet
+changes=$?
+if [[ ${changes} == "1" ]]; then
+	echo "Changes detected, please commit first."
+	exit 1
+fi
 
 if [[ ${update} == "1" ]]; then
 	cp -r .config ${HOME}/
@@ -23,6 +24,8 @@ if [[ ${update} == "1" ]]; then
 	cp .vimrc ${HOME}/
 	cp .wezterm.lua ${HOME}/
 	cp .zshrc ${HOME}/
+	# TODO: check whether are changes
+	cd .config/nvim && git reset --hard && git pull
 
 	if [[ ${python_update} == "1" ]]; then
 		cd ${HOME}
