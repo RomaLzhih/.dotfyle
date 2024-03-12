@@ -1,0 +1,5 @@
+CompileFlags:
+  Add:
+    - --include-directory=/opt/rh/gcc-toolset-13/root/usr/include/c++/13/
+    - --include-directory=/opt/rh/gcc-toolset-13/root/usr/include/c++/13/x86_64-redhat-linux/
+    - -std=c++20
