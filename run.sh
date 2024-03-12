@@ -55,9 +55,6 @@ if [[ ${kUpdate} == 1 ]]; then
 	cp .dotfyles/.wezterm.lua "${HOME}/"
 	cp .dotfyles/.zshrc "${HOME}/"
 
-	source "${HOME}/.zshrc"
-	tmux source "${HOME}/.tmux.conf"
-
 	# NOTE: neovim
 	cd "${HOME}/bin/repos/neovim" || exit
 	git fetch
@@ -120,6 +117,9 @@ if [[ ${kUpdate} == 1 ]]; then
 		echo "here"
 		sudo apt update && sudo apt upgrade -y
 	fi
+
+	source "${HOME}/.zshrc"
+	tmux source "${HOME}/.tmux.conf"
 fi
 
 # PERF: Install
