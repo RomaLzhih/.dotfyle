@@ -191,7 +191,7 @@ if [[ ${kInstall} == 1 ]]; then
 		ln -s "${HOME}/bin/repos/ripgrep/target/release/rg" ~/bin/rg
 
 	elif [[ ${os} == "ubuntu" ]]; then
-		sudo apt install clang-tidy cpplint black cppcheck ripgrep node
+		sudo apt install clang-tidy cpplint black cppcheck ripgrep nodejs
 	fi
 fi
 
