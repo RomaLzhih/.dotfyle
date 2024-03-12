@@ -50,10 +50,10 @@ fi
 if [[ ${kUpdate} == 1 ]]; then
 	# NOTE: COPY file
 	cp -r .config "${HOME}/"
-	cp .tmux.conf "${HOME}/"
-	cp .vimrc "${HOME}/"
-	cp .wezterm.lua "${HOME}/"
-	cp .zshrc "${HOME}/"
+	cp .dotfyles/.tmux.conf "${HOME}/"
+	cp .dotfyles/.vimrc "${HOME}/"
+	cp .dotfyles/.wezterm.lua "${HOME}/"
+	cp .dotfyles/.zshrc "${HOME}/"
 
 	source "${HOME}/.zshrc"
 	tmux source "${HOME}/.tmux.conf"
@@ -112,10 +112,10 @@ if [[ ${kInstall} == 1 ]]; then
 	# NOTE: shell stuffs
 	cd "${HOME}" || exit
 	cp -r .config "${HOME}/"
-	cp .tmux.conf "${HOME}/"
-	cp .vimrc "${HOME}/"
-	cp .wezterm.lua "${HOME}/"
-	cp .zshrc "${HOME}/"
+	cp .dotfyles/.tmux.conf "${HOME}/"
+	cp .dotfyles/.vimrc "${HOME}/"
+	cp .dotfyles/.wezterm.lua "${HOME}/"
+	cp .dotfyles/.zshrc "${HOME}/"
 
 	# NOTE: zsh plugins
 	sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
