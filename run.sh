@@ -2,6 +2,7 @@
 #POSIX
 # set -o xtrace
 
+# NOTE: helper function to git git status
 CheckDiffStatus() {
 	cur_path=${PWD}
 	check_path=$1
@@ -45,7 +46,7 @@ else
 	git reset --hard
 fi
 
-# NOTE: update
+# PERF: Update
 if [[ ${kUpdate} == 1 ]]; then
 	# NOTE: COPY file
 	cp -r .config "${HOME}/"
@@ -54,7 +55,7 @@ if [[ ${kUpdate} == 1 ]]; then
 	cp .wezterm.lua "${HOME}/"
 	cp .zshrc "${HOME}/"
 
-	# source "${HOME}/.zshrc" || zsh
+	source "${HOME}/.zshrc"
 	tmux source "${HOME}/.tmux.conf"
 
 	# NOTE: neovim
@@ -68,17 +69,62 @@ if [[ ${kUpdate} == 1 ]]; then
 	# NOTE: neovim dependencies
 	if [[ ${os} == "centos" ]]; then
 		cd "${HOME}" || exit
-		python3 -m venv .venv
-		source .venv/bin/activate
-		pip --disable-pip-version-check list --outdated --format=json | python -c "import json, sys; print('\n'.join([x['name'] for x in json.load(sys.stdin)]))" | xargs -n1 pip install -U
+
+		nvm install lts --reinstall-packages-from=current
+
+		python3 -m pip install --upgrade pip setuptools wheel
+		python3 -m pip install clang-tidy -U
+		python3 -m pip install cpplint -U
+		python3 -m pip install black -U
+
+		cd "${HOME}/bin/repos/cppcheck" || exit
+		git fetch
+		if [[ "$(git rev-parse HEAD)" != "$(git rev-parse @{u})" ]]; then
+			git pull
+			mkdir -p build
+			cd "build" || exit
+			cmake ..
+			cmake --build .
+			cd "${HOME}/bin/" || exit
+			rm cppcheck
+			ln -s "${HOME}/bin/repos/cppcheck/build/bin/cppcheck" ~/bin/cppcheck
+		fi
+
+		cd "${HOME}/bin/repos/ripgrep" || exit
+		git fetch
+		if [[ "$(git rev-parse HEAD)" != "$(git rev-parse @{u})" ]]; then
+			git pull
+			cargo build --release
+			./target/release/rg --version
+			cd "${HOME}/bin/" || exit
+			rm rg
+			ln -s "${HOME}/bin/repos/ripgrep/target/release/rg" ~/bin/rg
+		fi
+
 	elif [[ ${os} == "ubuntu" ]]; then
 		echo "here"
 		sudo apt update && sudo apt upgrade -y
 	fi
 fi
 
-# NOTE: install
+# PERF: Install
 if [[ ${kInstall} == 1 ]]; then
+	# NOTE: shell stuffs
+	cd "${HOME}" || exit
+	cp -r .config "${HOME}/"
+	cp .tmux.conf "${HOME}/"
+	cp .vimrc "${HOME}/"
+	cp .wezterm.lua "${HOME}/"
+	cp .zshrc "${HOME}/"
+
+	sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
+	git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+	git clone https://github.com/lukechilds/zsh-nvm ~/.oh-my-zsh/custom/plugins/zsh-nvm
+	git clone https://github.com/moarram/headline.git "$ZSH_CUSTOM/themes/headline"
+	nvm install --lts
+
+	source "${HOME}/.zshrc"
+	tmux source "${HOME}/.tmux.conf"
 
 	# NOTE: check if neovim is installed
 	if ! [ -x "$(command -v nvim)" ]; then
@@ -108,6 +154,7 @@ if [[ ${kInstall} == 1 ]]; then
 	# NOTE: install the dependencies for neovim
 	if [[ ${os} == "centos" ]]; then
 		cd "${HOME}" || exit
+		# NOTE: python env
 		python3 -m venv .venv
 		source .venv/bin/activate
 
@@ -118,8 +165,11 @@ if [[ ${kInstall} == 1 ]]; then
 		python3 -m pip install cpplint
 		python3 -m pip install black
 
-		mkdir -p "${HOME}/bin/repo"
-		cd "${HOME}/bin/repo" || exit
+		# NOTE: build from source
+		mkdir -p "${HOME}/bin/repos"
+
+		# NOTE: cppcheck
+		cd "${HOME}/bin/repos" || exit
 		git clone git@github.com:danmar/cppcheck.git
 		cd "cppcheck" || exit
 		mkdir build
@@ -127,11 +177,19 @@ if [[ ${kInstall} == 1 ]]; then
 		cmake ..
 		cmake --build .
 		cd "${HOME}/bin/" || exit
-		ln -s "$PWD/cppcheck" ~/bin/cppcheck
+		ln -s "${HOME}/bin/repos/cppcheck/build/bin/cppcheck" ~/bin/cppcheck
 
-		curl -sS https://webi.sh/shfmt | sh
+		# NOTE: ripgrep
+		cd "${HOME}/bin/repos" || exit
+		git clone https://github.com/BurntSushi/ripgrep
+		cd ripgrep || exit
+		cargo build --release
+		./target/release/rg --version
+		cd "${HOME}/bin/" || exit
+		ln -s "${HOME}/bin/repos/ripgrep/target/release/rg" ~/bin/rg
+
 	elif [[ ${os} == "ubuntu" ]]; then
-		sudo apt install clang-tidy cpplint black cppcheck shfmt shellcheck
+		sudo apt install clang-tidy cpplint black cppcheck ripgrep
 	fi
 fi
 
