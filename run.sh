@@ -117,9 +117,11 @@ if [[ ${kInstall} == 1 ]]; then
 	cp .wezterm.lua "${HOME}/"
 	cp .zshrc "${HOME}/"
 
+	# NOTE: zsh plugins
 	sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
 	git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 	git clone https://github.com/lukechilds/zsh-nvm ~/.oh-my-zsh/custom/plugins/zsh-nvm
+	git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 	git clone https://github.com/moarram/headline.git "$ZSH_CUSTOM/themes/headline"
 	nvm install --lts
 
@@ -189,7 +191,7 @@ if [[ ${kInstall} == 1 ]]; then
 		ln -s "${HOME}/bin/repos/ripgrep/target/release/rg" ~/bin/rg
 
 	elif [[ ${os} == "ubuntu" ]]; then
-		sudo apt install clang-tidy cpplint black cppcheck ripgrep
+		sudo apt install clang-tidy cpplint black cppcheck ripgrep node
 	fi
 fi
 
