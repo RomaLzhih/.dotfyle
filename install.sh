@@ -1,50 +1,90 @@
 #!/bin/bash
 #POSIX
 
-while getopts u:s:i:p: flag; do
+CheckDiffStatus() {
+	cur_path=${PWD}
+	check_path=$1
+	cd "${check_path}" || exit
+	git diff --quiet
+	changes=$?
+	if [[ ${changes} == "1" ]]; then
+		echo "Changes detected in ${check_path}, please commit first."
+		exit 1
+	fi
+	cd "${cur_path}" || exit
+}
+
+GetDistribution() {
+	lsb_dist=""
+	if [ -r /etc/os-release ]; then
+		lsb_dist="$(. /etc/os-release && echo "$ID")"
+	fi
+	echo "OS Release: ${lsb_dist}"
+	return "${lsb_dist}"
+}
+
+GetDistribution
+os=$?
+kUpdate=1
+kInstall=0
+kForceUpdate=0
+while getopts u:i:p:f: flag; do
 	case "${flag}" in
-	u) update=${OPTARG} ;;
-	s) server=${OPTARG} ;;
-	i) install=${OPTARG} ;;
-	p) python_update=${OPTARG}:: ;;
+	u) "${kUpdate}=1" ;;
+	i) "${kInstall}=1" ;;
+	f) "${kForceUpdate}=1" ;;
+	*) echo "Running default settings: only update, without discard changes in git" ;;
 	esac
 done
 
-# TODO: rewrite it as a function
-git diff --quiet
-changes=$?
-if [[ ${changes} == "1" ]]; then
-	echo "Changes detected, please commit first."
-	exit 1
+if [[ ${kForceUpdate} == 0 ]]; then
+	CheckDiffStatus "${PWD}"
+else
+	git reset --hard
 fi
 
-if [[ ${update} == "1" ]]; then
-	cp -r .config ${HOME}/
-	cp .tmux.conf ${HOME}/
-	cp .vimrc ${HOME}/
-	cp .wezterm.lua ${HOME}/
-	cp .zshrc ${HOME}/
-	# TODO: check whether are changes
-	cd .config/nvim && git reset --hard && git pull
+# NOTE: update
+if [[ ${kUpdate} == 1 ]]; then
+	# NOTE: COPY file
+	cp -r .config "${HOME}/"
+	cp .tmux.conf "${HOME}/"
+	cp .vimrc "${HOME}/"
+	cp .wezterm.lua "${HOME}/"
+	cp .zshrc "${HOME}/"
 
-	if [[ ${python_update} == "1" ]]; then
-		cd ${HOME}
+	source "${HOME}/.zshrc"
+	tmux source "${HOME}/.tmux.conf"
+
+	# NOTE: neovim
+	if [[ ${kForceUpdate} == 0 ]]; then
+		CheckDiffStatus "${HOME}/.config/nvim"
+	else
+		cd "${HOME}/.config/nvim" || exit
+		git reset --hard && git pull
+	fi
+
+	# NOTE: neovim dependencies
+	if [[ ${os} == "centos" ]]; then
+		cd "${HOME}" || exit
 		python3 -m venv .venv
 		source .venv/bin/activate
 		pip --disable-pip-version-check list --outdated --format=json | python -c "import json, sys; print('\n'.join([x['name'] for x in json.load(sys.stdin)]))" | xargs -n1 pip install -U
+	elif [[ ${os} == "ubuntu" ]]; then
+		sudo apt update && sudo apt upgrade -y
 	fi
-
-	source ${HOME}/.zshrc
-	tmux source ${HOME}/.tmux.conf
 fi
 
-if [[ ${install} == "1" ]]; then
+# NOTE: install
+if [[ ${kInstall} == 1 ]]; then
 
+	# NOTE: check if neovim is installed
 	if ! [ -x "$(command -v nvim)" ]; then
-		mkdir -p ${HOME}/bin/repo
-		cd ${HOME}/bin/repo
+		cur_path=${PWD}
+
+		mkdir -p "${HOME}/bin/repo"
+		cd "${HOME}/bin/repo" || exit
 		git clone https://github.com/neovim/neovim
-		cd neovim
+		cd "neovim" || exit
 		make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
 		make install
 		export PATH="$HOME/neovim/bin:$PATH"
@@ -53,33 +93,43 @@ if [[ ${install} == "1" ]]; then
 			echo "neovim is not installed"
 			exit 1
 		fi
+
+		cd "${cur_path}" || exit
 	fi
 
+	# NOTE: install the neovim config
 	rm -rf ~/.config/nvim
 	rm -rf ~/.local/share/nvim
 	git clone git@github.com:RomaLzhih/NvChad_x.git ~/.config/nvim --depth 1
 
-	cd ${HOME}
-	python3 -m venv .venv
-	source .venv/bin/activate
+	# NOTE: install the dependencies for neovim
+	if [[ ${os} == "centos" ]]; then
+		cd "${HOME}" || exit
+		python3 -m venv .venv
+		source .venv/bin/activate
 
-	python3 -m pip --version
-	python3 -m pip install --upgrade pip setuptools wheel
+		python3 -m pip --version
+		python3 -m pip install --upgrade pip setuptools wheel
 
-	python3 -m pip install clang-tidy
-	python3 -m pip install cpplint
-	python3 -m pip install black
+		python3 -m pip install clang-tidy
+		python3 -m pip install cpplint
+		python3 -m pip install black
 
-	mkdir -p ${HOME}/bin/repo
-	cd ~/bin/repo
-	git clone git@github.com:danmar/cppcheck.git
-	cd cppcheck
-	mkdir build
-	cd build
-	cmake ..
-	cmake --build .
-	cd ${HOME}/bin/
-	ln -s "$PWD/cppcheck" ~/bin/cppcheck
+		mkdir -p "${HOME}/bin/repo"
+		cd "${HOME}/bin/repo" || exit
+		git clone git@github.com:danmar/cppcheck.git
+		cd "cppcheck" || exit
+		mkdir build
+		cd "build" || exit
+		cmake ..
+		cmake --build .
+		cd "${HOME}/bin/" || exit
+		ln -s "$PWD/cppcheck" ~/bin/cppcheck
 
-	curl -sS https://webi.sh/shfmt | sh
+		curl -sS https://webi.sh/shfmt | sh
+	elif [[ ${os} == "ubuntu" ]]; then
+		sudo apt install clang-tidy cpplint black cppcheck shfmt shellcheck
+	fi
 fi
+
+echo "Done! Have a good day!"
