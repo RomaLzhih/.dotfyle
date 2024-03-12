@@ -1,44 +1,46 @@
 #!/bin/bash
 #POSIX
+# set -o xtrace
 
 CheckDiffStatus() {
 	cur_path=${PWD}
 	check_path=$1
+	debug_mode=$2
 	cd "${check_path}" || exit
 	git diff --quiet
 	changes=$?
 	if [[ ${changes} == "1" ]]; then
 		echo "Changes detected in ${check_path}, please commit first."
-		exit 1
+		if [[ ${debug_mode} == 1 ]]; then
+			exit 1
+		fi
 	fi
 	cd "${cur_path}" || exit
 }
 
-GetDistribution() {
-	lsb_dist=""
-	if [ -r /etc/os-release ]; then
-		lsb_dist="$(. /etc/os-release && echo "$ID")"
-	fi
-	echo "OS Release: ${lsb_dist}"
-	return "${lsb_dist}"
-}
+# NOTE: get os name
+os=""
+if [ -r /etc/os-release ]; then
+	os="$(. /etc/os-release && echo "$ID")"
+fi
+echo "OS Release: ${os}"
 
-GetDistribution
-os=$?
 kUpdate=1
 kInstall=0
 kForceUpdate=0
-while getopts u:i:p:f: flag; do
+debug=0
+while getopts u:i:p:f:d: flag; do
 	case "${flag}" in
 	u) "${kUpdate}=1" ;;
 	i) "${kInstall}=1" ;;
 	f) "${kForceUpdate}=1" ;;
+	d) "${debug}=1" ;;
 	*) echo "Running default settings: only update, without discard changes in git" ;;
 	esac
 done
 
 if [[ ${kForceUpdate} == 0 ]]; then
-	CheckDiffStatus "${PWD}"
+	CheckDiffStatus "${PWD}" "${debug}"
 else
 	git reset --hard
 fi
@@ -52,12 +54,12 @@ if [[ ${kUpdate} == 1 ]]; then
 	cp .wezterm.lua "${HOME}/"
 	cp .zshrc "${HOME}/"
 
-	source "${HOME}/.zshrc"
+	# source "${HOME}/.zshrc" || zsh
 	tmux source "${HOME}/.tmux.conf"
 
 	# NOTE: neovim
 	if [[ ${kForceUpdate} == 0 ]]; then
-		CheckDiffStatus "${HOME}/.config/nvim"
+		CheckDiffStatus "${HOME}/.config/nvim" "${debug}"
 	else
 		cd "${HOME}/.config/nvim" || exit
 		git reset --hard && git pull
@@ -70,6 +72,7 @@ if [[ ${kUpdate} == 1 ]]; then
 		source .venv/bin/activate
 		pip --disable-pip-version-check list --outdated --format=json | python -c "import json, sys; print('\n'.join([x['name'] for x in json.load(sys.stdin)]))" | xargs -n1 pip install -U
 	elif [[ ${os} == "ubuntu" ]]; then
+		echo "here"
 		sudo apt update && sudo apt upgrade -y
 	fi
 fi
@@ -132,4 +135,4 @@ if [[ ${kInstall} == 1 ]]; then
 	fi
 fi
 
-echo "Done! Have a good day!"
+echo ">>>>>> Done! Have a good day!"
