@@ -67,7 +67,7 @@ if [[ ${kUpdate} == 1 ]]; then
 		#NOTE: once recompiled, needs to rebuilds the neovim config
 		rm -rf ~/.config/nvim
 		rm -rf ~/.local/share/nvim
-		git clone git@github.com:RomaLzhih/NvChad_x.git ~/.config/nvim --depth 1
+		git clone git@github.com:RomaLzhih/neovim_config.git ~/.config/nvim
 	fi
 
 	# NOTE: neovim configuration
@@ -166,7 +166,7 @@ if [[ ${kInstall} == 1 ]]; then
 	# NOTE: install the neovim config
 	rm -rf ~/.config/nvim
 	rm -rf ~/.local/share/nvim
-	git clone git@github.com:RomaLzhih/NvChad_x.git ~/.config/nvim --depth 1
+	git clone git@github.com:RomaLzhih/neovim_config.git ~/.config/nvim
 
 	# NOTE: install the dependencies for neovim
 	if [[ ${os} == "centos" ]]; then
