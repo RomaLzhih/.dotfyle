@@ -26,16 +26,16 @@ if [ -r /etc/os-release ]; then
 fi
 echo "OS Release: ${os}"
 
-kUpdate=1
+kUpdate=0
 kInstall=0
 kForceUpdate=0
 debug=0
 while getopts u:i:p:f:d: flag; do
 	case "${flag}" in
-	u) "${kUpdate}=1" ;;
-	i) "${kInstall}=1" ;;
-	f) "${kForceUpdate}=1" ;;
-	d) "${debug}=1" ;;
+	u) kUpdate=${OPTARG} ;;
+	i) kInstall=${OPTARG} ;;
+	f) kForceUpdate=${OPTARG} ;;
+	d) debug=${OPTARG} ;;
 	*) echo "Running default settings: only update, without discard changes in git" ;;
 	esac
 done
@@ -60,7 +60,7 @@ if [[ ${kUpdate} == 1 ]]; then
 	git fetch
 	if [[ "$(git rev-parse HEAD)" != "$(git rev-parse @{u})" ]]; then
 		git pull
-		make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
+		make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
 		make install
 		export PATH="$HOME/neovim/bin:$PATH"
 
@@ -151,7 +151,7 @@ if [[ ${kInstall} == 1 ]]; then
 		cd "${HOME}/bin/repos" || exit
 		git clone https://github.com/neovim/neovim
 		cd "neovim" || exit
-		make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
+		make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
 		make install
 		export PATH="$HOME/neovim/bin:$PATH"
 
