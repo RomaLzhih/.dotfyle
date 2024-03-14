@@ -115,7 +115,6 @@ if [[ ${kUpdate} == 1 ]]; then
 		fi
 
 	elif [[ ${os} == "ubuntu" ]]; then
-		echo "here"
 		sudo apt update && sudo apt upgrade -y
 	fi
 
@@ -147,6 +146,10 @@ if [[ ${kInstall} == 1 ]]; then
 	# NOTE: check if neovim is installed
 	if ! [ -x "$(command -v nvim)" ]; then
 		cur_path=${PWD}
+
+		if [[ ${os} == "ubuntu"]]; then
+		sudo apt-get install ninja-build gettext cmake unzip curl build-essential
+		fi
 
 		mkdir -p "${HOME}/bin/repos"
 		cd "${HOME}/bin/repos" || exit

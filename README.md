@@ -1,12 +1,12 @@
 # dotfyle
 To update, try:
 ```{zsh}
-zsh run.sh -u
+zsh run.sh -u 1
 ```
 
 To install to a new machine, try:
 ```{zsh}
-zsh run.sh -i
+zsh run.sh -i 1
 ```
 Configuration to be sync:
 - .vimrc
