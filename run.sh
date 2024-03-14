@@ -60,7 +60,8 @@ if [[ ${kUpdate} == 1 ]]; then
 	git fetch
 	if [[ "$(git rev-parse HEAD)" != "$(git rev-parse @{u})" ]]; then
 		git pull
-		make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
+		git checkout stable
+		make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
 		make install
 		export PATH="$HOME/neovim/bin:$PATH"
 
@@ -151,7 +152,8 @@ if [[ ${kInstall} == 1 ]]; then
 		cd "${HOME}/bin/repos" || exit
 		git clone https://github.com/neovim/neovim
 		cd "neovim" || exit
-		make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
+		git checkout stable
+		make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
 		make install
 		export PATH="$HOME/neovim/bin:$PATH"
 
