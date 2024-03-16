@@ -60,7 +60,6 @@ if [[ ${kUpdate} == 1 ]]; then
 	git fetch
 	if [[ "$(git rev-parse HEAD)" != "$(git rev-parse @{u})" ]]; then
 		git pull
-		git checkout stable
 		make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
 		make install
 		export PATH="$HOME/neovim/bin:$PATH"
@@ -147,15 +146,14 @@ if [[ ${kInstall} == 1 ]]; then
 	if ! [ -x "$(command -v nvim)" ]; then
 		cur_path=${PWD}
 
-		if [[ ${os} == "ubuntu"]]; then
-		sudo apt-get install ninja-build gettext cmake unzip curl build-essential
+		if [[ ${os} == "ubuntu" ]]; then
+			sudo apt-get install ninja-build gettext cmake unzip curl build-essential
 		fi
 
 		mkdir -p "${HOME}/bin/repos"
 		cd "${HOME}/bin/repos" || exit
 		git clone https://github.com/neovim/neovim
 		cd "neovim" || exit
-		git checkout stable
 		make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
 		make install
 		export PATH="$HOME/neovim/bin:$PATH"
