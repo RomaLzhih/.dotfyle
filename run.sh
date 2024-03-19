@@ -59,6 +59,7 @@ if [[ ${kUpdate} == 1 ]]; then
 	cd "${HOME}/bin/repos/neovim" || exit
 	git fetch
 	if [[ "$(git rev-parse HEAD)" != "$(git rev-parse @{u})" ]]; then
+		git checkout master
 		git pull
 		make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
 		make install
