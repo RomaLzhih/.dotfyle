@@ -8,9 +8,15 @@ zsh-autosuggestions
 git
 zsh-nvm
 zsh-syntax-highlighting
+zsh-vi-mode
 )
 
 source $ZSH/oh-my-zsh.sh
+
+# Always starting with insert mode for each command line
+ZVM_LINE_INIT_MODE=$ZVM_MODE_INSERT
+ZVM_INSERT_MODE_CURSOR=$ZVM_CURSOR_BLINKING_BLOCK
+ZVM_NORMAL_MODE_CURSOR=$ZVM_CURSOR_BLOCK
 
 if [ -d "$HOME/bin" ]; then
 PATH="$HOME/bin:$PATH"
