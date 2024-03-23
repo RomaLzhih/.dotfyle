@@ -97,6 +97,7 @@ if [[ ${kUpdate} == 1 ]]; then
 		git fetch
 		if [[ "$(git rev-parse HEAD)" != "$(git rev-parse @{u})" ]]; then
 			git pull
+   			rm -rf build
 			mkdir -p build
 			cd "build" || exit
 			cmake ..
