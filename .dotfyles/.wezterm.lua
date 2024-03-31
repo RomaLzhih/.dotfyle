@@ -12,9 +12,10 @@ end
 
 -- This is where you actually apply your config choices
 
+config.color_scheme = "Kanagawa (Gogh)"
 -- config.color_scheme = "Gruvbox Dark (Gogh)"
 -- config.color_scheme = "Rosé Pine (base16)"
-config.color_scheme = "Pomimandres"
+-- config.color_scheme = "nord"
 
 config.font = wezterm.font({
 	-- family = "Carto Lisa",
@@ -23,6 +24,7 @@ config.font = wezterm.font({
 	harfbuzz_features = {
 		"liga",
 		"ss02",
+		"ss03", -- alter g
 		-- "ss04", -- alter g
 		"ss07",
 		"ss11",
@@ -30,12 +32,14 @@ config.font = wezterm.font({
 		"ss14",
 	},
 })
+local italic_font = "CartographCF Nerd Font"
+-- local italic_font = "Maple Mono NF"
 config.font_rules = {
 	{
 		intensity = "Bold",
 		italic = true,
 		font = wezterm.font({
-			family = "VictorMono Nerd Font",
+			family = italic_font,
 			weight = "Bold",
 			style = "Italic",
 		}),
@@ -44,7 +48,7 @@ config.font_rules = {
 		italic = true,
 		intensity = "Half",
 		font = wezterm.font({
-			family = "VictorMono Nerd Font",
+			family = italic_font,
 			weight = "DemiBold",
 			style = "Italic",
 		}),
@@ -53,8 +57,8 @@ config.font_rules = {
 		italic = true,
 		intensity = "Normal",
 		font = wezterm.font({
-			family = "VictorMono Nerd Font",
-			weight = "DemiBold",
+			family = italic_font,
+			weight = "Regular",
 			style = "Italic",
 		}),
 	},
@@ -63,6 +67,9 @@ config.font_size = 11
 
 config.animation_fps = 60
 config.default_cursor_style = "BlinkingBlock"
+config.default_prog = { "powershell" }
+config.default_cwd = "D:\\papers\\kdtree-paper"
+-- config.default_cwd = "C:\\Users\\res0luti0n\\Dropbox\\"
 config.max_fps = 120
 config.window_padding = {
 	left = 1.5,
