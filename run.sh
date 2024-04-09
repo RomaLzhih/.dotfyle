@@ -92,12 +92,14 @@ if [[ ${kUpdate} == 1 ]]; then
 		python3 -m pip install clang-tidy -U
 		python3 -m pip install cpplint -U
 		python3 -m pip install black -U
+		python3 -m pip install pandas-stubs -U
+		python3 -m pip install pynvim -U
 
 		cd "${HOME}/bin/repos/cppcheck" || exit
 		git fetch
 		if [[ "$(git rev-parse HEAD)" != "$(git rev-parse @{u})" ]]; then
 			git pull
-   			rm -rf build
+			rm -rf build
 			mkdir -p build
 			cd "build" || exit
 			cmake ..
@@ -158,7 +160,8 @@ if [[ ${kInstall} == 1 ]]; then
 
 		mkdir -p "${HOME}/bin/repos"
 		cd "${HOME}/bin/repos" || exit
-		git clone https://github.com/neovim/neovim
+		rm -rf neovim
+		git clone https://github.com/neovim/neovim || exit
 		cd "neovim" || exit
 		if [[ ${os} == "centos" ]]; then
 			git checkout stable
@@ -193,6 +196,8 @@ if [[ ${kInstall} == 1 ]]; then
 		python3 -m pip install clang-tidy
 		python3 -m pip install cpplint
 		python3 -m pip install black
+		python3 -m pip install pandas-stubs
+		python3 -m pip install pynvim
 
 		# NOTE: build from source
 		mkdir -p "${HOME}/bin/repos"
