@@ -122,6 +122,8 @@ if [[ ${kUpdate} == 1 ]]; then
 
 	elif [[ ${os} == "ubuntu" ]]; then
 		sudo apt update && sudo apt upgrade -y
+	elif [[ ${os} == "arch" ]]; then
+		pacman -Syu
 	fi
 
 	source "${HOME}/.zshrc"
@@ -156,6 +158,8 @@ if [[ ${kInstall} == 1 ]]; then
 
 		if [[ ${os} == "ubuntu" ]]; then
 			sudo apt-get install ninja-build gettext cmake unzip curl build-essential
+		elif [[ ${os} == "arch" ]]; then
+			pacman -S ninja-build gettext cmake unzip curl build-essential
 		fi
 
 		mkdir -p "${HOME}/bin/repos"
@@ -224,6 +228,8 @@ if [[ ${kInstall} == 1 ]]; then
 
 	elif [[ ${os} == "ubuntu" ]]; then
 		sudo apt install clang-tidy cpplint black cppcheck ripgrep nodejs
+	elif [[ ${os} == "arch" ]]; then
+		pacman -S clang-tidy cpplint black cppcheck ripgrep nodejs
 	fi
 fi
 
