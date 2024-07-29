@@ -29,13 +29,15 @@ echo "OS Release: ${os}"
 kUpdate=0
 kInstall=0
 kForceUpdate=0
+kUpdateNeovim=0
 debug=0
-while getopts u:i:p:f:d: flag; do
+while getopts u:i:p:f:d:n: flag; do
 	case "${flag}" in
 	u) kUpdate=${OPTARG} ;;
 	i) kInstall=${OPTARG} ;;
 	f) kForceUpdate=${OPTARG} ;;
 	d) debug=${OPTARG} ;;
+	n) kUpdateNeovim=${OPTARG} ;;
 	*) echo "Running default settings: only update, without discard changes in git" ;;
 	esac
 done
@@ -56,22 +58,24 @@ if [[ ${kUpdate} == 1 ]]; then
 	cp .dotfyles/.zshrc "${HOME}/"
 
 	# NOTE: neovim
-	cd "${HOME}/bin/repos/neovim" || exit
-	git fetch
-	if [[ "$(git rev-parse HEAD)" != "$(git rev-parse @{u})" ]]; then
-		git checkout master
-		git pull
-		if [[ ${os} == "centos" ]]; then
-			git checkout stable
-		fi
-		make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
-		make install
-		export PATH="$HOME/neovim/bin:$PATH"
+	if [[ ${kUpdateNeovim} == 1 ]]; then
+		cd "${HOME}/bin/repos/neovim" || exit
+		git fetch
+		if [[ "$(git rev-parse HEAD)" != "$(git rev-parse @{u})" ]]; then
+			git checkout master
+			git pull
+			if [[ ${os} == "centos" ]]; then
+				git checkout stable
+			fi
+			make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
+			make install
+			export PATH="$HOME/neovim/bin:$PATH"
 
-		#NOTE: once recompiled, needs to rebuilds the neovim config
-		rm -rf ~/.config/nvim
-		rm -rf ~/.local/share/nvim
-		git clone git@github.com:RomaLzhih/neovim_config.git ~/.config/nvim
+			#NOTE: once recompiled, needs to rebuilds the neovim config
+			rm -rf ~/.config/nvim
+			rm -rf ~/.local/share/nvim
+			git clone git@github.com:RomaLzhih/neovim_config.git ~/.config/nvim
+		fi
 	fi
 
 	# NOTE: neovim configuration
@@ -83,7 +87,7 @@ if [[ ${kUpdate} == 1 ]]; then
 	fi
 
 	# NOTE: neovim dependencies
-	if [[ ${os} == "centos" ]]; then
+	if [[ ${os} == "rocky" ]]; then
 		cd "${HOME}" || exit
 
 		nvm install lts --reinstall-packages-from=current
