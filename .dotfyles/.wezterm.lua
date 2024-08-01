@@ -12,9 +12,9 @@ end
 
 -- This is where you actually apply your config choices
 
-config.color_scheme = "Kanagawa (Gogh)"
+-- config.color_scheme = "Kanagawa (Gogh)"
 -- config.color_scheme = "Gruvbox Dark (Gogh)"
--- config.color_scheme = "Rosé Pine (base16)"
+config.color_scheme = "Rosé Pine (base16)"
 -- config.color_scheme = "nord"
 
 config.font = wezterm.font({
@@ -32,8 +32,8 @@ config.font = wezterm.font({
 		"ss14",
 	},
 })
-local italic_font = "CartographCF Nerd Font"
--- local italic_font = "Maple Mono NF"
+-- local italic_font = "CartographCF Nerd Font"
+local italic_font = "Maple Mono NF"
 config.font_rules = {
 	{
 		intensity = "Bold",
@@ -63,12 +63,12 @@ config.font_rules = {
 		}),
 	},
 }
-config.font_size = 11
+config.font_size = 12
 
 config.animation_fps = 60
 config.default_cursor_style = "BlinkingBlock"
-config.default_prog = { "powershell" }
-config.default_cwd = "D:\\papers\\kdtree-paper"
+-- config.default_prog = { "powershell" }
+-- config.default_cwd = "D:\\papers\\kdtree-paper"
 -- config.default_cwd = "C:\\Users\\res0luti0n\\Dropbox\\"
 config.max_fps = 120
 config.window_padding = {
