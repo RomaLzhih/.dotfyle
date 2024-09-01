@@ -52,10 +52,10 @@ fi
 if [[ ${kUpdate} == 1 ]]; then
 	# NOTE: COPY file
 	cp -r .config "${HOME}/"
-	cp .dotfyles/.tmux.conf "${HOME}/"
-	cp .dotfyles/.vimrc "${HOME}/"
-	cp .dotfyles/.wezterm.lua "${HOME}/"
-	cp .dotfyles/.zshrc "${HOME}/"
+	cp dotfyles/.tmux.conf "${HOME}/"
+	cp dotfyles/.vimrc "${HOME}/"
+	cp dotfyles/.wezterm.lua "${HOME}/"
+	cp dotfyles/.zshrc "${HOME}/"
 
 	# NOTE: neovim
 	if [[ ${kUpdateNeovim} == 1 ]]; then
@@ -90,6 +90,8 @@ if [[ ${kUpdate} == 1 ]]; then
 	if [[ ${os} == "rocky" ]]; then
 		cd "${HOME}" || exit
 
+		export NVM_DIR=$HOME/.nvm
+		source $NVM_DIR/nvm.sh
 		nvm install lts --reinstall-packages-from=current
 
 		python3 -m pip install --upgrade pip setuptools wheel
@@ -130,6 +132,14 @@ if [[ ${kUpdate} == 1 ]]; then
 		pacman -Syu
 	fi
 
+	# NOTE: cargo related stuffs
+	if cargo install --list | grep -q 'cargo-update'; then
+		cargo install-update -a
+	else
+		cargo install cargo-update
+		cargo install-update -a
+	fi
+
 	source "${HOME}/.zshrc"
 	tmux source "${HOME}/.tmux.conf"
 fi
@@ -139,19 +149,29 @@ if [[ ${kInstall} == 1 ]]; then
 	# NOTE: shell stuffs
 	cd "${HOME}" || exit
 	cp -r .config "${HOME}/"
-	cp .dotfyles/.tmux.conf "${HOME}/"
-	cp .dotfyles/.vimrc "${HOME}/"
-	cp .dotfyles/.wezterm.lua "${HOME}/"
-	cp .dotfyles/.zshrc "${HOME}/"
+	cp dotfyles/.tmux.conf "${HOME}/"
+	cp dotfyles/.vimrc "${HOME}/"
+	cp dotfyles/.wezterm.lua "${HOME}/"
+	cp dotfyles/.zshrc "${HOME}/"
 
 	# NOTE: zsh plugins
 	sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
-	git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-	git clone https://github.com/lukechilds/zsh-nvm ~/.oh-my-zsh/custom/plugins/zsh-nvm
-	git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+	git clone https://github.com/zsh-users/zsh-autosuggestions "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
+	git clone https://github.com/lukechilds/zsh-nvm "${HOME}/.oh-my-zsh/custom/plugins/zsh-nvm"
+	git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
 	git clone https://github.com/moarram/headline.git "$ZSH_CUSTOM/themes/headline"
 	git clone https://github.com/jeffreytse/zsh-vi-mode "$ZSH_CUSTOM/plugins/zsh-vi-mode"
+	export NVM_DIR=$HOME/.nvm
+	source "$NVM_DIR/nvm.sh"
 	nvm install --lts
+
+	# NOTE: cargo
+	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+	rustup update
+	cargo install --locked yazi-fm yazi-cli
+
+	# NOTE: zoxide
+	curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
 
 	source "${HOME}/.zshrc"
 	tmux source "${HOME}/.tmux.conf"

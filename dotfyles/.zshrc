@@ -38,3 +38,4 @@ function ya() {
     rm -f -- "$tmp"
 }
 
+eval "$(zoxide init zsh)"
