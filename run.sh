@@ -50,14 +50,13 @@ fi
 
 # PERF: Update
 if [[ ${kUpdate} == 1 ]]; then
+
 	# NOTE: COPY file
-	shopt -s dotglob
-	cp -r .config "${HOME}/"
+	rsync -a --include='.*' .config "${HOME}/"
 	cp dotfyles/.tmux.conf "${HOME}/"
 	cp dotfyles/.vimrc "${HOME}/"
-	cp dotfyles/.wezterm.lua "${HOME}/"
 	cp dotfyles/.zshrc "${HOME}/"
-	shopt -u dotglob
+
 	# NOTE: neovim
 	if [[ ${kUpdateNeovim} == 1 ]]; then
 		cd "${HOME}/bin/repos/neovim" || exit
@@ -130,7 +129,7 @@ if [[ ${kUpdate} == 1 ]]; then
 	elif [[ ${os} == "ubuntu" ]]; then
 		sudo apt update && sudo apt upgrade -y
 	elif [[ ${os} == "arch" ]]; then
-		pacman -Syu
+		sudo pacman -Syu
 	fi
 
 	# NOTE: cargo related stuffs
@@ -149,12 +148,11 @@ fi
 if [[ ${kInstall} == 1 ]]; then
 	# NOTE: shell stuffs
 	cd "${HOME}" || exit
-	shopt -s dotglob
-	cp -r .config "${HOME}/"
+
+	rsync -a --include='.*' .config "${HOME}/"
 	cp dotfyles/.tmux.conf "${HOME}/"
 	cp dotfyles/.vimrc "${HOME}/"
 	cp dotfyles/.zshrc "${HOME}/"
-	shopt -u dotglob
 
 	# NOTE: zsh plugins
 	sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
@@ -255,7 +253,7 @@ if [[ ${kInstall} == 1 ]]; then
 	elif [[ ${os} == "ubuntu" ]]; then
 		sudo apt install clang-tidy cpplint black cppcheck ripgrep nodejs
 	elif [[ ${os} == "arch" ]]; then
-		pacman -S clang-tidy cpplint black cppcheck ripgrep nodejs
+		sudo pacman -S clang-tidy cpplint black cppcheck ripgrep nodejs
 	fi
 fi
 
