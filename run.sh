@@ -51,12 +51,13 @@ fi
 # PERF: Update
 if [[ ${kUpdate} == 1 ]]; then
 	# NOTE: COPY file
+	shopt -s dotglob
 	cp -r .config "${HOME}/"
 	cp dotfyles/.tmux.conf "${HOME}/"
 	cp dotfyles/.vimrc "${HOME}/"
 	cp dotfyles/.wezterm.lua "${HOME}/"
 	cp dotfyles/.zshrc "${HOME}/"
-
+	shopt -u dotglob
 	# NOTE: neovim
 	if [[ ${kUpdateNeovim} == 1 ]]; then
 		cd "${HOME}/bin/repos/neovim" || exit
@@ -64,8 +65,8 @@ if [[ ${kUpdate} == 1 ]]; then
 		if [[ "$(git rev-parse HEAD)" != "$(git rev-parse @{u})" ]]; then
 			git checkout master
 			git pull
-			if [[ ${os} == "centos" ]]; then
-				git checkout stable
+			if [[ ${os} == "rocky" ]]; then
+				git checkout release-0.10
 			fi
 			make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
 			make install
@@ -148,11 +149,12 @@ fi
 if [[ ${kInstall} == 1 ]]; then
 	# NOTE: shell stuffs
 	cd "${HOME}" || exit
+	shopt -s dotglob
 	cp -r .config "${HOME}/"
 	cp dotfyles/.tmux.conf "${HOME}/"
 	cp dotfyles/.vimrc "${HOME}/"
-	cp dotfyles/.wezterm.lua "${HOME}/"
 	cp dotfyles/.zshrc "${HOME}/"
+	shopt -u dotglob
 
 	# NOTE: zsh plugins
 	sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
@@ -182,8 +184,10 @@ if [[ ${kInstall} == 1 ]]; then
 
 		if [[ ${os} == "ubuntu" ]]; then
 			sudo apt-get install ninja-build gettext cmake unzip curl build-essential
+			git clone https://github.com/RomaLzhih/wezterm-config.git ~/.config/wezterm
 		elif [[ ${os} == "arch" ]]; then
 			pacman -S ninja-build gettext cmake unzip curl build-essential
+			git clone https://github.com/RomaLzhih/wezterm-config.git ~/.config/wezterm
 		fi
 
 		mkdir -p "${HOME}/bin/repos"
@@ -191,9 +195,7 @@ if [[ ${kInstall} == 1 ]]; then
 		rm -rf neovim
 		git clone https://github.com/neovim/neovim || exit
 		cd "neovim" || exit
-		if [[ ${os} == "centos" ]]; then
-			git checkout stable
-		fi
+		git checkout re]lease-0.10
 		make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
 		make install
 		export PATH="$HOME/neovim/bin:$PATH"
