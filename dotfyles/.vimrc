@@ -69,8 +69,6 @@ set number
 " Show file stats
 set ruler
 
-" Blink cursor on error instead of beeping (grr)
-# set visualbell
 set relativenumber
 
 " Encoding
