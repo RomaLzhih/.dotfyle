@@ -17,8 +17,16 @@ call plug#begin()
 
 " Make sure you use single quotes
 
-
+Plug 'preservim/nerdtree'
+Plug 'morhetz/gruvbox' 
+Plug 'tpope/vim-surround' 
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'junegunn/fzf'
+Plug 'yggdroot/indentline'
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
+Plug 'easymotion/vim-easymotion'
+Plug 'junegunn/fzf.vim'
 
 " Initialize plugin system
 " - Automatically executes `filetype plugin indent on` and `syntax enable`.
@@ -26,18 +34,32 @@ call plug#end()
 " You can revert the settings after the call like so:
 "   filetype indent off   " Disable file-type-specific indentation
 "   syntax off            " Disable syntax highlighting
-
+let g:airline#extensions#tabline#enabled = 1
 " Turn on syntax highlighting
 syntax on
-let g:indent_guides_enable_on_vim_startup = 1
-let g:ale_completion_enabled = 1
-let g:AutoPairsShortcutToggle = 1
-let g:rainbow_activate = 1
 " For plugins to load correctly
 filetype plugin indent on
 
 " TODO: Pick a leader key
-" let mapleader = ","
+let mapleader = " "
+nnoremap <SPACE> <Nop>
+nnoremap <A-e> :NERDTreeToggle<CR>
+" easy motion
+map <Leader> <Plug>(easymotion-prefix)
+" <Leader>f{char} to move to {char}
+map  <Leader>f <Plug>(easymotion-bd-f)
+nmap <Leader>f <Plug>(easymotion-overwin-f)
+" s{char}{char} to move to {char}{char}
+nmap s <Plug>(easymotion-overwin-f2)
+" Move to line
+map <Leader>L <Plug>(easymotion-bd-jk)
+nmap <Leader>L <Plug>(easymotion-overwin-line)
+" Move to word
+map  <Leader>w <Plug>(easymotion-bd-w)
+nmap <Leader>w <Plug>(easymotion-overwin-w)
+inoremap jk <Esc>
+inoremap jj <Esc>
+
 " Security
 set modelines=0
 
@@ -48,18 +70,19 @@ set number
 set ruler
 
 " Blink cursor on error instead of beeping (grr)
-set visualbell
+# set visualbell
+set relativenumber
 
 " Encoding
 set encoding=utf-8
 
 " Whitespace
 set wrap
-set textwidth=999999
+set textwidth=80
 set formatoptions=tcqrn1
-set tabstop=2
-set shiftwidth=2
-set softtabstop=2
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
 set expandtab
 set noshiftround
 
@@ -112,9 +135,7 @@ set listchars=tab:▸\ ,eol:¬
 " Color scheme (terminal)
 set t_Co=256
 set background=dark
-let g:solarized_termcolors=256
-let g:solarized_termtrans=1
 " put https://raw.github.com/altercation/vim-colors-solarized/master/colors/solarized.vim
 " in ~/.vim/colors/ and uncomment:
-colorscheme nord
+colorscheme gruvbox
 
