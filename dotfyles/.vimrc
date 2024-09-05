@@ -37,6 +37,7 @@ Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'raimondi/delimitmate'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'bfrg/vim-cpp-modern'
+Plug 'voldikss/vim-floaterm'
 
 " Initialize plugin system
 " - Automatically executes `filetype plugin indent on` and `syntax enable`.
@@ -44,7 +45,6 @@ call plug#end()
 " You can revert the settings after the call like so:
 "   filetype indent off   " Disable file-type-specific indentation
 "   syntax off            " Disable syntax highlighting
-let g:airline#extensions#tabline#enabled = 1
 " Turn on syntax highlighting
 syntax on
 " For plugins to load correctly
@@ -54,12 +54,14 @@ filetype plugin indent on
 let mapleader = " "
 nnoremap <SPACE> <Nop>
 nnoremap <Esc> :noh<CR>
+
 " Edit operation
 let g:tmux_navigator_no_mappings = 1
 nnoremap <silent> <C-h> :<C-U>TmuxNavigateLeft<cr>
 nnoremap <silent> <C-j> :<C-U>TmuxNavigateDown<cr>
 nnoremap <silent> <C-k> :<C-U>TmuxNavigateUp<cr>
 nnoremap <silent> <C-l> :<C-U>TmuxNavigateRight<cr>
+
 " nnoremap <silent> {Previous-Mapping} :<C-U>TmuxNavigatePrevious<cr>
 map <Home> <C-q>
 map <End> <C-e>
@@ -72,12 +74,15 @@ inoremap jj <Esc>
 nnoremap <Tab> :bnext<CR>
 nnoremap <Leader>x :bd<CR>
 
+" air line
+let g:airline#extensions#tabline#enabled = 1
+
 " git operation
 nnoremap <Leader>git :Git<CR>
 
 " fzf
 nnoremap <Leader>ff :Files .<CR>
-nnoremap <Leader>FF :Files .<CR>
+nnoremap <Leader>re :Files <CR>
 nnoremap <Leader>fw :Rg 
 nnoremap <Leader>th :colorscheme 
 nnoremap <Leader>bf :Buffers<CR>
@@ -94,17 +99,19 @@ let g:cpp_attributes_highlight = 1
 let g:cpp_member_highlight = 1
 let g:cpp_simple_highlight = 1
 
-" clang format
-" autocmd FileType c,cpp ClangFormatAutoEnable
-" let g:clang_format#detect_style_file=1
-" let g:clang_format#auto_format_on_insert_leave=1
-" autocmd FileType c,cpp,objc nnoremap <buffer><C-s> :<C-u>ClangFormat<CR>
+" float term
+let g:floaterm_keymap_new    = '<F1>'
+let g:floaterm_keymap_prev   = '<F2>'
+let g:floaterm_keymap_next   = '<F3>'
+let g:floaterm_keymap_kill   = '<F4>'
+let g:floaterm_keymap_toggle = '<C-\>'
 
 " Nerd tree
 nnoremap <C-s> :NERDTreeToggle<CR>
 
 " easy motion
 let g:EasyMotion_smartcase = 1
+let g:EasyMotion_do_mapping = 0
 map <Leader> <Plug>(easymotion-prefix)
 map  f <Plug>(easymotion-fl)
 map  F <Plug>(easymotion-Fl)
@@ -144,8 +151,8 @@ set noshiftround
 set scrolloff=3
 set backspace=indent,eol,start
 set belloff=all
-set timeoutlen=400
-set ttimeoutlen=400
+set timeoutlen=40
+set ttimeoutlen=40
 set matchpairs+=<:> " use % to jump between pairs
 runtime! macros/matchit.vim
 
@@ -266,6 +273,7 @@ let g:coc_user_config={
             \    'coc.preferences.formatOnSaveFiletypes': ["cpp", "sh", "bash", "python"],
             \    'colors.enable': 'true',
             \    'inlayHint.enable': 'false',
+            \    'outline.autoPreview': 'true',
             \}
 let g:coc_global_extensions = ['coc-clangd', 'coc-git', 'coc-sh', 'coc-pyright', 'coc-copilot', 'coc-cmake', 'coc-diagnostic', 'coc-highlight', 'coc-lightbulb', 'coc-symbol-line']
 
@@ -351,7 +359,7 @@ nnoremap <silent><nowait> <space>coce  :<C-u>CocList extensions<cr>
 " Show commands.
 " nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
 " Find symbol of current document.
-nnoremap <silent><nowait> <space>ol  :<C-u>CocList outline<cr>
+nnoremap <silent><nowait> <M-q>  :<C-u>CocList outline<cr>
 " Search workspace symbols.
 nnoremap <silent><nowait> <space>sym  :<C-u>CocList -I symbols<cr>
 " Do default action for next item.
