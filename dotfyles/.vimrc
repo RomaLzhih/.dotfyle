@@ -22,10 +22,10 @@ Plug 'morhetz/gruvbox'
 Plug 'tpope/vim-surround' 
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
+Plug 'github/copilot.vim'
 Plug 'junegunn/fzf'
 Plug 'tpope/vim-fugitive'
 Plug 'vim-scripts/greplace.vim'
-Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'altercation/vim-colors-solarized'
 Plug 'yggdroot/indentline'
 Plug 'christoomey/vim-tmux-navigator'
@@ -33,10 +33,10 @@ Plug 'tpope/vim-commentary'
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 Plug 'easymotion/vim-easymotion'
 Plug 'junegunn/fzf.vim'
-Plug 'rhysd/vim-clang-format'
+Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'raimondi/delimitmate'
-" :CocInstall coc-clangd coc-sh coc-black-formatter coc-copilot coc-pyright
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'bfrg/vim-cpp-modern'
 
 " Initialize plugin system
 " - Automatically executes `filetype plugin indent on` and `syntax enable`.
@@ -61,8 +61,8 @@ nnoremap <silent> <C-j> :<C-U>TmuxNavigateDown<cr>
 nnoremap <silent> <C-k> :<C-U>TmuxNavigateUp<cr>
 nnoremap <silent> <C-l> :<C-U>TmuxNavigateRight<cr>
 " nnoremap <silent> {Previous-Mapping} :<C-U>TmuxNavigatePrevious<cr>
-nnoremap <Home> <C-q>
-nnoremap <End> <C-e>
+map <Home> <C-q>
+map <End> <C-e>
 inoremap <C-h> <left>
 inoremap <C-j> <down>
 inoremap <C-k> <up>
@@ -89,13 +89,16 @@ let g:cpp_class_decl_highlight = 1
 let g:cpp_posix_standard = 1
 let g:cpp_experimental_simple_template_highlight = 1
 let g:cpp_concepts_highlight = 1
-let g:cpp_no_function_highlight = 1
+let g:cpp_function_highlight = 1
+let g:cpp_attributes_highlight = 1
+let g:cpp_member_highlight = 1
+let g:cpp_simple_highlight = 1
 
 " clang format
-autocmd FileType c,cpp ClangFormatAutoEnable
-let g:clang_format#detect_style_file=1
-let g:clang_format#auto_format_on_insert_leave=1
-autocmd FileType c,cpp,objc nnoremap <buffer><C-s> :<C-u>ClangFormat<CR>
+" autocmd FileType c,cpp ClangFormatAutoEnable
+" let g:clang_format#detect_style_file=1
+" let g:clang_format#auto_format_on_insert_leave=1
+" autocmd FileType c,cpp,objc nnoremap <buffer><C-s> :<C-u>ClangFormat<CR>
 
 " Nerd tree
 nnoremap <C-s> :NERDTreeToggle<CR>
@@ -259,9 +262,12 @@ nmap <silent> gr <Plug>(coc-references)
 " Use K to show documentation in preview window.
 nnoremap <silent> K :call <SID>show_documentation()<CR>
 let g:coc_user_config={
-            \    'suggest.maxCompleteItemCount':10,
-            \    'coc.preferences.formatOnSaveFiletypes': ["cpp", "sh", "bash", "python"]
+            \    'suggest.maxCompleteItemCount': 10,
+            \    'coc.preferences.formatOnSaveFiletypes': ["cpp", "sh", "bash", "python"],
+            \    'colors.enable': 'true',
+            \    'inlayHint.enable': 'false',
             \}
+let g:coc_global_extensions = ['coc-clangd', 'coc-git', 'coc-sh', 'coc-pyright', 'coc-copilot', 'coc-cmake', 'coc-diagnostic', 'coc-highlight', 'coc-lightbulb', 'coc-symbol-line']
 
 function! s:show_documentation()
     if (index(['vim','help'], &filetype) >= 0)
@@ -278,6 +284,7 @@ autocmd CursorHold * silent call CocActionAsync('highlight')
 
 " Symbol renaming.
 nmap <leader>rn <Plug>(coc-rename)
+nmap <leader>inlay :CocCommand document.toggleInlayHint
 
 " Formatting selected code.
 xmap <leader>fm  <Plug>(coc-format)
