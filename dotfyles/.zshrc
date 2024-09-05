@@ -26,8 +26,12 @@ fi
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 export PATH="${HOME}/.local/bin:${PATH}"
+export PATH="${HOME}/.local/share/nvim/mason/bin:${PATH}"
 export PATH="${HOME}/neovim/bin:${PATH}"
+export PATH="${HOME}/vim/bin:${PATH}"
 export PATH="${HOME}/.cargo/bin:${PATH}"
+# export PATH="$PATH:$(go env GOPATH)/bin"
+
 
 function ya() {
     local tmp="$(mktemp -t "yazi-cwd.XXXXX")"

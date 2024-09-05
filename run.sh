@@ -2,6 +2,10 @@
 #POSIX
 # set -o xtrace
 
+version_lt() {
+    [ "$1" = "$2" ] && return 1 || [ "$1" = "$(echo -e "$1\n$2" | sort -V | head -n1)" ]
+}
+
 # NOTE: helper function to git git status
 CheckDiffStatus() {
     cur_path=${PWD}
@@ -60,6 +64,7 @@ if [[ ${kUpdate} == 1 ]]; then
     # NOTE: neovim
     if [[ ${kUpdateNeovim} == 1 ]]; then
         cd "${HOME}/bin/repos/neovim" || exit
+        git checkout master
         git fetch
         if [[ "$(git rev-parse HEAD)" != "$(git rev-parse @{u})" ]]; then
             git checkout master
@@ -156,56 +161,41 @@ if [[ ${kInstall} == 1 ]]; then
     curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
         https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
-    # NOTE: zsh plugins
-    sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
-    git clone https://github.com/zsh-users/zsh-autosuggestions "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
-    git clone https://github.com/lukechilds/zsh-nvm "${HOME}/.oh-my-zsh/custom/plugins/zsh-nvm"
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
-    git clone https://github.com/moarram/headline.git "$ZSH_CUSTOM/themes/headline"
-    git clone https://github.com/jeffreytse/zsh-vi-mode "$ZSH_CUSTOM/plugins/zsh-vi-mode"
+    if [ -d "$HOME/.oh-my-zsh" ]; then
+        echo "OMZ installed"
+    else
+        ./scripts/install_omz.sh
+    fi
+
     export NVM_DIR=$HOME/.nvm
     source "$NVM_DIR/nvm.sh"
-    nvm install --lts
+    "nvm" install --lts
 
     # NOTE: cargo
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-    rustup update
-    cargo install --locked yazi-fm yazi-cli
+    installed_version=$(cargo --version 2>/dev/null | awk '{print $2}')
+    required_version="1.8.0"
+    if version_lt "$installed_version" "$required_version"; then
+        echo "install latest cargo ... "
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+        rustup update
+    fi
+
+    if ! cargo install --list | grep -q "yazi-fm"; then
+        cargo install --locked yazi-fm yazi-cli
+    fi
 
     # NOTE: zoxide
-    curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+    if command -v zoxide &>/dev/null; then
+        echo "install zoxide"
+        curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+    fi
 
     source "${HOME}/.zshrc"
     tmux source "${HOME}/.tmux.conf"
 
     # NOTE: check if neovim is installed
     if ! [ -x "$(command -v nvim)" ]; then
-        cur_path=${PWD}
-
-        if [[ ${os} == "ubuntu" ]]; then
-            sudo apt-get install ninja-build gettext cmake unzip curl build-essential
-            git clone https://github.com/RomaLzhih/wezterm-config.git ~/.config/wezterm
-        elif [[ ${os} == "arch" ]]; then
-            pacman -S ninja-build gettext cmake unzip curl build-essential
-            git clone https://github.com/RomaLzhih/wezterm-config.git ~/.config/wezterm
-        fi
-
-        mkdir -p "${HOME}/bin/repos"
-        cd "${HOME}/bin/repos" || exit
-        rm -rf neovim
-        git clone https://github.com/neovim/neovim || exit
-        cd "neovim" || exit
-        git checkout re]lease-0.10
-        make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
-        make install
-        export PATH="$HOME/neovim/bin:$PATH"
-
-        if ! [ -x "$(command -v nvim)" ]; then
-            echo "neovim is not installed"
-            exit 1
-        fi
-
-        cd "${cur_path}" || exit
+        ./scripts/install_nvim.sh
     fi
 
     # NOTE: install the neovim config
@@ -213,49 +203,35 @@ if [[ ${kInstall} == 1 ]]; then
     rm -rf ~/.local/share/nvim
     git clone git@github.com:RomaLzhih/neovim_config.git ~/.config/nvim
 
+    ./scripts/install_vim.sh
+
     # NOTE: install the dependencies for neovim
-    if [[ ${os} == "centos" ]]; then
+    if [[ ${os} == "rocky" ]]; then
         cd "${HOME}" || exit
         # NOTE: python env
         python3 -m venv .venv
         source .venv/bin/activate
-
         python3 -m pip --version
         python3 -m pip install --upgrade pip setuptools wheel
-
         python3 -m pip install clang-tidy
         python3 -m pip install cpplint
         python3 -m pip install black
         python3 -m pip install pandas-stubs
         python3 -m pip install pynvim
+        go install mvdan.cc/sh/v3/cmd/shfmt@latest
 
         # NOTE: build from source
         mkdir -p "${HOME}/bin/repos"
 
-        # NOTE: cppcheck
-        cd "${HOME}/bin/repos" || exit
-        git clone git@github.com:danmar/cppcheck.git
-        cd "cppcheck" || exit
-        mkdir build
-        cd "build" || exit
-        cmake ..
-        cmake --build .
-        cd "${HOME}/bin/" || exit
-        ln -s "${HOME}/bin/repos/cppcheck/build/bin/cppcheck" ~/bin/cppcheck
-
-        # NOTE: ripgrep
-        cd "${HOME}/bin/repos" || exit
-        git clone https://github.com/BurntSushi/ripgrep
-        cd ripgrep || exit
-        cargo build --release
-        ./target/release/rg --version
-        cd "${HOME}/bin/" || exit
-        ln -s "${HOME}/bin/repos/ripgrep/target/release/rg" ~/bin/rg
+        ./scripts/install_cppcheck.sh
+        ./scripts/install_ripgrep.sh
 
     elif [[ ${os} == "ubuntu" ]]; then
         sudo apt install clang-tidy cpplint black cppcheck ripgrep nodejs
+        git clone https://github.com/RomaLzhih/wezterm-config.git ~/.config/wezterm
     elif [[ ${os} == "arch" ]]; then
         sudo pacman -S clang-tidy cpplint black cppcheck ripgrep nodejs
+        git clone https://github.com/RomaLzhih/wezterm-config.git ~/.config/wezterm
     fi
 fi
 
