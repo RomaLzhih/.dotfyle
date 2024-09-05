@@ -62,41 +62,15 @@ if [[ ${kUpdate} == 1 ]]; then
     cp dotfyles/.zshrc "${HOME}/"
 
     # NOTE: neovim
-    if [[ ${kUpdateNeovim} == 1 ]]; then
-        cd "${HOME}/bin/repos/neovim" || exit
-        git checkout master
-        git fetch
-        if [[ "$(git rev-parse HEAD)" != "$(git rev-parse @{u})" ]]; then
-            git checkout master
-            git pull
-            if [[ ${os} == "rocky" ]]; then
-                git checkout release-0.10
-            fi
-            make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
-            make install
-            export PATH="$HOME/neovim/bin:$PATH"
-
-            #NOTE: once recompiled, needs to rebuilds the neovim config
-            rm -rf ~/.config/nvim
-            rm -rf ~/.local/share/nvim
-            git clone git@github.com:RomaLzhih/neovim_config.git ~/.config/nvim
-        fi
-    fi
-
-    # NOTE: neovim configuration
-    if [[ ${kForceUpdate} == 0 ]]; then
-        CheckDiffStatus "${HOME}/.config/nvim" "${debug}"
-    else
-        cd "${HOME}/.config/nvim" || exit
-        git reset --hard && git pull
-    fi
+    ./scripts/install_nvim.sh
+    ./scripts/install_vim.sh
 
     # NOTE: neovim dependencies
     if [[ ${os} == "rocky" ]]; then
         cd "${HOME}" || exit
 
         export NVM_DIR=$HOME/.nvm
-        source $NVM_DIR/nvm.sh
+        source "$NVM_DIR/nvm.sh"
         nvm install lts --reinstall-packages-from=current
 
         python3 -m pip install --upgrade pip setuptools wheel
@@ -106,30 +80,8 @@ if [[ ${kUpdate} == 1 ]]; then
         python3 -m pip install pandas-stubs -U
         python3 -m pip install pynvim -U
 
-        cd "${HOME}/bin/repos/cppcheck" || exit
-        git fetch
-        if [[ "$(git rev-parse HEAD)" != "$(git rev-parse @{u})" ]]; then
-            git pull
-            rm -rf build
-            mkdir -p build
-            cd "build" || exit
-            cmake ..
-            cmake --build .
-            cd "${HOME}/bin/" || exit
-            rm cppcheck
-            ln -s "${HOME}/bin/repos/cppcheck/build/bin/cppcheck" ~/bin/cppcheck
-        fi
-
-        cd "${HOME}/bin/repos/ripgrep" || exit
-        git fetch
-        if [[ "$(git rev-parse HEAD)" != "$(git rev-parse @{u})" ]]; then
-            git pull
-            cargo build --release
-            ./target/release/rg --version
-            cd "${HOME}/bin/" || exit
-            rm rg
-            ln -s "${HOME}/bin/repos/ripgrep/target/release/rg" ~/bin/rg
-        fi
+        ./scripts/install_cppcheck.sh
+        ./scripts/install_ripgrep.sh
 
     elif [[ ${os} == "ubuntu" ]]; then
         sudo apt update && sudo apt upgrade -y
@@ -152,8 +104,6 @@ fi
 # PERF: Install
 if [[ ${kInstall} == 1 ]]; then
     # NOTE: shell stuffs
-    cd "${HOME}" || exit
-
     rsync -a --include='.*' .config "${HOME}/"
     cp dotfyles/.tmux.conf "${HOME}/"
     cp dotfyles/.vimrc "${HOME}/"
@@ -193,16 +143,8 @@ if [[ ${kInstall} == 1 ]]; then
     source "${HOME}/.zshrc"
     tmux source "${HOME}/.tmux.conf"
 
-    # NOTE: check if neovim is installed
-    if ! [ -x "$(command -v nvim)" ]; then
-        ./scripts/install_nvim.sh
-    fi
-
-    # NOTE: install the neovim config
-    rm -rf ~/.config/nvim
-    rm -rf ~/.local/share/nvim
-    git clone git@github.com:RomaLzhih/neovim_config.git ~/.config/nvim
-
+    mkdir -p "${HOME}/bin/repos"
+    ./scripts/install_nvim.sh
     ./scripts/install_vim.sh
 
     # NOTE: install the dependencies for neovim
@@ -218,7 +160,7 @@ if [[ ${kInstall} == 1 ]]; then
         python3 -m pip install black
         python3 -m pip install pandas-stubs
         python3 -m pip install pynvim
-        go install mvdan.cc/sh/v3/cmd/shfmt@latest
+        # go install mvdan.cc/sh/v3/cmd/shfmt@latest
 
         # NOTE: build from source
         mkdir -p "${HOME}/bin/repos"

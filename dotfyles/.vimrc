@@ -23,8 +23,12 @@ Plug 'tpope/vim-surround'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'junegunn/fzf'
+Plug 'tpope/vim-fugitive'
+Plug 'vim-scripts/greplace.vim'
 Plug 'octol/vim-cpp-enhanced-highlight'
+Plug 'altercation/vim-colors-solarized'
 Plug 'yggdroot/indentline'
+Plug 'christoomey/vim-tmux-navigator'
 Plug 'tpope/vim-commentary'
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 Plug 'easymotion/vim-easymotion'
@@ -49,12 +53,14 @@ filetype plugin indent on
 " Pick a leader key
 let mapleader = " "
 nnoremap <SPACE> <Nop>
-nnoremap <Leader>no :set hlsearch!<CR>
+nnoremap <Esc> :noh<CR>
 " Edit operation
-nnoremap <C-h> <C-w>h
-nnoremap <C-j> <C-w>j
-nnoremap <C-k> <C-w>k
-nnoremap <C-l> <C-w>l
+let g:tmux_navigator_no_mappings = 1
+nnoremap <silent> <C-h> :<C-U>TmuxNavigateLeft<cr>
+nnoremap <silent> <C-j> :<C-U>TmuxNavigateDown<cr>
+nnoremap <silent> <C-k> :<C-U>TmuxNavigateUp<cr>
+nnoremap <silent> <C-l> :<C-U>TmuxNavigateRight<cr>
+" nnoremap <silent> {Previous-Mapping} :<C-U>TmuxNavigatePrevious<cr>
 nnoremap <Home> <C-q>
 nnoremap <End> <C-e>
 inoremap <C-h> <left>
@@ -66,9 +72,15 @@ inoremap jj <Esc>
 nnoremap <Tab> :bnext<CR>
 nnoremap <Leader>x :bd<CR>
 
+" git operation
+nnoremap <Leader>git :Git<CR>
+
 " fzf
-nnoremap <Leader>ff :Files 
+nnoremap <Leader>ff :Files .<CR>
+nnoremap <Leader>FF :Files .<CR>
 nnoremap <Leader>fw :Rg 
+nnoremap <Leader>th :colorscheme 
+nnoremap <Leader>bf :Buffers<CR>
 
 " cpp highlight
 let g:cpp_class_scope_highlight = 1
@@ -86,7 +98,7 @@ let g:clang_format#auto_format_on_insert_leave=1
 autocmd FileType c,cpp,objc nnoremap <buffer><C-s> :<C-u>ClangFormat<CR>
 
 " Nerd tree
-nnoremap <C-w> :NERDTreeToggle<CR>
+nnoremap <C-s> :NERDTreeToggle<CR>
 
 " easy motion
 let g:EasyMotion_smartcase = 1
@@ -128,6 +140,9 @@ set noshiftround
 " Cursor motion
 set scrolloff=3
 set backspace=indent,eol,start
+set belloff=all
+set timeoutlen=400
+set ttimeoutlen=400
 set matchpairs+=<:> " use % to jump between pairs
 runtime! macros/matchit.vim
 
@@ -304,8 +319,8 @@ endif
 
 " Use CTRL-S for selections ranges.
 " Requires 'textDocument/selectionRange' support of language server.
-nmap <silent> <C-s> <Plug>(coc-range-select)
-xmap <silent> <C-s> <Plug>(coc-range-select)
+" nmap <silent> <C-s> <Plug>(coc-range-select)
+" xmap <silent> <C-s> <Plug>(coc-range-select)
 
 " Add `:Format` command to format current buffer.
 command! -nargs=0 Format :call CocAction('format')
