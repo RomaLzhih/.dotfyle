@@ -18,7 +18,6 @@ call plug#begin()
 " Make sure you use single quotes
 
 Plug 'preservim/nerdtree'
-Plug 'morhetz/gruvbox' 
 Plug 'tpope/vim-surround' 
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
@@ -26,7 +25,8 @@ Plug 'github/copilot.vim'
 Plug 'junegunn/fzf'
 Plug 'tpope/vim-fugitive'
 Plug 'vim-scripts/greplace.vim'
-Plug 'altercation/vim-colors-solarized'
+Plug 'lervag/vimtex'
+Plug 'lervag/vimtex', { 'tag': 'v2.15' }
 Plug 'yggdroot/indentline'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'tpope/vim-commentary'
@@ -38,6 +38,13 @@ Plug 'raimondi/delimitmate'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'bfrg/vim-cpp-modern'
 Plug 'voldikss/vim-floaterm'
+
+Plug 'morhetz/gruvbox' 
+Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
+Plug 'ericbn/vim-solarized'
+Plug 'rose-pine/vim'
+Plug 'nordtheme/vim'
+Plug 'catppuccin/vim', { 'as': 'catppuccin' }
 
 " Initialize plugin system
 " - Automatically executes `filetype plugin indent on` and `syntax enable`.
@@ -52,17 +59,14 @@ filetype plugin indent on
 
 " Pick a leader key
 let mapleader = " "
+let maplocalleader = "\\"
+set clipboard=unnamedplus
 nnoremap <SPACE> <Nop>
 nnoremap <Esc> :noh<CR>
+nnoremap <Leader>cl :cclose<CR>
 
 " Edit operation
-let g:tmux_navigator_no_mappings = 1
-nnoremap <silent> <C-h> :<C-U>TmuxNavigateLeft<cr>
-nnoremap <silent> <C-j> :<C-U>TmuxNavigateDown<cr>
-nnoremap <silent> <C-k> :<C-U>TmuxNavigateUp<cr>
-nnoremap <silent> <C-l> :<C-U>TmuxNavigateRight<cr>
 
-" nnoremap <silent> {Previous-Mapping} :<C-U>TmuxNavigatePrevious<cr>
 map <Home> <C-q>
 map <End> <C-e>
 inoremap <C-h> <left>
@@ -74,6 +78,21 @@ inoremap jj <Esc>
 nnoremap <Tab> :bnext<CR>
 nnoremap <Leader>x :bd<CR>
 
+" tmux navigator
+let g:tmux_navigator_no_mappings = 1
+nnoremap <silent> <C-h> :<C-U>TmuxNavigateLeft<cr>
+nnoremap <silent> <C-j> :<C-U>TmuxNavigateDown<cr>
+nnoremap <silent> <C-k> :<C-U>TmuxNavigateUp<cr>
+nnoremap <silent> <C-l> :<C-U>TmuxNavigateRight<cr>
+
+" vimtex
+let g:vimtex_view_method = 'sioyek'
+let g:vimtex_quickfix_open_on_warning = 0
+
+" copilot
+let g:copilot_no_tab_map = v:true
+" imap <silent><script><expr> <C-f> copilot#Accept("\<CR>")
+
 " air line
 let g:airline#extensions#tabline#enabled = 1
 
@@ -82,9 +101,9 @@ nnoremap <Leader>git :Git<CR>
 
 " fzf
 nnoremap <Leader>ff :Files .<CR>
-nnoremap <Leader>re :Files <CR>
+nnoremap <Leader>re :Files 
 nnoremap <Leader>fw :Rg 
-nnoremap <Leader>th :colorscheme 
+nnoremap <Leader>th :colorscheme <CR>
 nnoremap <Leader>bf :Buffers<CR>
 
 " cpp highlight
@@ -111,7 +130,9 @@ nnoremap <C-s> :NERDTreeToggle<CR>
 
 " easy motion
 let g:EasyMotion_smartcase = 1
-let g:EasyMotion_do_mapping = 0
+let g:EasyMotion_no_mapping = 0
+autocmd User EasyMotionPromptBegin :let b:coc_diagnostic_disable = 1
+autocmd User EasyMotionPromptEnd :let b:coc_diagnostic_disable = 0
 map <Leader> <Plug>(easymotion-prefix)
 map  f <Plug>(easymotion-fl)
 map  F <Plug>(easymotion-Fl)
@@ -151,8 +172,8 @@ set noshiftround
 set scrolloff=3
 set backspace=indent,eol,start
 set belloff=all
-set timeoutlen=40
-set ttimeoutlen=40
+set timeoutlen=400
+set ttimeoutlen=400
 set matchpairs+=<:> " use % to jump between pairs
 runtime! macros/matchit.vim
 
@@ -198,9 +219,15 @@ set listchars=tab:▸\ ,eol:¬
 
 " Color scheme (terminal)
 set t_Co=256
+" set termguicolors
 set background=dark
-" put https://raw.github.com/altercation/vim-colors-solarized/master/colors/solarized.vim
-" in ~/.vim/colors/ and uncomment:
+autocmd ColorScheme * call Highlight()
+function! Highlight() abort
+  hi Conceal ctermfg=239 guifg=#504945
+  hi CocSearch ctermfg=12 guifg=#18A3FF
+endfunction
+autocmd vimenter * ++nested colorscheme gruvbox solarized nord rose-pine catppuccin
+" colorscheme solarized
 colorscheme gruvbox
 
 " ---------------------------------------COC---------------------------------------------
@@ -230,16 +257,17 @@ endif
 " Use tab for trigger completion with characters ahead and navigate.
 " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
 " other plugin before putting this into your config.
-inoremap <silent><expr> <TAB>
-            \ pumvisible() ? "\<C-n>" :
-            \ <SID>check_back_space() ? "\<TAB>" :
-            \ coc#refresh()
+" inoremap <silent><expr> <TAB>
+"             \ pumvisible() ? "\<C-n>" :
+"             \ <SID>check_back_space() ? "\<TAB>" :
+"             \ coc#refresh()
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+inoremap <silent><expr> <TAB>
+      \ coc#pum#visible() ? coc#pum#next(1):
+      \ exists('b:_copilot.suggestions') ? copilot#Accept("\<CR>") :
+      \ CheckBackSpace() ? "\<Tab>" :
+      \ coc#refresh()
 
-function! s:check_back_space() abort
-    let col = col('.') - 1
-    return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
 
 " Use <c-space> to trigger completion.
 if has('nvim')
@@ -272,10 +300,9 @@ let g:coc_user_config={
             \    'suggest.maxCompleteItemCount': 10,
             \    'coc.preferences.formatOnSaveFiletypes': ["cpp", "sh", "bash", "python"],
             \    'colors.enable': 'true',
-            \    'inlayHint.enable': 'false',
             \    'outline.autoPreview': 'true',
             \}
-let g:coc_global_extensions = ['coc-clangd', 'coc-git', 'coc-sh', 'coc-pyright', 'coc-copilot', 'coc-cmake', 'coc-diagnostic', 'coc-highlight', 'coc-lightbulb', 'coc-symbol-line']
+let g:coc_global_extensions = ['coc-clangd', 'coc-git', 'coc-sh', 'coc-pyright', 'coc-cmake', 'coc-diagnostic', 'coc-highlight', 'coc-lightbulb', 'coc-symbol-line', 'coc-texlab']
 
 function! s:show_documentation()
     if (index(['vim','help'], &filetype) >= 0)
@@ -359,7 +386,7 @@ nnoremap <silent><nowait> <space>coce  :<C-u>CocList extensions<cr>
 " Show commands.
 " nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
 " Find symbol of current document.
-nnoremap <silent><nowait> <M-q>  :<C-u>CocList outline<cr>
+nnoremap <silent><nowait> <Leader>ol  :<C-u>CocList outline<cr>
 " Search workspace symbols.
 nnoremap <silent><nowait> <space>sym  :<C-u>CocList -I symbols<cr>
 " Do default action for next item.
@@ -368,3 +395,4 @@ nnoremap <silent><nowait> <space>sym  :<C-u>CocList -I symbols<cr>
 " nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list.
 " nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+
