@@ -33,6 +33,7 @@ Plug 'tpope/vim-commentary'
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 Plug 'easymotion/vim-easymotion'
 Plug 'junegunn/fzf.vim'
+Plug 'mhinz/vim-startify'
 Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'raimondi/delimitmate'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -40,10 +41,9 @@ Plug 'bfrg/vim-cpp-modern'
 Plug 'voldikss/vim-floaterm'
 
 Plug 'morhetz/gruvbox' 
-Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 Plug 'ericbn/vim-solarized'
-Plug 'rose-pine/vim'
-Plug 'nordtheme/vim'
+Plug 'rose-pine/vim', { 'as': 'rose-pine' }
+Plug 'nordtheme/vim', { 'as': 'nord' }
 Plug 'catppuccin/vim', { 'as': 'catppuccin' }
 
 " Initialize plugin system
@@ -60,15 +60,13 @@ filetype plugin indent on
 " Pick a leader key
 let mapleader = " "
 let maplocalleader = "\\"
-set clipboard=unnamedplus
 nnoremap <SPACE> <Nop>
-nnoremap <Esc> :noh<CR>
 nnoremap <Leader>cl :cclose<CR>
 
 " Edit operation
 
-map <Home> <C-q>
-map <End> <C-e>
+nnoremap <C-q> <Home>
+nnoremap <C-e> <End>
 inoremap <C-h> <left>
 inoremap <C-j> <down>
 inoremap <C-k> <up>
@@ -88,13 +86,19 @@ nnoremap <silent> <C-l> :<C-U>TmuxNavigateRight<cr>
 " vimtex
 let g:vimtex_view_method = 'sioyek'
 let g:vimtex_quickfix_open_on_warning = 0
+let g:vimtex_syntax_conceal_disable = 1
 
 " copilot
 let g:copilot_no_tab_map = v:true
-" imap <silent><script><expr> <C-f> copilot#Accept("\<CR>")
+
+" indent line
+let g:indentLine_setConceal = 0
 
 " air line
 let g:airline#extensions#tabline#enabled = 1
+let g:airline_left_sep='>'
+let g:airline#extensions#whitespace#enabled = 0
+au VimEnter * let [g:airline_section_y] = [airline#section#create([''])]
 
 " git operation
 nnoremap <Leader>git :Git<CR>
@@ -133,7 +137,7 @@ let g:EasyMotion_smartcase = 1
 let g:EasyMotion_no_mapping = 0
 autocmd User EasyMotionPromptBegin :let b:coc_diagnostic_disable = 1
 autocmd User EasyMotionPromptEnd :let b:coc_diagnostic_disable = 0
-map <Leader> <Plug>(easymotion-prefix)
+" map <Leader> <Plug>(easymotion-prefix)
 map  f <Plug>(easymotion-fl)
 map  F <Plug>(easymotion-Fl)
 map  t <Plug>(easymotion-tl)
@@ -203,13 +207,12 @@ set incsearch
 set ignorecase
 set smartcase
 set showmatch
-map <leader><space> :let @/=''<cr> " clear search
+nnoremap <leader><space> :let @/=''<cr> " clear search
 
 " Remap help key.
 nnoremap <C-a> ggVG
-" Textmate holdouts
-
-" Formatting
+nnoremap <C-c> "+y
+nnoremap <C-p> "+p
 
 " Visualize tabs and newlines
 set listchars=tab:▸\ ,eol:¬
@@ -218,15 +221,15 @@ set listchars=tab:▸\ ,eol:¬
 " Or use your leader key + l to toggle on/off
 
 " Color scheme (terminal)
-set t_Co=256
-" set termguicolors
+" set t_Co=256
+set termguicolors
 set background=dark
 autocmd ColorScheme * call Highlight()
 function! Highlight() abort
   hi Conceal ctermfg=239 guifg=#504945
   hi CocSearch ctermfg=12 guifg=#18A3FF
 endfunction
-autocmd vimenter * ++nested colorscheme gruvbox solarized nord rose-pine catppuccin
+autocmd vimenter * ++nested colorscheme gruvbox
 " colorscheme solarized
 colorscheme gruvbox
 
@@ -395,4 +398,18 @@ nnoremap <silent><nowait> <space>sym  :<C-u>CocList -I symbols<cr>
 " nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list.
 " nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
-
+"
+" -----------------------------STARTIFY-----------------------------------
+let g:startify_commands = [
+    \ {'g': 'Git'},
+    \ {'f': 'Files .'},
+    \ {'s': 'e $MYVIMRC'},
+    \ ]
+let g:startify_lists = [
+          \ { 'type': 'files',     'header': ['   Recent']            },
+          \ { 'type': 'commands',  'header': ['   Commands']       },
+          \ ]
+let g:startify_change_to_dir = 1
+" let g:startify_custom_header = g:ascii + startify#fortune#boxed()
+let g:startify_files_number = 5
+-- let g:startify_session_persistence= 1
