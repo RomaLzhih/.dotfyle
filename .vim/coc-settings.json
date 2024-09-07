@@ -1,0 +1,27 @@
+{
+    "suggest.maxCompleteItemCount": 10,
+    "coc.preferemces.formatOnSaveFiletypes": ["cpp", "sh", "bash", "python"],
+    "colors.enable": true,
+    "outline.autoPreview": true,
+    "semanticTokens.enable": true,
+    "semanticTokens.highlightGroups": {
+        "variable": "CocSemVariable",
+        "function": "CocSemFunction",
+        "class": "CocSemClass",
+        "interface": "CocSemInterface",
+        "enum": "CocSemEnum",
+        "enumMember": "CocSemEnumMember",
+        "property": "CocSemProperty",
+        "method": "CocSemMethod",
+        "namespace": "CocSemNamespace",
+        "typeParameter": "CocSemTypeParameter",
+        "parameter": "CocSemParameter",
+        "type": "CocSemType",
+        "keyword": "CocSemKeyword",
+        "string": "CocSemString",
+        "number": "CocSemNumber",
+        "comment": "CocSemComment",
+        "operator": "CocSemOperator",
+        "macro": "CocSemMacro"
+    }
+}

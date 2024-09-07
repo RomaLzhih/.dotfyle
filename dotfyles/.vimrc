@@ -28,23 +28,29 @@ Plug 'vim-scripts/greplace.vim'
 Plug 'lervag/vimtex'
 Plug 'lervag/vimtex', { 'tag': 'v2.15' }
 Plug 'yggdroot/indentline'
+Plug 'terryma/vim-smooth-scroll'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'tpope/vim-commentary'
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 Plug 'easymotion/vim-easymotion'
 Plug 'junegunn/fzf.vim'
 Plug 'mhinz/vim-startify'
-Plug 'octol/vim-cpp-enhanced-highlight'
+" Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'raimondi/delimitmate'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'bfrg/vim-cpp-modern'
+" Plug 'bfrg/vim-cpp-modern'
+Plug 'romainl/vim-cool'
 Plug 'voldikss/vim-floaterm'
 
 Plug 'morhetz/gruvbox' 
-Plug 'ericbn/vim-solarized'
+Plug 'lifepillar/vim-solarized8'
 Plug 'rose-pine/vim', { 'as': 'rose-pine' }
 Plug 'nordtheme/vim', { 'as': 'nord' }
 Plug 'catppuccin/vim', { 'as': 'catppuccin' }
+Plug 'sainnhe/gruvbox-material'
+Plug 'sainnhe/everforest'
+Plug 'junegunn/seoul256.vim'
+
 
 " Initialize plugin system
 " - Automatically executes `filetype plugin indent on` and `syntax enable`.
@@ -56,6 +62,8 @@ call plug#end()
 syntax on
 " For plugins to load correctly
 filetype plugin indent on
+:autocmd InsertEnter * set cursorline
+:autocmd InsertLeave * set nocursorline
 
 " Pick a leader key
 let mapleader = " "
@@ -82,6 +90,12 @@ nnoremap <silent> <C-h> :<C-U>TmuxNavigateLeft<cr>
 nnoremap <silent> <C-j> :<C-U>TmuxNavigateDown<cr>
 nnoremap <silent> <C-k> :<C-U>TmuxNavigateUp<cr>
 nnoremap <silent> <C-l> :<C-U>TmuxNavigateRight<cr>
+
+" smooth scroll
+noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
+noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
+noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<CR>
+noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
 
 " vimtex
 let g:vimtex_view_method = 'sioyek'
@@ -111,16 +125,16 @@ nnoremap <Leader>th :Colors<CR>
 nnoremap <Leader>bf :Buffers<CR>
 
 " cpp highlight
-let g:cpp_class_scope_highlight = 1
-let g:cpp_member_variable_highlight = 1
-let g:cpp_class_decl_highlight = 1
-let g:cpp_posix_standard = 1
-let g:cpp_experimental_simple_template_highlight = 1
-let g:cpp_concepts_highlight = 1
-let g:cpp_function_highlight = 1
-let g:cpp_attributes_highlight = 1
-let g:cpp_member_highlight = 1
-let g:cpp_simple_highlight = 1
+" let g:cpp_class_scope_highlight = 1
+" let g:cpp_member_variable_highlight = 1
+" let g:cpp_class_decl_highlight = 1
+" let g:cpp_posix_standard = 1
+" let g:cpp_experimental_simple_template_highlight = 1
+" let g:cpp_concepts_highlight = 1
+" let g:cpp_function_highlight = 1
+" let g:cpp_attributes_highlight = 1
+" let g:cpp_member_highlight = 1
+" let g:cpp_simple_highlight = 1
 
 " float term
 let g:floaterm_keymap_new    = '<F1>'
@@ -226,25 +240,28 @@ set listchars=tab:▸\ ,eol:¬
 " set t_Co=256
 " set termguicolors
 set background=dark
-autocmd ColorScheme * call Highlight()
-function! Highlight() abort
-  hi Conceal ctermfg=239 guifg=#504945
-  hi CocSearch ctermfg=12 guifg=#18A3FF
-endfunction
-autocmd vimenter * ++nested colorscheme gruvbox
-" colorscheme solarized
+" autocmd ColorScheme * call Highlight()
+" function! Highlight() abort
+"     hi Conceal ctermfg=239 guifg=#504945
+"     hi CocSearch ctermfg=12 guifg=#18A3FF
+" endfunction
+" autocmd vimenter * ++nested colorscheme gruvbox
 colorscheme gruvbox
+
+" use gruvbox in default color
 augroup ColorSchemeSettings
     autocmd!
     autocmd ColorScheme * if g:colors_name == 'gruvbox' | set t_Co=256 | else | set termguicolors | endif
 augroup END
+" use nord for better color
 augroup LaTeXColorScheme
     autocmd!
     autocmd FileType tex colorscheme nord
 augroup END
+
 function! s:kill_all_floaterm() abort
     for bufnr in floaterm#buflist#gather()
-      call floaterm#terminal#kill(bufnr)
+        call floaterm#terminal#kill(bufnr)
     endfor
     return
 endfunction
@@ -285,10 +302,10 @@ endif
 "             \ coc#refresh()
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 inoremap <silent><expr> <TAB>
-      \ coc#pum#visible() ? coc#pum#next(1):
-      \ exists('b:_copilot.suggestions') ? copilot#Accept("\<CR>") :
-      \ CheckBackSpace() ? "\<Tab>" :
-      \ coc#refresh()
+            \ coc#pum#visible() ? coc#pum#next(1):
+            \ exists('b:_copilot.suggestions') ? copilot#Accept("\<CR>") :
+            \ CheckBackSpace() ? "\<Tab>" :
+            \ coc#refresh()
 
 
 " Use <c-space> to trigger completion.
@@ -318,13 +335,48 @@ nmap <silent> gr <Plug>(coc-references)
 
 " Use K to show documentation in preview window.
 nnoremap <silent> K :call <SID>show_documentation()<CR>
-let g:coc_user_config={
-            \    'suggest.maxCompleteItemCount': 10,
-            \    'coc.preferences.formatOnSaveFiletypes': ["cpp", "sh", "bash", "python"],
-            \    'colors.enable': 'true',
-            \    'outline.autoPreview': 'true',
-            \}
+" let g:coc_user_config={
+"             \    'suggest.maxCompleteItemCount': 10,
+"             \    'coc.preferences.formatOnSaveFiletypes': ["cpp", "sh", "bash", "python"],
+"             \    'colors.enable': 'true',
+"             \    'outline.autoPreview': 'true',
+"             \    'semanticTokens.enable': 'true',
+"             \    'coc-config-diagnostic-enable': 'true',
+"             \}
 let g:coc_global_extensions = ['coc-clangd', 'coc-git', 'coc-sh', 'coc-pyright', 'coc-cmake', 'coc-diagnostic', 'coc-highlight', 'coc-lightbulb', 'coc-symbol-line', 'coc-texlab']
+let g:coc_default_semantic_highlight_groups = 0
+let hlMap = {
+            \ 'Namespace': ['@namespace', 'Include'],
+            \ 'Type': ['@type', 'Type'],
+            \ 'Class': ['@constructor', 'Special'],
+            \ 'Enum': ['@type', 'Type'],
+            \ 'Interface': ['@type', 'Type'],
+            \ 'Struct': ['@structure', 'Identifier'],
+            \ 'TypeParameter': ['@parameter', 'Identifier'],
+            \ 'Parameter': ['@parameter', 'Identifier'],
+            \ 'Variable': ['@variable', 'Variable'],
+            \ 'Property': ['@property', 'Identifier'],
+            \ 'EnumMember': ['@property', 'Constant'],
+            \ 'Event': ['@keyword', 'Keyword'],
+            \ 'Function': ['@function', 'Function'],
+            \ 'Method': ['@method', 'Function'],
+            \ 'Macro': ['@constant.macro', 'Define'],
+            \ 'Keyword': ['@keyword', 'Keyword'],
+            \ 'Modifier': ['@storageclass', 'StorageClass'],
+            \ 'Comment': ['@comment', 'Comment'],
+            \ 'String': ['@string', 'String'],
+            \ 'Number': ['@number', 'Number'],
+            \ 'Boolean': ['@boolean', 'Boolean'],
+            \ 'Regexp': ['@string.regex', 'String'],
+            \ 'Operator': ['@operator', 'Operator'],
+            \ 'Decorator': ['@symbol', 'Identifier'],
+            \ 'Deprecated': ['@text.strike', 'CocDeprecatedHighlight']
+            \ }
+for [key, value] in items(hlMap)
+    let ts = get(value, 0, '')
+    let fallback = get(value, 1, '')
+    execute 'hi default link CocSem'.key.' '.(coc#highlight#valid(ts) ? ts : fallback)
+endfor
 
 function! s:show_documentation()
     if (index(['vim','help'], &filetype) >= 0)
@@ -420,14 +472,14 @@ nnoremap <silent><nowait> <space>sym  :<C-u>CocList -I symbols<cr>
 "
 " -----------------------------STARTIFY-----------------------------------
 let g:startify_commands = [
-    \ {'g': 'Git'},
-    \ {'f': 'Files .'},
-    \ {'s': 'e $MYVIMRC'},
-    \ ]
+            \ {'g': 'Git'},
+            \ {'f': 'Files .'},
+            \ {'s': 'e $MYVIMRC'},
+            \ ]
 let g:startify_lists = [
-          \ { 'type': 'files',     'header': ['   Recent']            },
-          \ { 'type': 'commands',  'header': ['   Commands']       },
-          \ ]
+            \ { 'type': 'files',     'header': ['   Recent']            },
+            \ { 'type': 'commands',  'header': ['   Commands']       },
+            \ ]
 let g:startify_change_to_dir = 1
 " let g:startify_custom_header = g:ascii + startify#fortune#boxed()
 let g:startify_files_number = 5
