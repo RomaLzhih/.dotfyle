@@ -107,7 +107,7 @@ nnoremap <Leader>git :Git<CR>
 nnoremap <Leader>ff :Files .<CR>
 nnoremap <Leader>re :Files 
 nnoremap <Leader>fw :Rg 
-nnoremap <Leader>th :colorscheme <CR>
+nnoremap <Leader>th :Colors<CR>
 nnoremap <Leader>bf :Buffers<CR>
 
 " cpp highlight
@@ -131,6 +131,8 @@ let g:floaterm_keymap_toggle = '<C-\>'
 
 " Nerd tree
 nnoremap <C-s> :NERDTreeToggle<CR>
+autocmd FileType nerdtree map <buffer> h u
+autocmd FileType nerdtree map <buffer> l <CR>
 
 " easy motion
 let g:EasyMotion_smartcase = 1
@@ -222,7 +224,7 @@ set listchars=tab:▸\ ,eol:¬
 
 " Color scheme (terminal)
 " set t_Co=256
-set termguicolors
+" set termguicolors
 set background=dark
 autocmd ColorScheme * call Highlight()
 function! Highlight() abort
@@ -232,6 +234,23 @@ endfunction
 autocmd vimenter * ++nested colorscheme gruvbox
 " colorscheme solarized
 colorscheme gruvbox
+augroup ColorSchemeSettings
+    autocmd!
+    autocmd ColorScheme * if g:colors_name == 'gruvbox' | set t_Co=256 | else | set termguicolors | endif
+augroup END
+augroup LaTeXColorScheme
+    autocmd!
+    autocmd FileType tex colorscheme nord
+augroup END
+function! s:kill_all_floaterm() abort
+    for bufnr in floaterm#buflist#gather()
+      call floaterm#terminal#kill(bufnr)
+    endfor
+    return
+endfunction
+
+autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree()  | call s:kill_all_floaterm() | quit | endif
+autocmd BufEnter * if winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | call s:kill_all_floaterm() | quit | endif
 
 " ---------------------------------------COC---------------------------------------------
 " Some servers have issues with backup files, see #649.

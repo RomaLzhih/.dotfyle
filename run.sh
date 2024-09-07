@@ -33,7 +33,7 @@ echo "OS Release: ${os}"
 kUpdate=0
 kInstall=0
 kForceUpdate=0
-kUpdateNeovim=0
+kUpdateVim=0
 debug=0
 while getopts u:i:p:f:d:n: flag; do
     case "${flag}" in
@@ -41,7 +41,7 @@ while getopts u:i:p:f:d:n: flag; do
     i) kInstall=${OPTARG} ;;
     f) kForceUpdate=${OPTARG} ;;
     d) debug=${OPTARG} ;;
-    n) kUpdateNeovim=${OPTARG} ;;
+    n) kUpdateVim=${OPTARG} ;;
     *) echo "Running default settings: only update, without discard changes in git" ;;
     esac
 done
@@ -62,8 +62,10 @@ if [[ ${kUpdate} == 1 ]]; then
     cp dotfyles/.zshrc "${HOME}/"
 
     # NOTE: neovim
-    ./scripts/install_nvim.sh
-    ./scripts/install_vim.sh
+    if [[ ${kUpdateVim} == 1 ]]; then
+        ./scripts/install_nvim.sh
+        ./scripts/install_vim.sh
+    fi
 
     # NOTE: neovim dependencies
     if [[ ${os} == "rocky" ]]; then
