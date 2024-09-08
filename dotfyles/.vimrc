@@ -69,6 +69,7 @@ let mapleader = " "
 let maplocalleader = "\\"
 nnoremap <SPACE> <Nop>
 nnoremap <Leader>cl :cclose<CR>
+command! W write
 
 " Edit operation
 nnoremap j gj
@@ -228,9 +229,25 @@ set showmatch
 " Visualize tabs and newlines
 set listchars=tab:▸\ ,eol:¬
 
+" auto read file when changed
+set autoread
+autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * if mode() != 'c' | checktime | endif
+autocmd FileChangedShellPost *
+    \ echohl WarningMsg | echo "File changed on disk. Buffer reloaded." | echohl None
+
 " -----------------------------------COLOR SCHEME-----------------------------------
 " Color scheme (terminal)
 set background=dark
+syntax match BugKeyword /BUG:/
+highlight link BugKeyword ErrorMsg
+syntax match NoteKeyword /NOTE:/
+highlight link NoteKeyword DiffAdd
+syntax match WarnKeyword /WARN:/
+highlight link WarnKeyword DiffText
+syntax match PerfKeyword /PERF:/
+highlight link PerfKeyword DiffText
+syntax match PARAKeyword /PARA:/
+highlight link PARAKeyword DiffChange
 colorscheme gruvbox
 
 " use gruvbox in default 256 color
@@ -443,6 +460,6 @@ let g:startify_lists = [
             \ { 'type': 'files',     'header': ['   Recent']            },
             \ { 'type': 'commands',  'header': ['   Commands']       },
             \ ]
-let g:startify_change_to_dir = 1
+" let g:startify_change_to_dir = 1
 " let g:startify_custom_header = g:ascii + startify#fortune#boxed()
 let g:startify_files_number = 6
