@@ -51,13 +51,11 @@ Plug 'sainnhe/gruvbox-material'
 Plug 'sainnhe/everforest'
 Plug 'junegunn/seoul256.vim'
 
-
 " Initialize plugin system
 " - Automatically executes `filetype plugin indent on` and `syntax enable`.
 call plug#end()
-" You can revert the settings after the call like so:
-"   filetype indent off   " Disable file-type-specific indentation
-"   syntax off            " Disable syntax highlighting
+
+" ---------------------------------------MAPPING-----------------------------------
 " Turn on syntax highlighting
 syntax on
 " For plugins to load correctly
@@ -72,7 +70,8 @@ nnoremap <SPACE> <Nop>
 nnoremap <Leader>cl :cclose<CR>
 
 " Edit operation
-
+nnoremap j gj
+nnoremap k gk
 nnoremap <C-q> <Home>
 nnoremap <C-e> <End>
 inoremap <C-h> <left>
@@ -83,7 +82,12 @@ inoremap jk <Esc>
 inoremap jj <Esc>
 nnoremap <Tab> :bnext<CR>
 nnoremap <Leader>x :bd<CR>
+nnoremap <leader><space> :let @/=''<cr> " clear search
+nnoremap <C-a> ggVG
+nnoremap <C-c> "+y
+nnoremap <C-p> "+p
 
+" -----------------------------PLUGIN CONFIG-----------------------------------
 " tmux navigator
 let g:tmux_navigator_no_mappings = 1
 nnoremap <silent> <C-h> :<C-U>TmuxNavigateLeft<cr>
@@ -164,6 +168,7 @@ omap / <Plug>(easymotion-tn)
 map  n <Plug>(easymotion-next)
 map  N <Plug>(easymotion-prev)
 
+" -------------------------------VIM CONFIG---------------------------------
 " Security
 set modelines=0
 
@@ -172,7 +177,6 @@ set number
 
 " Show file stats
 set ruler
-
 set relativenumber
 
 " Encoding
@@ -187,7 +191,6 @@ set shiftwidth=4
 set softtabstop=4
 set expandtab
 set noshiftround
-
 " Cursor motion
 set scrolloff=3
 set backspace=indent,eol,start
@@ -196,10 +199,6 @@ set timeoutlen=400
 set ttimeoutlen=400
 set matchpairs+=<:> " use % to jump between pairs
 runtime! macros/matchit.vim
-
-" Move up/down editor lines
-nnoremap j gj
-nnoremap k gk
 
 " Allow hidden buffers
 set hidden
@@ -216,56 +215,38 @@ set showmode
 set showcmd
 
 " Searching
-" nnoremap / /\v
-" vnoremap / /\v
 set hlsearch
 set incsearch
-set ignorecase
 set smartcase
 set showmatch
-nnoremap <leader><space> :let @/=''<cr> " clear search
-
-" Remap help key.
-nnoremap <C-a> ggVG
-nnoremap <C-c> "+y
-nnoremap <C-p> "+p
 
 " Visualize tabs and newlines
 set listchars=tab:▸\ ,eol:¬
-" Uncomment this to enable by default:
-" set list " To enable by default
-" Or use your leader key + l to toggle on/off
 
+" -----------------------------------COLOR SCHEME-----------------------------------
 " Color scheme (terminal)
-" set t_Co=256
-" set termguicolors
 set background=dark
-" autocmd ColorScheme * call Highlight()
-" function! Highlight() abort
-"     hi Conceal ctermfg=239 guifg=#504945
-"     hi CocSearch ctermfg=12 guifg=#18A3FF
-" endfunction
-" autocmd vimenter * ++nested colorscheme gruvbox
 colorscheme gruvbox
 
-" use gruvbox in default color
+" use gruvbox in default 256 color
 augroup ColorSchemeSettings
     autocmd!
     autocmd ColorScheme * if g:colors_name == 'gruvbox' | set t_Co=256 | else | set termguicolors | endif
 augroup END
-" use nord for better color
+
+" use nord for better color in latex (gruvbox is not good for latex)
 augroup LaTeXColorScheme
     autocmd!
     autocmd FileType tex colorscheme nord
 augroup END
 
+" kill both floaterm and nerdtree when only they exists
 function! s:kill_all_floaterm() abort
     for bufnr in floaterm#buflist#gather()
         call floaterm#terminal#kill(bufnr)
     endfor
     return
 endfunction
-
 autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree()  | call s:kill_all_floaterm() | quit | endif
 autocmd BufEnter * if winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | call s:kill_all_floaterm() | quit | endif
 
@@ -273,17 +254,13 @@ autocmd BufEnter * if winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTa
 " Some servers have issues with backup files, see #649.
 set nobackup
 set nowritebackup
-
 " Give more space for displaying messages.
 set cmdheight=1
-
 " Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
 " delays and poor user experience.
 set updatetime=300
-
 " Don't pass messages to |ins-completion-menu|.
 set shortmess+=c
-
 " Always show the signcolumn, otherwise it would shift the text each time
 " diagnostics appear/become resolved.
 if has("nvim-0.5.0") || has("patch-8.1.1564")
@@ -292,103 +269,83 @@ if has("nvim-0.5.0") || has("patch-8.1.1564")
 else
     set signcolumn=yes
 endif
-
 " Use tab for trigger completion with characters ahead and navigate.
 " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
 " other plugin before putting this into your config.
-" inoremap <silent><expr> <TAB>
-"             \ pumvisible() ? "\<C-n>" :
-"             \ <SID>check_back_space() ? "\<TAB>" :
-"             \ coc#refresh()
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 inoremap <silent><expr> <TAB>
             \ coc#pum#visible() ? coc#pum#next(1):
             \ exists('b:_copilot.suggestions') ? copilot#Accept("\<CR>") :
             \ CheckBackSpace() ? "\<Tab>" :
             \ coc#refresh()
-
-
 " Use <c-space> to trigger completion.
 if has('nvim')
     inoremap <silent><expr> <c-space> coc#refresh()
 else
     inoremap <silent><expr> <c-@> coc#refresh()
 endif
-
 " Make <CR> auto-select the first completion item and notify coc.nvim to
 " format on enter, <cr> could be remapped by other vim plugin
 inoremap <silent><expr> <CR> pumvisible() ? coc#_select_confirm() : "\<CR>"
-
 inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
             \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-
 " Use `[g` and `]g` to navigate diagnostics
 " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
-
 " GoTo code navigation.
 nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gt <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
-
 " Use K to show documentation in preview window.
 nnoremap <silent> K :call <SID>show_documentation()<CR>
-" let g:coc_user_config={
-"             \    'suggest.maxCompleteItemCount': 10,
-"             \    'coc.preferences.formatOnSaveFiletypes': ["cpp", "sh", "bash", "python"],
-"             \    'colors.enable': 'true',
-"             \    'outline.autoPreview': 'true',
-"             \    'semanticTokens.enable': 'true',
-"             \    'coc-config-diagnostic-enable': 'true',
-"             \}
 let g:coc_global_extensions = ['coc-clangd', 'coc-git', 'coc-sh', 'coc-pyright', 'coc-diagnostic', 'coc-highlight']
 let g:coc_default_semantic_highlight_groups = 0
 let hlMap = {
-            \ 'Namespace': ['@namespace', 'Include'],
-            \ 'Type': ['@type', 'Type'],
-            \ 'Class': ['@constructor', 'Special'],
-            \ 'Enum': ['@type', 'Class'],
-            \ 'Interface': ['@type', 'Type'],
-            \ 'Struct': ['@structure', 'Structure'],
-            \ 'TypeParameter': ['@parameter', 'Parameter'],
-            \ 'TypeTypeParameter': ['@type', 'Type'],
-            \ 'TypeType': ['@type', 'Type'],
-            \ 'TypeVariable': ['@variable', 'Variable'],
-            \ 'TypeConcept': ['@constant', 'Constant'],
-            \ 'TypeUnknown': ['@property', 'Identifier'],
-            \ 'TypeMethod': ['@method', 'Function'],
-            \ 'TypeClass': ['@constructor', 'Special'],
-            \ 'TypeProperty': ['@property', 'Identifier'],
-            \ 'TypeFunction': ['@function', 'Function'],
-            \ 'TypeMacro': ['@macro', 'Define'],
-            \ 'TypeNamespace': ['@namespace', 'Include'],
-            \ 'Parameter': ['@parameter', 'Parameter'],
-            \ 'Variable': ['@variable', 'Variable'],
-            \ 'Property': ['@property', 'Identifier'],
-            \ 'EnumMember': ['@property', 'Constant'],
-            \ 'Event': ['@keyword', 'Keyword'],
-            \ 'Function': ['@function', 'Function'],
-            \ 'Method': ['@method', 'Function'],
-            \ 'Macro': ['@constant.macro', 'Define'],
-            \ 'Keyword': ['@keyword', 'Keyword'],
-            \ 'Modifier': ['@storageclass', 'StorageClass'],
-            \ 'Comment': ['@comment', 'Comment'],
-            \ 'String': ['@string', 'String'],
-            \ 'Number': ['@number', 'Number'],
-            \ 'Boolean': ['@boolean', 'Boolean'],
-            \ 'Regexp': ['@string.regex', 'String'],
-            \ 'Operator': ['@operator', 'Operator'],
-            \ 'Decorator': ['@symbol', 'Identifier'],
-            \ 'Deprecated': ['@text.strike', 'CocDeprecatedHighlight']
+            \ 'Namespace': 'Include',
+            \ 'Type': 'Type',
+            \ 'Class': 'Special',
+            \ 'Enum': 'Class',
+            \ 'Interface': 'Type',
+            \ 'Struct': 'Structure',
+            \ 'TypeParameter': 'Parameter',
+            \ 'TypeTypeParameter': 'Type',
+            \ 'TypeType': 'Type',
+            \ 'TypeVariable': 'Variable',
+            \ 'TypeConcept': 'Constant',
+            \ 'TypeUnknown': 'Identifier',
+            \ 'TypeMethod': 'Function',
+            \ 'TypeClass': 'Special',
+            \ 'TypeProperty': 'Identifier',
+            \ 'TypeFunction': 'Function',
+            \ 'TypeMacro': 'Define',
+            \ 'TypeNamespace': 'Include',
+            \ 'Parameter': 'Parameter',
+            \ 'Variable': 'Variable',
+            \ 'Property': 'Identifier',
+            \ 'EnumMember': 'Constant',
+            \ 'Event': 'Keyword',
+            \ 'Function': 'Function',
+            \ 'Method': 'Function',
+            \ 'Macro': 'Define',
+            \ 'Keyword': 'Keyword',
+            \ 'Modifier': 'StorageClass',
+            \ 'Comment': 'Comment',
+            \ 'String': 'String',
+            \ 'Number': 'Number',
+            \ 'Boolean': 'Boolean',
+            \ 'Regexp': 'String',
+            \ 'Operator': 'Operator',
+            \ 'Decorator': 'Identifier',
+            \ 'Deprecated': 'CocDeprecatedHighlight'
             \ }
 for [key, value] in items(hlMap)
     " let ts = get(value, 0, '')
-    let fallback = get(value, 1, '')
-    execute 'hi default link CocSem'.key.' '.(fallback)
+    " let fallback = get(value, 1, '')
+    execute 'hi default link CocSem'.key.' '.(value)
 endfor
-
+" Hover
 function! s:show_documentation()
     if (index(['vim','help'], &filetype) >= 0)
         execute 'h '.expand('<cword>')
@@ -398,14 +355,11 @@ function! s:show_documentation()
         execute '!' . &keywordprg . " " . expand('<cword>')
     endif
 endfunction
-
 " Highlight the symbol and its references when holding the cursor.
 autocmd CursorHold * silent call CocActionAsync('highlight')
-
 " Symbol renaming.
 nmap <leader>rn <Plug>(coc-rename)
 nmap <leader>inlay :CocCommand document.toggleInlayHint
-
 " Formatting selected code.
 xmap <leader>fm  <Plug>(coc-format)
 nmap <leader>fm  <Plug>(coc-format)
@@ -474,13 +428,7 @@ nnoremap <silent><nowait> <space>coce  :<C-u>CocList extensions<cr>
 nnoremap <silent><nowait> <Leader>ol  :<C-u>CocList outline<cr>
 " Search workspace symbols.
 nnoremap <silent><nowait> <space>sym  :<C-u>CocList -I symbols<cr>
-" Do default action for next item.
-" nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
-" Do default action for previous item.
-" nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
-" Resume latest coc list.
-" nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
-"
+
 " -----------------------------STARTIFY-----------------------------------
 let g:startify_commands = [
             \ {'g': 'Git'},
