@@ -343,17 +343,28 @@ nnoremap <silent> K :call <SID>show_documentation()<CR>
 "             \    'semanticTokens.enable': 'true',
 "             \    'coc-config-diagnostic-enable': 'true',
 "             \}
-let g:coc_global_extensions = ['coc-clangd', 'coc-git', 'coc-sh', 'coc-pyright', 'coc-cmake', 'coc-diagnostic', 'coc-highlight', 'coc-lightbulb', 'coc-symbol-line', 'coc-texlab']
+let g:coc_global_extensions = ['coc-clangd', 'coc-git', 'coc-sh', 'coc-pyright', 'coc-diagnostic', 'coc-highlight']
 let g:coc_default_semantic_highlight_groups = 0
 let hlMap = {
             \ 'Namespace': ['@namespace', 'Include'],
             \ 'Type': ['@type', 'Type'],
             \ 'Class': ['@constructor', 'Special'],
-            \ 'Enum': ['@type', 'Type'],
+            \ 'Enum': ['@type', 'Class'],
             \ 'Interface': ['@type', 'Type'],
-            \ 'Struct': ['@structure', 'Identifier'],
-            \ 'TypeParameter': ['@parameter', 'Identifier'],
-            \ 'Parameter': ['@parameter', 'Identifier'],
+            \ 'Struct': ['@structure', 'Structure'],
+            \ 'TypeParameter': ['@parameter', 'Parameter'],
+            \ 'TypeTypeParameter': ['@type', 'Type'],
+            \ 'TypeType': ['@type', 'Type'],
+            \ 'TypeVariable': ['@variable', 'Variable'],
+            \ 'TypeConcept': ['@constant', 'Constant'],
+            \ 'TypeUnknown': ['@property', 'Identifier'],
+            \ 'TypeMethod': ['@method', 'Function'],
+            \ 'TypeClass': ['@constructor', 'Special'],
+            \ 'TypeProperty': ['@property', 'Identifier'],
+            \ 'TypeFunction': ['@function', 'Function'],
+            \ 'TypeMacro': ['@macro', 'Define'],
+            \ 'TypeNamespace': ['@namespace', 'Include'],
+            \ 'Parameter': ['@parameter', 'Parameter'],
             \ 'Variable': ['@variable', 'Variable'],
             \ 'Property': ['@property', 'Identifier'],
             \ 'EnumMember': ['@property', 'Constant'],
@@ -373,9 +384,9 @@ let hlMap = {
             \ 'Deprecated': ['@text.strike', 'CocDeprecatedHighlight']
             \ }
 for [key, value] in items(hlMap)
-    let ts = get(value, 0, '')
+    " let ts = get(value, 0, '')
     let fallback = get(value, 1, '')
-    execute 'hi default link CocSem'.key.' '.(coc#highlight#valid(ts) ? ts : fallback)
+    execute 'hi default link CocSem'.key.' '.(fallback)
 endfor
 
 function! s:show_documentation()
