@@ -169,6 +169,9 @@ map  n <Plug>(easymotion-next)
 map  N <Plug>(easymotion-prev)
 
 " -------------------------------VIM CONFIG---------------------------------
+" Swap file
+set directory^=$HOME/.vim/swap//
+
 " Security
 set modelines=0
 
@@ -191,6 +194,7 @@ set shiftwidth=4
 set softtabstop=4
 set expandtab
 set noshiftround
+
 " Cursor motion
 set scrolloff=3
 set backspace=indent,eol,start

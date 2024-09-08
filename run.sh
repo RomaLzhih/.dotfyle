@@ -30,7 +30,6 @@ if [[ ${kBackUp} == 1 ]]; then
     find dotfyles -type f | awk '{sub(/^dotfyles\//, ""); print}' | while IFS= read -r FILE; do
         # rsync -a --include=".*" "${HOME}/${FILE}" "dotfyles/"
         prefix=$(echo "$FILE" | awk 'BEGIN {FS=OFS="/"} {NF--; print}')
-        echo $prefix
         cp "${HOME}/${FILE}" "dotfyles/${prefix}/"
     done
 fi
