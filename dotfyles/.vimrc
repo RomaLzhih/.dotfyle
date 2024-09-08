@@ -122,8 +122,8 @@ au VimEnter * let [g:airline_section_y] = [airline#section#create([''])]
 nnoremap <Leader>git :Git<CR>
 
 " fzf
-nnoremap <Leader>ff :Files .<CR>
-nnoremap <Leader>re :Files 
+nnoremap <Leader>ff :GFiles ${PWD}<CR>
+nnoremap <Leader>fl :Files 
 nnoremap <Leader>fw :Rg 
 nnoremap <Leader>th :Colors<CR>
 nnoremap <Leader>bf :Buffers<CR>
@@ -300,7 +300,7 @@ nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 " Use K to show documentation in preview window.
 nnoremap <silent> K :call <SID>show_documentation()<CR>
-let g:coc_global_extensions = ['coc-clangd', 'coc-git', 'coc-sh', 'coc-pyright', 'coc-diagnostic', 'coc-highlight']
+let g:coc_global_extensions = ['coc-clangd', 'coc-sh', 'coc-diagnostic', 'coc-highlight']
 let g:coc_default_semantic_highlight_groups = 0
 let hlMap = {
             \ 'Namespace': 'Include',
@@ -341,8 +341,6 @@ let hlMap = {
             \ 'Deprecated': 'CocDeprecatedHighlight'
             \ }
 for [key, value] in items(hlMap)
-    " let ts = get(value, 0, '')
-    " let fallback = get(value, 1, '')
     execute 'hi default link CocSem'.key.' '.(value)
 endfor
 " Hover
@@ -431,9 +429,9 @@ nnoremap <silent><nowait> <space>sym  :<C-u>CocList -I symbols<cr>
 
 " -----------------------------STARTIFY-----------------------------------
 let g:startify_commands = [
-            \ {'g': 'Git'},
-            \ {'f': 'Files .'},
-            \ {'s': 'e $MYVIMRC'},
+            \ {'g': ['Git status', 'Git']},
+            \ {'f': ['Files', 'GFiles ${PWD}']},
+            \ {'s': ['Edit .vimrc', 'e $MYVIMRC']},
             \ ]
 let g:startify_lists = [
             \ { 'type': 'files',     'header': ['   Recent']            },
@@ -441,5 +439,4 @@ let g:startify_lists = [
             \ ]
 let g:startify_change_to_dir = 1
 " let g:startify_custom_header = g:ascii + startify#fortune#boxed()
-let g:startify_files_number = 5
-" -- let g:startify_session_persistence= 1
+let g:startify_files_number = 6

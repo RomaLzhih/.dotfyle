@@ -1,0 +1,13 @@
+{
+    "suggest.maxCompleteItemCount": 10,
+    "colors.enable": true,
+      "coc.preferences.formatOnSaveFiletypes": [
+        "json",
+        "python",
+        "markdown",
+        "sh",
+        "cpp"
+      ],
+    "outline.autoPreview": true,
+    "semanticTokens.enable": true
+}
