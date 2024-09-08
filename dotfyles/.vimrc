@@ -35,6 +35,7 @@ Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 Plug 'easymotion/vim-easymotion'
 Plug 'junegunn/fzf.vim'
 Plug 'mhinz/vim-startify'
+Plug 'chrismccord/bclose.vim', {'as': 'bclose'}
 " Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'raimondi/delimitmate'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -81,7 +82,8 @@ inoremap <C-l> <right>
 inoremap jk <Esc>
 inoremap jj <Esc>
 nnoremap <Tab> :bnext<CR>
-nnoremap <Leader>x :bd<CR>
+nnoremap <Leader>x :Bclose<CR>
+nnoremap <Leader>bd :Bclose<CR>
 nnoremap <leader><space> :let @/=''<cr> " clear search
 nnoremap <C-a> ggVG
 nnoremap <C-c> "+y
@@ -124,6 +126,7 @@ nnoremap <Leader>fl :Files
 nnoremap <Leader>fw :Rg 
 nnoremap <Leader>th :Colors<CR>
 nnoremap <Leader>bf :Buffers<CR>
+nnoremap <Leader>jp :Jumps<CR>
 
 " cpp highlight
 " let g:cpp_class_scope_highlight = 1
