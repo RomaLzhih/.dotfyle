@@ -109,9 +109,6 @@ let g:vimtex_syntax_conceal_disable = 1
 " copilot
 let g:copilot_no_tab_map = v:true
 
-" indent line
-let g:indentLine_setConceal = 0
-
 " air line
 let g:airline#extensions#tabline#enabled = 1
 let g:airline_left_sep='>'
@@ -157,6 +154,7 @@ let g:EasyMotion_smartcase = 1
 let g:EasyMotion_no_mapping = 0
 autocmd User EasyMotionPromptBegin :let b:coc_diagnostic_disable = 1
 autocmd User EasyMotionPromptEnd :let b:coc_diagnostic_disable = 0
+
 " map <Leader> <Plug>(easymotion-prefix)
 map  f <Plug>(easymotion-fl)
 map  F <Plug>(easymotion-Fl)
@@ -241,7 +239,8 @@ augroup END
 " use nord for better color in latex (gruvbox is not good for latex)
 augroup LaTeXColorScheme
     autocmd!
-    autocmd FileType tex colorscheme nord
+    autocmd FileType tex bib colorscheme nord
+    autocmd FileType tex bib let g:indentLine_setConceal = 0
 augroup END
 
 " kill both floaterm and nerdtree when only they exists
