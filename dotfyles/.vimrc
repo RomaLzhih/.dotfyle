@@ -21,10 +21,10 @@ Plug 'preservim/nerdtree'
 Plug 'tpope/vim-surround' 
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-Plug 'github/copilot.vim'
+Plug 'github/copilot.vim', { 'as': 'copilot' }
 Plug 'junegunn/fzf'
 Plug 'tpope/vim-fugitive'
-Plug 'vim-scripts/greplace.vim'
+Plug 'vim-scripts/greplace.vim', { 'as': 'greplace' }
 Plug 'lervag/vimtex'
 Plug 'lervag/vimtex', { 'tag': 'v2.15' }
 Plug 'yggdroot/indentline'
@@ -36,12 +36,13 @@ Plug 'easymotion/vim-easymotion'
 Plug 'junegunn/fzf.vim'
 Plug 'mhinz/vim-startify'
 Plug 'chrismccord/bclose.vim', {'as': 'bclose'}
-" Plug 'octol/vim-cpp-enhanced-highlight'
+Plug 'farmergreg/vim-lastplace'
 Plug 'raimondi/delimitmate'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-" Plug 'bfrg/vim-cpp-modern'
 Plug 'romainl/vim-cool'
 Plug 'voldikss/vim-floaterm'
+" Plug 'octol/vim-cpp-enhanced-highlight'
+" Plug 'bfrg/vim-cpp-modern'
 
 Plug 'morhetz/gruvbox' 
 Plug 'lifepillar/vim-solarized8'
@@ -233,7 +234,7 @@ set listchars=tab:▸\ ,eol:¬
 set autoread
 autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * if mode() != 'c' | checktime | endif
 autocmd FileChangedShellPost *
-    \ echohl WarningMsg | echo "File changed on disk. Buffer reloaded." | echohl None
+            \ echohl WarningMsg | echo "File changed on disk. Buffer reloaded." | echohl None
 
 " -----------------------------------COLOR SCHEME-----------------------------------
 " Color scheme (terminal)
