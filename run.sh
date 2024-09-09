@@ -28,7 +28,7 @@ chmod +x ./scripts/*
 # NOTE: BackUp
 if [[ ${kBackUp} == 1 ]]; then
     find dotfyles -type f | awk '{sub(/^dotfyles\//, ""); print}' | while IFS= read -r FILE; do
-        # rsync -a --include=".*" "${HOME}/${FILE}" "dotfyles/"
+        echo ">>>>> Backing up ${FILE}..."
         prefix=$(echo "$FILE" | awk 'BEGIN {FS=OFS="/"} {NF--; print}')
         cp "${HOME}/${FILE}" "dotfyles/${prefix}/"
     done
@@ -47,18 +47,9 @@ if [[ ${kUpdate} == 1 ]]; then
 
     # NOTE: neovim dependencies
     if [[ ${os} == "rocky" ]]; then
-        cd "${HOME}" || exit
-
         export NVM_DIR=$HOME/.nvm
         source "$NVM_DIR/nvm.sh"
-        nvm install lts --reinstall-packages-from=current
-
-        python3 -m pip install --upgrade pip setuptools wheel
-        python3 -m pip install clang-tidy -U
-        python3 -m pip install cpplint -U
-        python3 -m pip install black -U
-        python3 -m pip install pandas-stubs -U
-        python3 -m pip install pynvim -U
+        "nvm" install --lts
 
         ./scripts/install_cppcheck.sh
         ./scripts/install_ripgrep.sh
@@ -85,12 +76,9 @@ fi
 if [[ ${kInstall} == 1 ]]; then
     # NOTE: shell stuffs
     rsync -a --include="*/" --include=".*" "dotfyles/" "${HOME}/"
-    curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
-    if [ -d "$HOME/.oh-my-zsh" ]; then
-        echo "OMZ installed"
-    else
+    if [ ! -d "$HOME/.oh-my-zsh" ]; then
+        echo ">>>>> Installing oh-my-zsh..."
         ./scripts/install_omz.sh
     fi
 
@@ -99,17 +87,20 @@ if [[ ${kInstall} == 1 ]]; then
     "nvm" install --lts
 
     # NOTE: cargo
-    if ./scripts/check_exe.sh "cargo" "1.80.0"; then
+    if ! ./scripts/check_exe.sh "cargo" "1.80.0"; then
+        echo ">>>>> Installing rust..."
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
         rustup update
     fi
 
     if ! cargo install --list | grep -q "yazi-fm"; then
+        echo ">>>>> Installing yazi for file navigation..."
         cargo install --locked yazi-fm yazi-cli
     fi
 
     # NOTE: zoxide
-    if command -v zoxide &>/dev/null; then
+    if ! command -v "zoxide" &>/dev/null; then
+        echo ">>>>> installing zoxide..."
         curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
     fi
 
@@ -124,33 +115,29 @@ if [[ ${kInstall} == 1 ]]; then
         fi
     fi
 
+    source "${HOME}/.zshrc"
+    tmux source "${HOME}/.tmux.conf"
     # NOTE: install the dependencies for neovim
     if [[ ${os} == "rocky" ]]; then
-        cd "${HOME}" || exit
-        # NOTE: python env
-        python3 -m venv .venv
-        source .venv/bin/activate
-        python3 -m pip --version
-        python3 -m pip install --upgrade pip setuptools wheel
-        python3 -m pip install clang-tidy
-        python3 -m pip install pandas-stubs
-        python3 -m pip install pynvim
-
-        # NOTE: build from source
-        mkdir -p "${HOME}/bin/repos"
-
         if ! command -v cppcheck &>/dev/null; then
+            echo ">>>>> Installing cppcheck..."
             ./scripts/install_cppcheck.sh
         fi
         if ! command -v rg &>/dev/null; then
+            echo ">>>>> Installing ripgrep..."
             ./scripts/install_ripgrep.sh
         fi
-
     elif [[ ${os} == "ubuntu" ]]; then
-        sudo apt install clang-tidy nodejs
+        echo ">>>>> Installing clang-tidy..."
+        sudo apt install clang-tidy
+
+        echo ">>>>> Installing wezterm..."
         git clone https://github.com/RomaLzhih/wezterm-config.git ~/.config/wezterm
     elif [[ ${os} == "arch" ]]; then
-        sudo pacman -S clang-tidy nodejs
+        echo ">>>>> Installing clang-tidy..."
+        sudo pacman -S clang-tidy
+
+        echo ">>>>> Installing wezterm..."
         git clone https://github.com/RomaLzhih/wezterm-config.git ~/.config/wezterm
     fi
 

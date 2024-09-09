@@ -11,7 +11,7 @@ if [ ! -d ${name} ]; then
 fi
 cd ${name} || exit
 git fetch
-if ["$(git rev-parse HEAD)" == "$(git rev-parse @{u})"] && [ ${install} != 1 ]; then
+if [ "$(git rev-parse HEAD)" == "$(git rev-parse @{u})" ] && [ ${install} != 1 ]; then
     echo "rg is up to date"
     exit 1
 fi

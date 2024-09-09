@@ -303,11 +303,11 @@ inoremap <silent><expr> <TAB>
             \ CheckBackSpace() ? "\<Tab>" :
             \ coc#refresh()
 " Use <c-space> to trigger completion.
-if has('nvim')
-    inoremap <silent><expr> <c-space> coc#refresh()
-else
-    inoremap <silent><expr> <c-@> coc#refresh()
-endif
+inoremap <buffer><expr><C-m> coc#pum#visible() ? coc#pum#cancel() : "<End>"
+" if has('nvim')
+"     inoremap <silent><expr> <c-space> coc#refresh()
+" else
+" endif
 " Make <CR> auto-select the first completion item and notify coc.nvim to
 " format on enter, <cr> could be remapped by other vim plugin
 inoremap <silent><expr> <CR> pumvisible() ? coc#_select_confirm() : "\<CR>"

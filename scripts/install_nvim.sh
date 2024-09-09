@@ -19,9 +19,10 @@ cd "neovim" || exit
 git checkout master
 git fetch
 if [ "$(git rev-parse HEAD)" == "$(git rev-parse @{u})" ] && [ ${install} != 1 ]; then
-    echo "Neovim is up to date"
+    echo ">>>>> Neovim is up to date"
     exit 1
 fi
+echo ">>>>> Installing the latest neovim..."
 git checkout release-0.10
 git pull
 make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
