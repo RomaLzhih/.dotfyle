@@ -10,5 +10,5 @@
     ],
     "inlayHint.enable": false,
     "coc.preferences.formatOnSave": true,
-    "outline.autoPreview": true
+    "diagnostic.virtualText": true
 }

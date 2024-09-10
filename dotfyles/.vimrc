@@ -22,8 +22,9 @@ Plug 'tpope/vim-surround'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'github/copilot.vim', { 'as': 'copilot' }
-Plug 'junegunn/fzf'
 Plug 'tpope/vim-fugitive'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 Plug 'vim-scripts/greplace.vim', { 'as': 'greplace' }
 Plug 'lervag/vimtex'
 Plug 'lervag/vimtex', { 'tag': 'v2.15' }
@@ -33,7 +34,6 @@ Plug 'christoomey/vim-tmux-navigator'
 Plug 'tpope/vim-commentary'
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 Plug 'easymotion/vim-easymotion'
-Plug 'junegunn/fzf.vim'
 Plug 'mhinz/vim-startify'
 Plug 'chrismccord/bclose.vim', {'as': 'bclose'}
 Plug 'farmergreg/vim-lastplace'
@@ -42,6 +42,7 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'romainl/vim-cool'
 Plug 'voldikss/vim-floaterm'
 Plug 'junegunn/goyo.vim'
+Plug 'jdhao/better-escape.vim'
 Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'bfrg/vim-cpp-modern'
 
@@ -82,18 +83,22 @@ inoremap <C-h> <left>
 inoremap <C-j> <down>
 inoremap <C-k> <up>
 inoremap <C-l> <right>
-inoremap jk <Esc>
-inoremap jj <Esc>
 nnoremap <Tab> :bnext<CR>
+nnoremap <S-Tab> :bprevious<CR>
 nnoremap <Leader>x :Bclose<CR>
 nnoremap <Leader>bd :Bclose<CR>
-nnoremap <leader><space> :let @/=''<cr> " clear search
 nnoremap <C-a> ggVG
 nnoremap <C-c> "+y
 nnoremap <C-p> "+p
 
 " -----------------------------PLUGIN CONFIG-----------------------------------
+" better escape
+let g:better_escape_shortcut = ['jk', 'jj']
+
 "  goyo
+let g:goyo_width = 85
+let g:goyo_height = 100
+let g:goyo_linenr = 1
 nnoremap <silent> <Leader>zm :Goyo<CR>
 
 " tmux navigator
@@ -151,7 +156,7 @@ let g:floaterm_keymap_new    = '<F1>'
 let g:floaterm_keymap_prev   = '<F2>'
 let g:floaterm_keymap_next   = '<F3>'
 let g:floaterm_keymap_kill   = '<F4>'
-let g:floaterm_keymap_toggle = '<C-\>'
+let g:floaterm_keymap_toggle = '<C-m>'
 
 " Nerd tree
 nnoremap <C-s> :NERDTreeToggle<CR>
@@ -481,6 +486,6 @@ let g:startify_lists = [
             \ { 'type': 'files',     'header': ['   Recent']            },
             \ { 'type': 'commands',  'header': ['   Commands']       },
             \ ]
-" let g:startify_change_to_dir = 1
+let g:startify_change_to_dir = 0
 " let g:startify_custom_header = g:ascii + startify#fortune#boxed()
 let g:startify_files_number = 6
