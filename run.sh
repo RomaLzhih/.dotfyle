@@ -13,13 +13,16 @@ kUpdate=0
 kInstall=0
 kBackUp=0
 kUpdateVim=0
-while getopts u:i:b:n: flag; do
+while getopts u:i:n:b: flag; do
     case "${flag}" in
     u) kUpdate=${OPTARG} ;;
     i) kInstall=${OPTARG} ;;
     n) kUpdateVim=${OPTARG} ;;
     b) kBackUp=${OPTARG} ;;
-    *) echo "do nothing..." ;;
+    *)
+        echo "Usage: $0 [-u update] [-i install] [-n updateVim] [-b backUp]"
+        exit 1
+        ;;
     esac
 done
 
@@ -41,6 +44,7 @@ if [[ ${kUpdate} == 1 ]]; then
 
     # NOTE: neovim
     if [[ ${kUpdateVim} == 1 ]]; then
+        echo ">>>>> Updating neovim/vim..."
         ./scripts/install_nvim.sh
         ./scripts/install_vim.sh
     fi

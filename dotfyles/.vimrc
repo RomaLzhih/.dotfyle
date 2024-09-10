@@ -41,8 +41,9 @@ Plug 'raimondi/delimitmate'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'romainl/vim-cool'
 Plug 'voldikss/vim-floaterm'
-" Plug 'octol/vim-cpp-enhanced-highlight'
-" Plug 'bfrg/vim-cpp-modern'
+Plug 'junegunn/goyo.vim'
+Plug 'octol/vim-cpp-enhanced-highlight'
+Plug 'bfrg/vim-cpp-modern'
 
 Plug 'morhetz/gruvbox' 
 Plug 'lifepillar/vim-solarized8'
@@ -92,6 +93,9 @@ nnoremap <C-c> "+y
 nnoremap <C-p> "+p
 
 " -----------------------------PLUGIN CONFIG-----------------------------------
+"  goyo
+nnoremap <silent> <Leader>zm :Goyo<CR>
+
 " tmux navigator
 let g:tmux_navigator_no_mappings = 1
 nnoremap <silent> <C-h> :<C-U>TmuxNavigateLeft<cr>
@@ -131,16 +135,16 @@ nnoremap <Leader>bf :Buffers<CR>
 nnoremap <Leader>jp :Jumps<CR>
 
 " cpp highlight
-" let g:cpp_class_scope_highlight = 1
-" let g:cpp_member_variable_highlight = 1
-" let g:cpp_class_decl_highlight = 1
-" let g:cpp_posix_standard = 1
-" let g:cpp_experimental_simple_template_highlight = 1
-" let g:cpp_concepts_highlight = 1
-" let g:cpp_function_highlight = 1
-" let g:cpp_attributes_highlight = 1
-" let g:cpp_member_highlight = 1
-" let g:cpp_simple_highlight = 1
+let g:cpp_class_scope_highlight = 1
+let g:cpp_member_variable_highlight = 1
+let g:cpp_class_decl_highlight = 1
+let g:cpp_posix_standard = 1
+let g:cpp_experimental_simple_template_highlight = 1
+let g:cpp_concepts_highlight = 1
+let g:cpp_function_highlight = 1
+let g:cpp_attributes_highlight = 1
+let g:cpp_member_highlight = 1
+let g:cpp_simple_highlight = 1
 
 " float term
 let g:floaterm_keymap_new    = '<F1>'
@@ -237,7 +241,7 @@ autocmd FileChangedShellPost *
             \ echohl WarningMsg | echo "File changed on disk. Buffer reloaded." | echohl None
 
 " -----------------------------------COLOR SCHEME-----------------------------------
-" Color scheme (terminal)
+"  set highlight color
 set background=dark
 syntax match BugKeyword /BUG:/
 highlight link BugKeyword ErrorMsg
@@ -249,6 +253,9 @@ syntax match PerfKeyword /PERF:/
 highlight link PerfKeyword DiffText
 syntax match PARAKeyword /PARA:/
 highlight link PARAKeyword DiffChange
+
+" Color scheme (terminal)
+let g:gruvbox_bold = 0
 colorscheme gruvbox
 
 " use gruvbox in default 256 color
@@ -273,6 +280,19 @@ function! s:kill_all_floaterm() abort
 endfunction
 autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree()  | call s:kill_all_floaterm() | quit | endif
 autocmd BufEnter * if winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | call s:kill_all_floaterm() | quit | endif
+
+" kill all buffers when writing wq
+function! SaveAndQuit()
+  write
+  let buffers = filter(range(1, bufnr('$')), 'buflisted(v:val)')
+  for buf in buffers
+    if !getbufvar(buf, '&modified') && buf != bufnr('%')
+      execute 'bdelete' buf
+    endif
+  endfor
+  quit
+endfunction
+command! WQ call SaveAndQuit()
 
 " ---------------------------------------COC---------------------------------------------
 " Some servers have issues with backup files, see #649.
@@ -303,7 +323,6 @@ inoremap <silent><expr> <TAB>
             \ CheckBackSpace() ? "\<Tab>" :
             \ coc#refresh()
 " Use <c-space> to trigger completion.
-inoremap <buffer><expr><C-m> coc#pum#visible() ? coc#pum#cancel() : "<End>"
 " if has('nvim')
 "     inoremap <silent><expr> <c-space> coc#refresh()
 " else
@@ -325,48 +344,49 @@ nmap <silent> gr <Plug>(coc-references)
 " Use K to show documentation in preview window.
 nnoremap <silent> K :call <SID>show_documentation()<CR>
 let g:coc_global_extensions = ['coc-clangd', 'coc-sh', 'coc-diagnostic', 'coc-highlight']
-let g:coc_default_semantic_highlight_groups = 0
-let hlMap = {
-            \ 'Namespace': 'Include',
-            \ 'Type': 'Type',
-            \ 'Class': 'Special',
-            \ 'Enum': 'Class',
-            \ 'Interface': 'Type',
-            \ 'Struct': 'Structure',
-            \ 'TypeParameter': 'Parameter',
-            \ 'TypeTypeParameter': 'Type',
-            \ 'TypeType': 'Type',
-            \ 'TypeVariable': 'Variable',
-            \ 'TypeConcept': 'Constant',
-            \ 'TypeUnknown': 'Identifier',
-            \ 'TypeMethod': 'Function',
-            \ 'TypeClass': 'Special',
-            \ 'TypeProperty': 'Identifier',
-            \ 'TypeFunction': 'Function',
-            \ 'TypeMacro': 'Define',
-            \ 'TypeNamespace': 'Include',
-            \ 'Parameter': 'Parameter',
-            \ 'Variable': 'Variable',
-            \ 'Property': 'Identifier',
-            \ 'EnumMember': 'Constant',
-            \ 'Event': 'Keyword',
-            \ 'Function': 'Function',
-            \ 'Method': 'Function',
-            \ 'Macro': 'Define',
-            \ 'Keyword': 'Keyword',
-            \ 'Modifier': 'StorageClass',
-            \ 'Comment': 'Comment',
-            \ 'String': 'String',
-            \ 'Number': 'Number',
-            \ 'Boolean': 'Boolean',
-            \ 'Regexp': 'String',
-            \ 'Operator': 'Operator',
-            \ 'Decorator': 'Identifier',
-            \ 'Deprecated': 'CocDeprecatedHighlight'
-            \ }
-for [key, value] in items(hlMap)
-    execute 'hi default link CocSem'.key.' '.(value)
-endfor
+" let g:coc_default_semantic_highlight_groups = 1
+" let hlMap = {
+"             \ 'Namespace': 'Include',
+"             \ 'Type': 'Type',
+"             \ 'Class': 'Special',
+"             \ 'Enum': 'Class',
+"             \ 'Interface': 'Type',
+"             \ 'Struct': 'Structure',
+"             \ 'TypeParameter': 'Parameter',
+"             \ 'TypeTypeParameter': 'Type',
+"             \ 'TypeType': 'Type',
+"             \ 'TypeVariable': 'Variable',
+"             \ 'TypeConcept': 'Constant',
+"             \ 'TypeUnknown': 'Identifier',
+"             \ 'TypeMethod': 'Function',
+"             \ 'TypeClass': 'Special',
+"             \ 'TypeProperty': 'Identifier',
+"             \ 'TypeFunction': 'Function',
+"             \ 'TypeMacro': 'Define',
+"             \ 'TypeNamespace': 'Include',
+"             \ 'Parameter': 'Parameter',
+"             \ 'Variable': 'Variable',
+"             \ 'Property': 'Identifier',
+"             \ 'EnumMember': 'Constant',
+"             \ 'Event': 'Keyword',
+"             \ 'Function': 'Function',
+"             \ 'Method': 'Function',
+"             \ 'Macro': 'Define',
+"             \ 'Keyword': 'Keyword',
+"             \ 'Modifier': 'StorageClass',
+"             \ 'Comment': 'Comment',
+"             \ 'String': 'String',
+"             \ 'Number': 'Number',
+"             \ 'Boolean': 'Boolean',
+"             \ 'Regexp': 'String',
+"             \ 'Operator': 'Operator',
+"             \ 'Decorator': 'Identifier',
+"             \ 'Deprecated': 'CocDeprecatedHighlight'
+"             \ }
+" for [key, value] in items(hlMap)
+"     execute 'hi default link CocSem'.key.' '.(value)
+" endfor
+
 " Hover
 function! s:show_documentation()
     if (index(['vim','help'], &filetype) >= 0)

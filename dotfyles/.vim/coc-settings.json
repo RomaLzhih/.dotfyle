@@ -10,6 +10,5 @@
     ],
     "inlayHint.enable": false,
     "coc.preferences.formatOnSave": true,
-    "outline.autoPreview": true,
-    "semanticTokens.enable": true
+    "outline.autoPreview": true
 }
