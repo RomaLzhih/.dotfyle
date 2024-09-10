@@ -20,12 +20,10 @@ call plug#begin()
 Plug 'preservim/nerdtree'
 Plug 'tpope/vim-surround' 
 Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
 Plug 'github/copilot.vim', { 'as': 'copilot' }
 Plug 'tpope/vim-fugitive'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-Plug 'vim-scripts/greplace.vim', { 'as': 'greplace' }
 Plug 'lervag/vimtex'
 Plug 'lervag/vimtex', { 'tag': 'v2.15' }
 Plug 'yggdroot/indentline'
@@ -156,7 +154,7 @@ let g:floaterm_keymap_new    = '<F1>'
 let g:floaterm_keymap_prev   = '<F2>'
 let g:floaterm_keymap_next   = '<F3>'
 let g:floaterm_keymap_kill   = '<F4>'
-let g:floaterm_keymap_toggle = '<C-m>'
+let g:floaterm_keymap_toggle = '<F12>'
 
 " Nerd tree
 nnoremap <C-s> :NERDTreeToggle<CR>
