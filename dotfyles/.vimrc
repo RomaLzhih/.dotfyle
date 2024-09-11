@@ -41,6 +41,7 @@ Plug 'romainl/vim-cool'
 Plug 'voldikss/vim-floaterm'
 Plug 'junegunn/goyo.vim'
 Plug 'jdhao/better-escape.vim'
+Plug 'wellle/targets.vim'
 Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'bfrg/vim-cpp-modern'
 
