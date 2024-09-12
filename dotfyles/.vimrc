@@ -30,6 +30,7 @@ Plug 'yggdroot/indentline'
 Plug 'terryma/vim-smooth-scroll'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'tpope/vim-commentary'
+Plug 'airblade/vim-gitgutter'
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 Plug 'easymotion/vim-easymotion'
 Plug 'mhinz/vim-startify'
@@ -64,15 +65,59 @@ Plug 'junegunn/seoul256.vim'
 " - Automatically executes `filetype plugin indent on` and `syntax enable`.
 call plug#end()
 
+" vim-lsp
+let g:copilot_no_tab_map = v:true
+" inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <silent><expr> <TAB>
+            \ pumvisible() ? "\<C-n>":
+            \ exists('b:_copilot.suggestions') ? copilot#Accept("\<CR>") :
+            \ "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+inoremap <expr> <cr>    pumvisible() ? asyncomplete#close_popup() : "\<cr>"
+
+set signcolumn=yes
+" let g:lsp_diagnostics_signs_enabled = 0
+let g:asycomplete_max_items = 10
+let g:lsp_diagnostics_highlights_enabled = 0
+let g:lsp_diagnostics_highlights_insert_mode_enabled = 0
+let g:lsp_diagnostics_signs_insert_mode_enabled = 0
+if executable('clangd')
+    au User lsp_setup call lsp#register_server({
+        \ 'name': 'clangd',
+        \ 'cmd': {server_info->['clangd', '-background-index']},
+        \ 'whitelist': ['c', 'cpp', 'objc', 'objcpp'],
+        \ })
+endif
+if executable('bash-language-server')
+  augroup LspBash
+    autocmd!
+    autocmd User lsp_setup call lsp#register_server({
+          \ 'name': 'bash-language-server',
+          \ 'cmd': {server_info->[&shell, &shellcmdflag, 'bash-language-server start']},
+          \ 'allowlist': ['sh'],
+          \ })
+  augroup END
+endif
+if executable('pyls')
+    au User lsp_setup call lsp#register_server({
+        \ 'name': 'pyls',
+        \ 'cmd': {server_info->['pyls']},
+        \ 'whitelist': ['python'],
+        \ })
+endif
+autocmd BufWrite *.sh,*.py,*.c,*.h,*.hpp,*.cpp LspDocumentFormat
+
+let g:lsp_diagnostics_virtual_text_align = "right"
+let g:lsp_semantic_enabled = 1 
+autocmd ColorScheme * highlight link LspSemanticVariable Variable
+autocmd ColorScheme * highlight link LspSemanticProperty Identifier
+autocmd ColorScheme * highlight link LspSemanticUnknown Identifier
+autocmd ColorScheme * highlight link LspSemanticFunction Function
+autocmd ColorScheme * highlight link LspSemanticParameter Parameter
+autocmd ColorScheme * highlight link LspSemanticConcept Macro
+autocmd ColorScheme * highlight link Readonly Number
+
 " ---------------------------------------MAPPING-----------------------------------
-
-" Turn on syntax highlighting
-syntax on
-" For plugins to load correctly
-filetype plugin indent on
-:autocmd InsertEnter * set cursorline
-:autocmd InsertLeave * set nocursorline
-
 " Pick a leader key
 let mapleader = " "
 let maplocalleader = "\\"
@@ -102,13 +147,13 @@ nnoremap <C-p> "+p
 nnoremap gd :LspDefinition<CR>
 nnoremap gD :LspDeclaration<CR>
 nnoremap K :LspHover<CR>
-nnoremap pd :LspPeekDefinition<CR>
-nnoremap pD :LspPeekDeclaration<CR>
-nnoremap rn :LspRename<CR>
-nnoremap ol :LspWorkspaceSymbol<CR>
-nnoremap ca :LspCodeAction<CR>
-nnoremap ic :LspCallHierarchyIncoming<CR>
-nnoremap oc :LspCallHierarchyOutgoing<CR>
+nnoremap <Leader>pd :LspPeekDefinition<CR>
+nnoremap <Leader>pD :LspPeekDeclaration<CR>
+nnoremap <Leader>rn :LspRename<CR>
+nnoremap <Leader>ol :LspWorkspaceSymbol<CR>
+nnoremap <Leader>ca :LspCodeAction<CR>
+nnoremap <Leader>ic :LspCallHierarchyIncoming<CR>
+nnoremap <Leader>oc :LspCallHierarchyOutgoing<CR>
 nnoremap <Leader>fm :LspDocumentFormat<CR>
 nnoremap ]g :LspNextDiagnostic<CR>
 nnoremap [g :LspPreviousDiagnostic<CR>
@@ -140,7 +185,6 @@ let g:vimtex_quickfix_open_on_warning = 0
 let g:vimtex_syntax_conceal_disable = 1
 
 " copilot
-let g:copilot_no_tab_map = v:true
 " imap <silent><script><expr> <C-space> copilot#Accept("\<CR>")
 
 " air line
@@ -202,6 +246,14 @@ map  n <Plug>(easymotion-next)
 map  N <Plug>(easymotion-prev)
 
 " -------------------------------VIM CONFIG---------------------------------
+" Turn on syntax highlighting
+syntax on
+
+" For plugins to load correctly
+filetype plugin indent on
+:autocmd InsertEnter * set cursorline
+:autocmd InsertLeave * set nocursorline
+
 " Swap file
 set directory^=$HOME/.vim/swap//
 
@@ -328,47 +380,6 @@ endfunction
 command! WQ call SaveAndQuit()
 
 " ---------------------------------------COC---------------------------------------------
-" inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <silent><expr> <TAB>
-            \ pumvisible() ? "\<C-n>":
-            \ exists('b:_copilot.suggestions') ? copilot#Accept("\<CR>") :
-            \ "\<Tab>"
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-inoremap <expr> <cr>    pumvisible() ? asyncomplete#close_popup() : "\<cr>"
-
-let g:asycomplete_max_items = 10
-if executable('clangd')
-    au User lsp_setup call lsp#register_server({
-        \ 'name': 'clangd',
-        \ 'cmd': {server_info->['clangd', '-background-index']},
-        \ 'whitelist': ['c', 'cpp', 'objc', 'objcpp'],
-        \ })
-endif
-if executable('bash-language-server')
-  augroup LspBash
-    autocmd!
-    autocmd User lsp_setup call lsp#register_server({
-          \ 'name': 'bash-language-server',
-          \ 'cmd': {server_info->[&shell, &shellcmdflag, 'bash-language-server start']},
-          \ 'allowlist': ['sh'],
-          \ })
-  augroup END
-endif
-if executable('pyls')
-    au User lsp_setup call lsp#register_server({
-        \ 'name': 'pyls',
-        \ 'cmd': {server_info->['pyls']},
-        \ 'whitelist': ['python'],
-        \ })
-endif
-autocmd BufWritePre *.sh,*.py,*.c,*.cpp LspDocumentFormat
-let g:lsp_semantic_enabled = 1 
-autocmd ColorScheme * highlight link LspSemanticVariable Variable
-autocmd ColorScheme * highlight link LspSemanticParameter Parameter
-autocmd ColorScheme * highlight link LspSemanticConcept Macro
-autocmd ColorScheme * highlight link Readonly Number
-
-let g:lsp_diagnostics_virtual_text_align = "right"
 " -----------------------------STARTIFY-----------------------------------
 let g:startify_commands = [
             \ {'g': ['Git status', 'Git']},
