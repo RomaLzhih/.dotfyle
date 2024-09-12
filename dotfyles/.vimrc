@@ -141,7 +141,7 @@ let g:vimtex_syntax_conceal_disable = 1
 
 " copilot
 let g:copilot_no_tab_map = v:true
-imap <silent><script><expr> <C-space> copilot#Accept("\<CR>")
+" imap <silent><script><expr> <C-space> copilot#Accept("\<CR>")
 
 " air line
 let g:airline#extensions#tabline#enabled = 1
@@ -328,9 +328,14 @@ endfunction
 command! WQ call SaveAndQuit()
 
 " ---------------------------------------COC---------------------------------------------
-inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+" inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <silent><expr> <TAB>
+            \ pumvisible() ? "\<C-n>":
+            \ exists('b:_copilot.suggestions') ? copilot#Accept("\<CR>") :
+            \ "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 inoremap <expr> <cr>    pumvisible() ? asyncomplete#close_popup() : "\<cr>"
+
 let g:asycomplete_max_items = 10
 if executable('clangd')
     au User lsp_setup call lsp#register_server({
