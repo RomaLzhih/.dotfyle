@@ -98,7 +98,7 @@ let g:better_escape_shortcut = ['jk', 'jj']
 let g:goyo_width = 85
 let g:goyo_height = 100
 let g:goyo_linenr = 1
-nnoremap <silent> <Leader>cb :Goyo<CR
+nnoremap <silent> <Leader>cb :Goyo<CR>
 
 " tmux navigator
 let g:tmux_navigator_no_mappings = 1

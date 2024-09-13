@@ -30,7 +30,7 @@ export PATH="${HOME}/.local/share/nvim/mason/bin:${PATH}"
 export PATH="${HOME}/neovim/bin:${PATH}"
 export PATH="${HOME}/vim/bin:${PATH}"
 export PATH="${HOME}/.cargo/bin:${PATH}"
-# export PATH="$PATH:$(go env GOPATH)/bin"
+export GEMINI_API_KEY=$(cat ~/.gemini_api_key)
 
 
 function ya() {
