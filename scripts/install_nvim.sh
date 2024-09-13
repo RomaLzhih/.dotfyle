@@ -4,15 +4,15 @@ name="neovim"
 mkdir -p "${HOME}/bin/repos"
 cd "${HOME}/bin/repos" || exit
 
-# if [[ ${os} == "ubuntu" ]]; then
-#     sudo apt-get install ninja-build gettext cmake unzip curl build-essential
-# elif [[ ${os} == "arch" ]]; then
-#     pacman -S ninja-build gettext cmake unzip curl build-essential
-# fi
+if [[ ${os} == "ubuntu" ]]; then
+    sudo apt-get install ninja-build gettext cmake unzip curl build-essential
+elif [[ ${os} == "arch" ]]; then
+    pacman -S ninja-build gettext cmake unzip curl build-essential
+fi
 
 install=0
 if [ ! -d ${name} ]; then
-    git clone https://github.com/neovim/neovim --depth=1 || exit
+    git clone https://github.com/neovim/neovim || exit
     install=1
 fi
 cd "neovim" || exit
