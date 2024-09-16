@@ -40,7 +40,7 @@ fi
 # PERF: Update
 if [[ ${kUpdate} == 1 ]]; then
     # NOTE: COPY file
-    rsync -a --include="*/" --include=".*" "dotfyles/" "${HOME}/"
+    rsync -r --no-perms --no-owner --include="*/" --include=".*" "dotfyles/" "${HOME}/"
 
     # NOTE: neovim
     if [[ ${kUpdateVim} == 1 ]]; then
@@ -63,7 +63,7 @@ fi
 # PERF: Install
 if [[ ${kInstall} == 1 ]]; then
     # NOTE: shell stuffs
-    rsync -a --include="*/" --include=".*" "dotfyles/" "${HOME}/"
+    rsync -r --no-perms --no-owner --include="*/" --include=".*" "dotfyles/" "${HOME}/"
 
     if [ ! -d "$HOME/.oh-my-zsh" ]; then
         echo ">>>>> Installing oh-my-zsh..."

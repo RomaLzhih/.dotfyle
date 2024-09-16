@@ -19,7 +19,7 @@ rm -rf build
 mkdir -p build
 cd "build" || exit
 cmake ..
-cmake --build .
+cmake --build . -j 8
 cd "${HOME}/bin/" || exit
 rm -f cppcheck
 ln -s "${HOME}/bin/repos/cppcheck/build/bin/cppcheck" ~/bin/cppcheck

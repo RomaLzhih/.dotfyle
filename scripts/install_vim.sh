@@ -18,7 +18,7 @@ fi
 echo ">>>>> Installing the latest vim..."
 git pull
 ./configure --prefix="$HOME/vim"
-make
+make -j8
 make install
 export PATH="$HOME/vim/bin:$PATH"
 
