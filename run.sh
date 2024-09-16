@@ -49,28 +49,12 @@ if [[ ${kUpdate} == 1 ]]; then
         ./scripts/install_vim.sh
     fi
 
-    # NOTE: neovim dependencies
-    if [[ ${os} == "rocky" ]]; then
-        export NVM_DIR=$HOME/.nvm
-        source "$NVM_DIR/nvm.sh"
-        "nvm" install --lts
-
-        ./scripts/install_cppcheck.sh
-        ./scripts/install_ripgrep.sh
-
-    elif [[ ${os} == "ubuntu" ]]; then
-        sudo apt update && sudo apt upgrade -y
-    elif [[ ${os} == "arch" ]]; then
-        sudo pacman -Syu
-    fi
+    # NOTE: update plugins
+    echo ">>>>> Updating plugins..."
+    ./scripts/update_plugins.sh "${os}"
 
     # NOTE: cargo related stuffs
-    if cargo install --list | grep -q 'cargo-update'; then
-        cargo install-update -a
-    else
-        cargo install cargo-update
-        cargo install-update -a
-    fi
+    cargo install-update -a
 
     source "${HOME}/.zshrc"
     tmux source "${HOME}/.tmux.conf"
