@@ -51,7 +51,7 @@ if [[ ${kUpdate} == 1 ]]; then
 
     # NOTE: update plugins
     echo ">>>>> Updating plugins..."
-    ./scripts/update_plugins.sh "${os}"
+    ./scripts/update_packages.sh "${os}"
 
     # NOTE: cargo related stuffs
     cargo install-update -a
