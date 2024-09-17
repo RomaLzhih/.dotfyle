@@ -239,11 +239,10 @@ endfunction
 
 function! MakeCommand()
     if g:make_argument == ''
-        call set_make_argument()
+        call SetMakeArgument()
     endif
     let &makeprg = 'make -C build -j4 '. g:make_argument
     execute 'make'
-    copen
 endfunction
 
 nnoremap <Leader>mk :call MakeCommand()<CR>
