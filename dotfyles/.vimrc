@@ -86,6 +86,8 @@ nnoremap <Tab> :bnext<CR>
 nnoremap <S-Tab> :bprevious<CR>
 nnoremap <Leader>x :Bclose<CR>
 nnoremap <Leader>bd :Bclose<CR>
+nnoremap <Leader>cl :cclose<CR>
+nnoremap <Leader>co :copen<CR>
 nnoremap <C-a> ggVG
 nnoremap <C-c> "+y
 nnoremap <C-p> "+p
@@ -228,6 +230,24 @@ set laststatus=2
 " Last line
 set showmode
 set showcmd
+
+" make
+let g:make_argument=''
+function! SetMakeArgument()
+    let g:make_argument = input('Make argument: ')
+endfunction
+
+function! MakeCommand()
+    if g:make_argument == ''
+        call set_make_argument()
+    endif
+    let &makeprg = 'make -C build -j4 '. g:make_argument
+    execute 'make'
+    copen
+endfunction
+
+nnoremap <Leader>mk :call MakeCommand()<CR>
+nnoremap <Leader>ma :call SetMakeArgument()<CR>
 
 " Searching
 set hlsearch
