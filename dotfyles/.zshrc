@@ -2,7 +2,12 @@
 export ZSH="$HOME/.oh-my-zsh"
 
 # ZSH_THEME="headline/headline"
+
 ZSH_THEME="typewritten/typewritten"
+
+TYPEWRITTEN_PROMPT_LAYOUT="singleline"
+TYPEWRITTEN_CURSOR="block"
+TYPEWRITTEN_COLOR_MAPPINGS="primary:blue;secondary:white;accent:yellow"
 
 plugins=(
 zsh-autosuggestions
@@ -19,10 +24,6 @@ ZVM_LINE_INIT_MODE=$ZVM_MODE_INSERT
 ZVM_INSERT_MODE_CURSOR=$ZVM_CURSOR_BLINKING_BLOCK
 ZVM_NORMAL_MODE_CURSOR=$ZVM_CURSOR_BLOCK
 ZVM_VI_INSERT_ESCAPE_BINDKEY=jk
-
-TYPEWRITTEN_PROMPT_LAYOUT="singleline"
-TYPEWRITTEN_CURSOR="block"
-TYPEWRITTEN_COLOR_MAPPINGS="primary:blue;secondary:white;accent:yellow"
 
 if [ -d "$HOME/bin" ]; then
 PATH="$HOME/bin:$PATH"
