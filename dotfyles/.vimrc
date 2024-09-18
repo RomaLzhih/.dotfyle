@@ -27,7 +27,7 @@ Plug 'junegunn/fzf.vim'
 Plug 'lervag/vimtex'
 Plug 'lervag/vimtex', { 'tag': 'v2.15' }
 Plug 'yggdroot/indentline'
-Plug 'terryma/vim-smooth-scroll'
+Plug 'psliwka/vim-smoothie'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'tpope/vim-commentary'
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
@@ -90,7 +90,6 @@ nnoremap <Leader>cl :cclose<CR>
 nnoremap <Leader>co :copen<CR>
 nnoremap <C-a> ggVG
 nnoremap <C-c> "+y
-nnoremap <C-p> "+p
 
 " -----------------------------PLUGIN CONFIG-----------------------------------
 " better escape
@@ -110,10 +109,7 @@ nnoremap <silent> <C-k> :<C-U>TmuxNavigateUp<cr>
 nnoremap <silent> <C-l> :<C-U>TmuxNavigateRight<cr>
 
 " smooth scroll
-noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
-noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
-noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<CR>
-noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
+let g:smoothie_experimental_mappings = 1
 
 " vimtex
 let g:vimtex_view_method = 'sioyek'
@@ -157,7 +153,7 @@ let g:floaterm_keymap_new    = '<F1>'
 let g:floaterm_keymap_prev   = '<F2>'
 let g:floaterm_keymap_next   = '<F3>'
 let g:floaterm_keymap_kill   = '<F4>'
-let g:floaterm_keymap_toggle = '<F12>'
+let g:floaterm_keymap_toggle = '<C-i>'
 
 " Nerd tree
 nnoremap <C-s> :NERDTreeToggle<CR>
@@ -166,7 +162,7 @@ autocmd FileType nerdtree map <buffer> l <CR>
 
 " easy motion
 let g:EasyMotion_smartcase = 1
-let g:EasyMotion_no_mapping = 0
+let g:EasyMotion_do_mapping = 0
 autocmd User EasyMotionPromptBegin :let b:coc_diagnostic_disable = 1
 autocmd User EasyMotionPromptEnd :let b:coc_diagnostic_disable = 0
 
