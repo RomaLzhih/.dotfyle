@@ -43,6 +43,7 @@ Plug 'junegunn/goyo.vim'
 Plug 'jdhao/better-escape.vim'
 Plug 'wellle/targets.vim'
 Plug 'octol/vim-cpp-enhanced-highlight'
+Plug 'skywind3000/asyncrun.vim'
 Plug 'bfrg/vim-cpp-modern'
 
 Plug 'morhetz/gruvbox' 
@@ -160,6 +161,27 @@ nnoremap <C-s> :NERDTreeToggle<CR>
 autocmd FileType nerdtree map <buffer> h u
 autocmd FileType nerdtree map <buffer> l <CR>
 
+" make
+let g:asyncrun_open = 15
+let g:make_argument=''
+function! SetMakeArgument()
+    let g:make_argument = input('Make argument: ')
+endfunction
+function! MakeCommand()
+    if g:make_argument == ''
+        call SetMakeArgument()
+    endif
+    " let &makeprg = 'make -C build -j4 '. g:make_argument
+    " execute 'make'
+    execute 'AsyncRun make -C build -j4 '. g:make_argument
+endfunction
+
+augroup local-asyncrun
+    au!
+    au User AsyncRunStop copen | wincmd p
+augroup END
+nnoremap <Leader>mk :call MakeCommand()<CR>
+nnoremap <Leader>ma :call SetMakeArgument()<CR>
 " easy motion
 let g:EasyMotion_smartcase = 1
 let g:EasyMotion_do_mapping = 0
@@ -227,22 +249,6 @@ set laststatus=2
 set showmode
 set showcmd
 
-" make
-let g:make_argument=''
-function! SetMakeArgument()
-    let g:make_argument = input('Make argument: ')
-endfunction
-
-function! MakeCommand()
-    if g:make_argument == ''
-        call SetMakeArgument()
-    endif
-    let &makeprg = 'make -C build -j4 '. g:make_argument
-    execute 'make'
-endfunction
-
-nnoremap <Leader>mk :call MakeCommand()<CR>
-nnoremap <Leader>ma :call SetMakeArgument()<CR>
 
 " Searching
 set hlsearch
