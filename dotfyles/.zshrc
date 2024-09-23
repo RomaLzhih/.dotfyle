@@ -36,7 +36,7 @@ export PATH="${HOME}/.local/share/nvim/mason/bin:${PATH}"
 export PATH="${HOME}/neovim/bin:${PATH}"
 export PATH="${HOME}/vim/bin:${PATH}"
 export PATH="${HOME}/.cargo/bin:${PATH}"
-export GEMINI_API_KEY=$(cat $HOME/.gemini_api_key)
+export GEMINI_API_KEY=$(cat "$HOME/.gemini_api_key")
 
 function ya() {
     local tmp="$(mktemp -t "yazi-cwd.XXXXX")"
