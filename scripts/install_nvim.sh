@@ -32,3 +32,5 @@ export PATH="$HOME/neovim/bin:$PATH"
 rm -rf ~/.config/nvim
 rm -rf ~/.local/share/nvim
 git clone git@github.com:RomaLzhih/neovim_config.git ~/.config/nvim
+
+nvim --headless -c "MasonInstall clangd cpplint clang-format lua-language-server stylua bash-language-server shfmt pyright pylint black codelldb" -c "qall"
