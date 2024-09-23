@@ -98,7 +98,7 @@ let g:better_escape_shortcut = ['jk', 'jj']
 
 "  goyo
 let g:goyo_width = 85
-let g:goyo_height = 100
+let g:goyo_height = 99
 let g:goyo_linenr = 1
 nnoremap <silent> <Leader>cb :Goyo<CR>
 
@@ -108,6 +108,10 @@ nnoremap <silent> <C-h> :<C-U>TmuxNavigateLeft<cr>
 nnoremap <silent> <C-j> :<C-U>TmuxNavigateDown<cr>
 nnoremap <silent> <C-k> :<C-U>TmuxNavigateUp<cr>
 nnoremap <silent> <C-l> :<C-U>TmuxNavigateRight<cr>
+
+" remove useless auto pairs in cpp and latex
+au FileType cpp let delimitMate_matchpairs = "(:),[:],{:}"
+au FileType tex let delimitMate_matchpairs = "(:),[:],{:},$:$"
 
 " smooth scroll
 let g:smoothie_experimental_mappings = 1
@@ -154,7 +158,7 @@ let g:floaterm_keymap_new    = '<F1>'
 let g:floaterm_keymap_prev   = '<F2>'
 let g:floaterm_keymap_next   = '<F3>'
 let g:floaterm_keymap_kill   = '<F4>'
-let g:floaterm_keymap_toggle = '<C-\>'
+let g:floaterm_keymap_toggle = '<C-p>'
 
 " Nerd tree
 nnoremap <C-s> :NERDTreeToggle<CR>
