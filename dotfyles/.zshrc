@@ -5,7 +5,7 @@ export ZSH="$HOME/.oh-my-zsh"
 
 ZSH_THEME="typewritten/typewritten"
 
-TYPEWRITTEN_PROMPT_LAYOUT="singleline"
+TYPEWRITTEN_PROMPT_LAYOUT="singleline_verbose"
 TYPEWRITTEN_CURSOR="block"
 TYPEWRITTEN_COLOR_MAPPINGS="primary:blue;secondary:white;accent:yellow"
 

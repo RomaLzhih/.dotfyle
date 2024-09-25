@@ -8,7 +8,7 @@
         "sh",
         "cpp"
     ],
-    "inlayHint.enable": false,
+    "inlayHint.enable": true,
     "coc.preferences.formatOnSave": true,
     "diagnostic.virtualText": true
 }

@@ -373,48 +373,6 @@ nmap <silent> gr <Plug>(coc-references)
 " Use K to show documentation in preview window.
 nnoremap <silent> K :call <SID>show_documentation()<CR>
 let g:coc_global_extensions = ['coc-clangd', 'coc-sh', 'coc-diagnostic', 'coc-highlight']
-" let g:coc_default_semantic_highlight_groups = 1
-" let hlMap = {
-"             \ 'Namespace': 'Include',
-"             \ 'Type': 'Type',
-"             \ 'Class': 'Special',
-"             \ 'Enum': 'Class',
-"             \ 'Interface': 'Type',
-"             \ 'Struct': 'Structure',
-"             \ 'TypeParameter': 'Parameter',
-"             \ 'TypeTypeParameter': 'Type',
-"             \ 'TypeType': 'Type',
-"             \ 'TypeVariable': 'Variable',
-"             \ 'TypeConcept': 'Constant',
-"             \ 'TypeUnknown': 'Identifier',
-"             \ 'TypeMethod': 'Function',
-"             \ 'TypeClass': 'Special',
-"             \ 'TypeProperty': 'Identifier',
-"             \ 'TypeFunction': 'Function',
-"             \ 'TypeMacro': 'Define',
-"             \ 'TypeNamespace': 'Include',
-"             \ 'Parameter': 'Parameter',
-"             \ 'Variable': 'Variable',
-"             \ 'Property': 'Identifier',
-"             \ 'EnumMember': 'Constant',
-"             \ 'Event': 'Keyword',
-"             \ 'Function': 'Function',
-"             \ 'Method': 'Function',
-"             \ 'Macro': 'Define',
-"             \ 'Keyword': 'Keyword',
-"             \ 'Modifier': 'StorageClass',
-"             \ 'Comment': 'Comment',
-"             \ 'String': 'String',
-"             \ 'Number': 'Number',
-"             \ 'Boolean': 'Boolean',
-"             \ 'Regexp': 'String',
-"             \ 'Operator': 'Operator',
-"             \ 'Decorator': 'Identifier',
-"             \ 'Deprecated': 'CocDeprecatedHighlight'
-"             \ }
-" for [key, value] in items(hlMap)
-"     execute 'hi default link CocSem'.key.' '.(value)
-" endfor
 
 " Hover
 function! s:show_documentation()
@@ -430,7 +388,7 @@ endfunction
 autocmd CursorHold * silent call CocActionAsync('highlight')
 " Symbol renaming.
 nmap <leader>rn <Plug>(coc-rename)
-nmap <leader>inlay :CocCommand document.toggleInlayHint
+nmap <leader>il :CocCommand document.toggleInlayHint <CR>
 " Formatting selected code.
 xmap <leader>fm  <Plug>(coc-format)
 nmap <leader>fm  <Plug>(coc-format)
