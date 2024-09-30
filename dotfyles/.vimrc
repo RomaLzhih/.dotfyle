@@ -111,7 +111,6 @@ nnoremap <silent> <C-l> :<C-U>TmuxNavigateRight<cr>
 
 " remove useless auto pairs in cpp and latex
 au FileType cpp let delimitMate_matchpairs = "(:),[:],{:}"
-au FileType tex let delimitMate_matchpairs = "(:),[:],{:},$:$"
 
 " smooth scroll
 let g:smoothie_experimental_mappings = 1
@@ -293,12 +292,8 @@ augroup ColorSchemeSettings
     autocmd ColorScheme * if g:colors_name == 'gruvbox' | set t_Co=256 | else | set termguicolors | endif
 augroup END
 
-" use nord for better color in latex (gruvbox is not good for latex)
-augroup LaTeXColorScheme
-    autocmd!
-    autocmd FileType tex bib colorscheme nord
-    autocmd FileType tex bib let g:indentLine_setConceal = 0
-augroup END
+" latex
+autocmd FileType tex,bib let g:indentLine_setConceal = 0
 
 " kill both floaterm and nerdtree when only they exists
 function! s:kill_all_floaterm() abort
