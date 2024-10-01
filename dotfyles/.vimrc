@@ -95,6 +95,10 @@ nnoremap <C-c> "+y
 " -----------------------------PLUGIN CONFIG-----------------------------------
 if has("gui_running")
   set guifont=Consolas:h12
+set guioptions-=l  " Remove the left scrollbar
+set guioptions-=r  " Remove the right scrollbar
+set guioptions-=m  " Remove the menu bar
+set guioptions-=T  " Remove the toolbar
 endif
 
 " better escape
