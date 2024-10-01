@@ -93,6 +93,10 @@ nnoremap <C-a> ggVG
 nnoremap <C-c> "+y
 
 " -----------------------------PLUGIN CONFIG-----------------------------------
+if has("gui_running")
+  set guifont=Consolas:h12
+endif
+
 " better escape
 let g:better_escape_shortcut = ['jk', 'jj']
 
