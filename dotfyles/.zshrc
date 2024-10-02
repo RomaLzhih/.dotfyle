@@ -1,13 +1,11 @@
-
 export ZSH="$HOME/.oh-my-zsh"
 
-# ZSH_THEME="headline/headline"
+ZSH_THEME="headline/headline"
 
-ZSH_THEME="typewritten/typewritten"
-
-TYPEWRITTEN_PROMPT_LAYOUT="singleline_verbose"
-TYPEWRITTEN_CURSOR="block"
-TYPEWRITTEN_COLOR_MAPPINGS="primary:blue;secondary:white;accent:yellow"
+# ZSH_THEME="typewritten/typewritten"
+# TYPEWRITTEN_PROMPT_LAYOUT="singleline_verbose"
+# TYPEWRITTEN_CURSOR="block"
+# TYPEWRITTEN_COLOR_MAPPINGS="primary:blue;secondary:white;accent:yellow"
 
 plugins=(
 zsh-autosuggestions
@@ -19,6 +17,10 @@ zsh-vi-mode
 
 source $ZSH/oh-my-zsh.sh
 
+HEADLINE_USER_PREFIX=' '
+HEADLINE_HOST_PREFIX=' '
+HEADLINE_PATH_PREFIX=' '
+HEADLINE_BRANCH_PREFIX=' '
 # Always starting with insert mode for each command line
 ZVM_LINE_INIT_MODE=$ZVM_MODE_INSERT
 ZVM_INSERT_MODE_CURSOR=$ZVM_CURSOR_BLINKING_BLOCK
