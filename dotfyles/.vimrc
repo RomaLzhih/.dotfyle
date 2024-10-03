@@ -131,6 +131,10 @@ else
 endif
 let g:vimtex_quickfix_open_on_warning = 0
 let g:vimtex_syntax_conceal_disable = 1
+let g:vimtex_compiler_latexmk = {
+    \ 'continuous' : 0,
+    \}
+autocmd FileType tex nnoremap <Leader>mk <Plug>(vimtex-compile)
 
 " copilot
 let g:copilot_no_tab_map = v:true
@@ -195,8 +199,8 @@ augroup local-asyncrun
     au!
     au User AsyncRunStop copen | wincmd p
 augroup END
-nnoremap <Leader>mk :call MakeCommand()<CR>
-nnoremap <Leader>ma :call SetMakeArgument()<CR>
+autocmd FileType cpp nnoremap <Leader>mk :call MakeCommand()<CR>
+autocmd FileType cpp nnoremap <Leader>ma :call SetMakeArgument()<CR>
 " easy motion
 let g:EasyMotion_smartcase = 1
 let g:EasyMotion_do_mapping = 0
@@ -233,7 +237,7 @@ set encoding=utf-8
 
 " Whitespace
 set wrap
-set textwidth=80
+" set textwidth=80
 set formatoptions=tcqrn1
 set tabstop=4
 set shiftwidth=4
