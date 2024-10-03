@@ -124,7 +124,11 @@ au FileType cpp let delimitMate_matchpairs = "(:),[:],{:}"
 let g:smoothie_experimental_mappings = 1
 
 " vimtex
-let g:vimtex_view_method = 'sioyek'
+if has('win32') || has('win64')
+    let g:vimtex_view_method = 'sioyek'
+else
+    let g:vimtex_view_method = 'zathura'
+endif
 let g:vimtex_quickfix_open_on_warning = 0
 let g:vimtex_syntax_conceal_disable = 1
 
