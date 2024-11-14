@@ -284,6 +284,7 @@ augroup ColorSchemeSettings
     autocmd!
     autocmd ColorScheme * if g:colors_name == 'gruvbox' | set t_Co=256 | else | set termguicolors | endif
 augroup END
+set bg=dark
 
 " latex
 autocmd FileType tex,bib let g:indentLine_setConceal = 0
