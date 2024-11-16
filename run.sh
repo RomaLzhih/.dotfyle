@@ -116,8 +116,8 @@ if [[ ${kInstall} == 1 ]]; then
             ./scripts/install_ripgrep.sh
         fi
     elif [[ ${os} == "ubuntu" ]]; then
-        echo ">>>>> Installing clang-tidy..."
-        sudo apt install clang-tidy
+        echo ">>>>> Installing clang-tidy cppcheck and rg"
+        sudo apt install cppcheck rg clang-tidy
 
         echo ">>>>> Installing wezterm..."
         git clone https://github.com/RomaLzhih/wezterm-config.git ~/.config/wezterm
