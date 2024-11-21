@@ -41,6 +41,9 @@ Plug 'jdhao/better-escape.vim'
 Plug 'wellle/targets.vim'
 Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'bfrg/vim-cpp-modern'
+Plug 'prabirshrestha/vim-lsp'
+Plug 'mattn/vim-lsp-settings'
+Plug 'piec/vim-lsp-clangd'
 
 Plug 'morhetz/gruvbox' 
 
@@ -128,6 +131,58 @@ autocmd FileType tex nnoremap <Leader>mk <Plug>(vimtex-compile)
 " copilot
 let g:copilot_no_tab_map = v:true
 
+" lsp
+let g:lsp_diagnostics_enabled = 0
+let g:lsp_diagnostics_signs_enabled = 0
+let g:lsp_diagnostics_virtual_text_enabled = 0
+let g:lsp_diagnostics_highlights_enabled = 0
+let g:lsp_diagnostics_highlights_insert_mode_enabled = 0
+let g:lsp_diagnostics_signs_insert_mode_enabled = 0
+set foldmethod=expr
+  \ foldexpr=lsp#ui#vim#folding#foldexpr()
+  \ foldtext=lsp#ui#vim#folding#foldtext()
+set nofoldenable
+
+if executable('clangd')
+    au User lsp_setup call lsp#register_server({
+        \ 'name': 'clangd',
+        \ 'cmd': {server_info->['clangd', '-background-index']},
+        \ 'whitelist': ['c', 'cpp', 'objc', 'objcpp'],
+        \ })
+endif
+if executable('bash-language-server')
+  augroup LspBash
+    autocmd!
+    autocmd User lsp_setup call lsp#register_server({
+          \ 'name': 'bash-language-server',
+          \ 'cmd': {server_info->[&shell, &shellcmdflag, 'bash-language-server start']},
+          \ 'allowlist': ['sh'],
+          \ })
+  augroup END
+endif
+if executable('pyls')
+    au User lsp_setup call lsp#register_server({
+        \ 'name': 'pyls',
+        \ 'cmd': {server_info->['pyls']},
+        \ 'whitelist': ['python'],
+        \ })
+endif
+autocmd BufWrite *.sh,*.py,*.c,*.h,*.hpp,*.cpp LspDocumentFormatSync
+
+nnoremap gd :LspDefinition<CR>
+nnoremap gD :LspDeclaration<CR>
+nnoremap K :LspHover<CR>
+nnoremap <Leader>pd :LspPeekDefinition<CR>
+nnoremap <Leader>pD :LspPeekDeclaration<CR>
+nnoremap <Leader>rn :LspRename<CR>
+nnoremap <Leader>ol :LspWorkspaceSymbol<CR>
+nnoremap <Leader>ca :LspCodeAction<CR>
+nnoremap <Leader>ic :LspCallHierarchyIncoming<CR>
+nnoremap <Leader>oc :LspCallHierarchyOutgoing<CR>
+nnoremap <Leader>fm :LspDocumentFormat<CR>
+nnoremap ]g :LspNextDiagnostic<CR>
+nnoremap [g :LspPreviousDiagnostic<CR>
+
 " air line
 let g:airline#extensions#tabline#enabled = 1
 let g:airline_left_sep='>'
@@ -170,26 +225,24 @@ autocmd FileType nerdtree map <buffer> h u
 autocmd FileType nerdtree map <buffer> l <CR>
 
 " " make
-" let g:asyncrun_open = 15
-" let g:make_argument=''
-" function! SetMakeArgument()
-"     let g:make_argument = input('Make argument: ')
-" endfunction
-" function! MakeCommand()
-"     if g:make_argument == ''
-"         call SetMakeArgument()
-"     endif
-"     " let &makeprg = 'make -C build -j4 '. g:make_argument
-"     " execute 'make'
-"     execute 'AsyncRun make -C build -j4 '. g:make_argument
-" endfunction
+let g:asyncrun_open = 15
+let g:make_argument=''
+function! SetMakeArgument()
+    let g:make_argument = input('Make argument: ')
+endfunction
+function! MakeCommand()
+    if g:make_argument == ''
+        call SetMakeArgument()
+    endif
+    execute 'AsyncRun make -C build -j4 '. g:make_argument
+endfunction
 
-" augroup local-asyncrun
-"     au!
-"     au User AsyncRunStop copen | wincmd p
-" augroup END
-" autocmd FileType cpp nnoremap <Leader>mk :call MakeCommand()<CR>
-" autocmd FileType cpp nnoremap <Leader>ma :call SetMakeArgument()<CR>
+augroup local-asyncrun
+    au!
+    au User AsyncRunStop copen | wincmd p
+augroup END
+autocmd FileType cpp nnoremap <Leader>mk :call MakeCommand()<CR>
+autocmd FileType cpp nnoremap <Leader>ma :call SetMakeArgument()<CR>
 
 " easy motion
 let g:EasyMotion_smartcase = 1
