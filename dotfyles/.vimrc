@@ -44,6 +44,7 @@ Plug 'bfrg/vim-cpp-modern'
 Plug 'prabirshrestha/vim-lsp'
 Plug 'mattn/vim-lsp-settings'
 Plug 'piec/vim-lsp-clangd'
+Plug 'skywind3000/asyncrun.vim'
 
 Plug 'morhetz/gruvbox' 
 
@@ -218,6 +219,7 @@ let g:floaterm_keymap_prev   = '<F2>'
 let g:floaterm_keymap_next   = '<F3>'
 let g:floaterm_keymap_kill   = '<F4>'
 let g:floaterm_keymap_toggle = '<C-p>'
+tnoremap   <silent>   <C-x>   <C-\><C-n>
 
 " Nerd tree
 nnoremap <C-s> :NERDTreeToggle<CR>
@@ -243,6 +245,7 @@ augroup local-asyncrun
 augroup END
 autocmd FileType cpp nnoremap <Leader>mk :call MakeCommand()<CR>
 autocmd FileType cpp nnoremap <Leader>ma :call SetMakeArgument()<CR>
+nnoremap <Leader>ru :AsyncRun -mode=term -pos=floaterm ./build/
 
 " easy motion
 let g:EasyMotion_smartcase = 1
@@ -351,6 +354,7 @@ function! s:kill_all_floaterm() abort
 endfunction
 autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree()  | call s:kill_all_floaterm() | quit | endif
 autocmd BufEnter * if winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | call s:kill_all_floaterm() | quit | endif
+autocmd QuitPre * call s:kill_all_floaterm()
 
 " kill all buffers when writing wq
 function! SaveAndQuit()
