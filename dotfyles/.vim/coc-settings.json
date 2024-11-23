@@ -1,5 +1,5 @@
 {
-    "suggest.maxCompleteItemCount": 10,
+    "suggest.maxCompleteItemCount": 7,
     "colors.enable": true,
     "coc.preferences.formatOnSaveFiletypes": [
         "json",
@@ -8,7 +8,5 @@
         "sh",
         "cpp"
     ],
-    "inlayHint.enable": true,
-    "coc.preferences.formatOnSave": true,
-    "diagnostic.virtualText": true
+    "coc.preferences.formatOnSave": true
 }
