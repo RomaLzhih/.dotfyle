@@ -39,6 +39,10 @@ fi
 
 # PERF: Update
 if [[ ${kUpdate} == 1 ]]; then
+    # NOTE: update plugins
+    echo ">>>>> Updating plugins..."
+    ./scripts/update_packages.sh "${os}"
+
     # NOTE: COPY file
     rsync -r --no-perms --no-owner --include="*/" --include=".*" "dotfyles/" "${HOME}/"
 
@@ -48,10 +52,6 @@ if [[ ${kUpdate} == 1 ]]; then
         ./scripts/install_nvim.sh
         ./scripts/install_vim.sh
     fi
-
-    # NOTE: update plugins
-    echo ">>>>> Updating plugins..."
-    ./scripts/update_packages.sh "${os}"
 
     # NOTE: cargo related stuffs
     cargo install-update -a
