@@ -8,5 +8,6 @@
         "sh",
         "cpp"
     ],
-    "coc.preferences.formatOnSave": true
+    "coc.preferences.formatOnSave": true,
+         "inlayHint.enable": false
 }

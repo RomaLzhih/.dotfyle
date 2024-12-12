@@ -45,6 +45,7 @@ Plug 'wellle/targets.vim'
 Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'bfrg/vim-cpp-modern'
+Plug 'ojroques/vim-oscyank', {'branch': 'main'}
 
 Plug 'morhetz/gruvbox' 
 
@@ -84,6 +85,9 @@ nnoremap <Leader>cl :cclose<CR>
 nnoremap <Leader>co :copen<CR>
 nnoremap <C-a> ggVG
 nnoremap <C-c> "+y
+nnoremap <leader>c <Plug>OSCYankOperator
+nnoremap <leader>cc <leader>c_
+vnoremap <leader>c <Plug>OSCYankVisual
 
 " -----------------------------PLUGIN CONFIG-----------------------------------
 if has("gui_running")
@@ -296,6 +300,7 @@ highlight link PARAKeyword DiffChange
 " Color scheme (terminal)
 let g:gruvbox_bold = 0
 colorscheme gruvbox
+set t_Co=256
 
 " use gruvbox in default 256 color
 augroup ColorSchemeSettings
