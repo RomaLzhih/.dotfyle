@@ -3,8 +3,8 @@
 # BEGIN_KITTY_FONTS
 font_family      family="FiraCode Nerd Font"
 bold_font        auto
-italic_font      family="Dank Mono"
-bold_italic_font auto
+italic_font      family="Operator Mono Lig"
+# bold_italic_font family="Dank Mono"
 # END_KITTY_FONTS
 
 #: Fonts {{{
@@ -293,7 +293,7 @@ font_size 12.0
 
 #: The thickness of the underline cursor (in pts).
 
-# cursor_blink_interval -1
+cursor_blink_interval 0
 
 #: The interval to blink the cursor (in seconds). Set to zero to
 #: disable blinking. Negative values mean use system default. Note
@@ -2645,3 +2645,9 @@ font_size 12.0
 #: }}}
 
 #: }}}
+
+
+# BEGIN_KITTY_THEME
+# Gruvbox Material Dark Medium
+include current-theme.conf
+# END_KITTY_THEME
