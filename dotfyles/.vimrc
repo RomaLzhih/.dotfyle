@@ -71,8 +71,8 @@ command! W write
 " Edit operation
 nnoremap j gj
 nnoremap k gk
-nnoremap <C-q> <Home>
-nnoremap <C-e> <End>
+nnoremap <C-q> ^
+nnoremap <C-e> $
 inoremap <C-h> <left>
 inoremap <C-j> <down>
 inoremap <C-k> <up>
@@ -83,8 +83,6 @@ nnoremap <Leader>x :Bclose<CR>
 nnoremap <Leader>bd :Bclose<CR>
 nnoremap <Leader>cl :cclose<CR>
 nnoremap <Leader>co :copen<CR>
-nnoremap <C-a> ggVG
-nnoremap <C-c> "+y
 nnoremap <leader>c <Plug>OSCYankOperator
 nnoremap <leader>cc <leader>c_
 vnoremap <leader>c <Plug>OSCYankVisual

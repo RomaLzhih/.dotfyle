@@ -39,6 +39,8 @@ export PATH="${HOME}/neovim/bin:${PATH}"
 export PATH="${HOME}/vim/bin:${PATH}"
 export PATH="${HOME}/.cargo/bin:${PATH}"
 export GEMINI_API_KEY=$(cat "$HOME/.gemini_api_key")
+export JAVA_HOME="${HOME}/AE/ppopp24/48/jdk"
+export PATH="$JAVA_HOME/bin:$PATH"
 
 function ya() {
     local tmp="$(mktemp -t "yazi-cwd.XXXXX")"
