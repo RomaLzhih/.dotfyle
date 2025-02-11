@@ -24,7 +24,7 @@ Plug 'github/copilot.vim', { 'as': 'copilot' }
 Plug 'tpope/vim-fugitive'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-Plug 'lervag/vimtex'
+Plug 'kien/ctrlp.vim'
 Plug 'lervag/vimtex', { 'tag': 'v2.15' }
 Plug 'yggdroot/indentline'
 Plug 'psliwka/vim-smoothie'
@@ -120,14 +120,14 @@ let g:smoothie_experimental_mappings = 1
 
 " vimtex
 if has('win32') || has('win64')
-    let g:vimtex_view_method = 'sioyek'
+    let g:vimtex_view_method = 'SumatraPDF'
 else
     let g:vimtex_view_method = 'zathura'
 endif
 let g:vimtex_quickfix_open_on_warning = 0
 let g:vimtex_syntax_conceal_disable = 1
 let g:vimtex_compiler_latexmk = {
-    \ 'continuous' : 0,
+    \ 'continuous' : 1,
     \}
 autocmd FileType tex nnoremap <Leader>mk <Plug>(vimtex-compile)
 
@@ -143,13 +143,19 @@ au VimEnter * let [g:airline_section_y] = [airline#section#create([''])]
 " git operation
 nnoremap <Leader>git :Git<CR>
 
-" fzf
-nnoremap <Leader>ff :GFiles ${PWD}<CR>
-nnoremap <Leader>fl :Files 
-nnoremap <Leader>fw :Rg 
-nnoremap <Leader>th :Colors<CR>
-nnoremap <Leader>bf :Buffers<CR>
-nnoremap <Leader>jp :Jumps<CR>
+if has('win32') || has('win64')
+    " ctrlp
+    let g:ctrlp_map = '<Leader>ff'
+    let g:ctrlp_cmd = 'CtrlP .'
+else
+    " fzf
+    nnoremap <Leader>ff :GFiles ${PWD}<CR>
+    nnoremap <Leader>ff :Files 
+    nnoremap <Leader>fw :Rg 
+    nnoremap <Leader>th :Colors<CR>
+    nnoremap <Leader>bf :Buffers<CR>
+    nnoremap <Leader>jp :Jumps<CR>
+endif
 
 " cpp highlight
 let g:cpp_class_scope_highlight = 1
@@ -299,12 +305,6 @@ highlight link PARAKeyword DiffChange
 let g:gruvbox_bold = 0
 colorscheme gruvbox
 set t_Co=256
-
-" use gruvbox in default 256 color
-augroup ColorSchemeSettings
-    autocmd!
-    autocmd ColorScheme * if g:colors_name == 'gruvbox' | set t_Co=256 | else | set termguicolors | endif
-augroup END
 
 " latex
 autocmd FileType tex,bib let g:indentLine_setConceal = 0
