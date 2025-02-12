@@ -115,15 +115,24 @@ if [[ ${kInstall} == 1 ]]; then
             echo ">>>>> Installing ripgrep..."
             ./scripts/install_ripgrep.sh
         fi
+        if ! command -v lazygit &>/dev/null; then
+            echo ">>>>> Installing lazygit..."
+            ./scripts/install_lazygit.sh
+        fi
     elif [[ ${os} == "ubuntu" ]]; then
         echo ">>>>> Installing clang-tidy cppcheck and rg"
         sudo apt install cppcheck rg clang-tidy
 
         echo ">>>>> Installing wezterm..."
         git clone https://github.com/RomaLzhih/wezterm-config.git ~/.config/wezterm
+
+        if ! command -v lazygit &>/dev/null; then
+            echo ">>>>> Installing lazygit..."
+            ./scripts/install_lazygit.sh
+        fi
     elif [[ ${os} == "arch" ]]; then
-        echo ">>>>> Installing clang-tidy..."
-        sudo pacman -S clang-tidy
+        echo ">>>>> Installing clang-tidy and lazygit..."
+        sudo pacman -S clang-tidy lazygit
 
         echo ">>>>> Installing wezterm..."
         git clone https://github.com/RomaLzhih/wezterm-config.git ~/.config/wezterm
