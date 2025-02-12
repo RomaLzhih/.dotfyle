@@ -75,7 +75,7 @@ if [[ ${kInstall} == 1 ]]; then
     "nvm" install --lts
 
     # NOTE: cargo
-    if ! ./scripts/check_exe.sh "cargo" "1.80.0"; then
+    if ! ./scripts/check_exe.sh "cargo" "1.84.1"; then
         echo ">>>>> Installing rust..."
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
         rustup update

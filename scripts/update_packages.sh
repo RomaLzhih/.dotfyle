@@ -2,6 +2,8 @@
 path=${pwd}
 os=$1
 
+"rustup" update
+
 if [[ ${os} == "rocky" ]]; then
     ./scripts/install_cppcheck.sh
     ./scripts/install_ripgrep.sh
