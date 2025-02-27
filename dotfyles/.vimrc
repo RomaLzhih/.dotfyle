@@ -49,6 +49,7 @@ Plug 'ojroques/vim-oscyank', {'branch': 'main'}
 
 " Plug 'morhetz/gruvbox' 
 Plug 'sainnhe/gruvbox-material'
+Plug 'junegunn/seoul256.vim'
 
 " Initialize plugin system
 " - Automatically executes `filetype plugin indent on` and `syntax enable`.
@@ -304,8 +305,9 @@ highlight link PARAKeyword DiffChange
 
 " Color scheme (terminal)
 let g:gruvbox_bold = 0
-colorscheme gruvbox-material
-set t_Co=256
+" colorscheme gruvbox-material
+colorscheme seoul256
+" set t_Co=256
 
 " latex
 autocmd FileType tex,bib let g:indentLine_setConceal = 0
