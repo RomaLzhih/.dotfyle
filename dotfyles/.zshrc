@@ -41,6 +41,8 @@ export PATH="${HOME}/.cargo/bin:${PATH}"
 export PATH="${HOME}/go/bin:${PATH}"
 export GEMINI_API_KEY=$(cat "$HOME/.gemini_api_key")
 
+alias lg="lazygit"
+
 function ya() {
     local tmp="$(mktemp -t "yazi-cwd.XXXXX")"
     yazi "$@" --cwd-file="$tmp"
