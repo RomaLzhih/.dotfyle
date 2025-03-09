@@ -53,3 +53,17 @@ function ya() {
 }
 
 eval "$(zoxide init zsh)"
+
+# Get the distribution name
+DISTRO=$(grep '^ID=' /etc/os-release | cut -d '=' -f 2 | tr -d '"')
+
+# Run commands based on the distribution
+if [[ "$DISTRO" == "ubuntu" ]]; then
+    # fastfetch -c $HOME/.config/fastfetch/config-compact.jsonc
+    # pokemon-colorscripts --no-title -s -r #without fastfetch
+    pokemon-colorscripts --no-title -s -r | fastfetch -c $HOME/.config/fastfetch/config-pokemon.jsonc --logo-type file-raw --logo-height 10 --logo-width 5 --logo -
+elif [[ "$DISTRO" == "arch" ]]; then
+    pokemon-colorscripts --no-title -s -r | fastfetch -c $HOME/.config/fastfetch/config-pokemon.jsonc --logo-type file-raw --logo-height 10 --logo-width 5 --logo -
+elif [[ "$DISTRO" == "rocky" ]]; then
+else
+fi
