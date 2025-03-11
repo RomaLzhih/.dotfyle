@@ -18,8 +18,8 @@ git pull
 rm -rf build
 mkdir -p build
 cd "build" || exit
-cmake ..
-cmake --build . -j 8
+cmake -DCMAKE_CXX_COMPILER=g++ ..
+cmake --build . -j
 cd "${HOME}/bin/" || exit
 rm -f cppcheck
 ln -s "${HOME}/bin/repos/cppcheck/build/bin/cppcheck" ~/bin/cppcheck
