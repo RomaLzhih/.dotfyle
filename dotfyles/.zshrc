@@ -42,6 +42,7 @@ export PATH="${HOME}/go/bin:${PATH}"
 export GEMINI_API_KEY=$(cat "$HOME/.gemini_api_key")
 
 alias lg="lazygit"
+alias c++="clang++"
 
 function ya() {
     local tmp="$(mktemp -t "yazi-cwd.XXXXX")"
@@ -67,3 +68,8 @@ elif [[ "$DISTRO" == "arch" ]]; then
 elif [[ "$DISTRO" == "rocky" ]]; then
 else
 fi
+
+# Automatically set the highest Python version
+HIGHEST_PYTHON=$(ls /usr/bin/python3* | grep -Eo 'python3\.[0-9]+' | sort -V | tail -1)
+alias python="/usr/bin/$HIGHEST_PYTHON"
+alias python3="/usr/bin/$HIGHEST_PYTHON"
