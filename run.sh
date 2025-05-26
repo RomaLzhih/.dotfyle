@@ -47,7 +47,7 @@ if [[ ${kUpdate} == 1 ]]; then
     rsync -r --no-perms --no-owner --include="*/" --include=".*" "dotfyles/" "${HOME}/"
 
     # NOTE: neovim
-    if [[ ${kUpdateVim} == 1 ]]; then
+    if [[ ${kUpdateVim} == 1 ]] && [[ "$OSTYPE" != "darwin"* ]]; then
         echo ">>>>> Updating neovim/vim..."
         ./scripts/install_nvim.sh
         ./scripts/install_vim.sh
@@ -84,23 +84,6 @@ if [[ ${kInstall} == 1 ]]; then
     if ! cargo install --list | grep -q "yazi-fm"; then
         echo ">>>>> Installing yazi for file navigation..."
         cargo install --locked yazi-fm yazi-cli
-    fi
-
-    # NOTE: zoxide
-    if ! command -v "zoxide" &>/dev/null; then
-        echo ">>>>> installing zoxide..."
-        curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
-    fi
-
-    # NOTE: install nvim/vim
-    mkdir -p "${HOME}/bin/repos"
-    if [[ ${kUpdateVim} == 1 ]]; then
-        if ./scripts/check_exe.sh "nvim" "0.10.0"; then
-            ./scripts/install_nvim.sh
-        fi
-        if ./scripts/check_exe.sh "vim" "9.0"; then
-            ./scripts/install_vim.sh
-        fi
     fi
 
     source "${HOME}/.zshrc"
