@@ -23,8 +23,8 @@ if [ "$(git rev-parse HEAD)" == "$(git rev-parse @{u})" ] && [ ${install} != 1 ]
     exit 1
 fi
 echo ">>>>> Installing the latest neovim..."
-git checkout stable
-git pull stable
+git checkout release-0.10
+git pull release-0.10
 make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
 make install
 export PATH="$HOME/neovim/bin:$PATH"
@@ -37,6 +37,7 @@ rm -rf ~/.local/state/nvim
 rm -rf ~/.local/share/nvim
 git clone git@github.com:RomaLzhih/neovim_config.git ~/.config/nvim
 
-nvim --headless -c "MasonInstall clangd clang-format lua-language-server stylua bash-language-server shfmt pyright pylint black codelldb" -c "qall"
+# nvim --headless -c "MasonInstall clangd clang-format lua-language-server stylua bash-language-server shfmt pyright pylint black codelldb" -c "qall"
 
+mkdir -p ~/.local/state/nvim/overseer
 mv ~/overseer/* ~/.local/state/nvim/overseer/
