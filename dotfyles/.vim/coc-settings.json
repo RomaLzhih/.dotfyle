@@ -6,8 +6,6 @@
         "python",
         "markdown",
         "sh",
-        "cpp"
     ],
-    "coc.preferences.formatOnSave": true,
-         "inlayHint.enable": false
+    "inlayHint.enable": false
 }
