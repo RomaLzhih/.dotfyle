@@ -31,6 +31,10 @@ chmod +x ./scripts/*
 # NOTE: BackUp
 if [[ ${kBackUp} == 1 ]]; then
     find dotfyles -type f | awk '{sub(/^dotfyles\//, ""); print}' | while IFS= read -r FILE; do
+        if [[ -L "${HOME}/${FILE}" ]]; then
+            echo ">>>>> Skipping symbolic link ${FILE}..."
+            continue
+        fi
         echo ">>>>> Backing up ${FILE}..."
         prefix=$(echo "$FILE" | awk 'BEGIN {FS=OFS="/"} {NF--; print}')
         cp "${HOME}/${FILE}" "dotfyles/${prefix}/"
@@ -45,6 +49,12 @@ if [[ ${kUpdate} == 1 ]]; then
 
     # NOTE: COPY file
     rsync -r --no-perms --no-owner --include="*/" --include=".*" "dotfyles/" "${HOME}/"
+    if [[${os} == "ubuntu" ]]; then
+        # git clone --single-branch https://github.com/gpakosz/.tmux.git
+        ln -s -f ${HOME}/.tmux/.tmux.conf ${HOME}/.tmux.conf
+    else
+        rm ${HOME}/.tmux.conf.local
+    fi
 
     # NOTE: neovim
     if [[ ${kUpdateVim} == 1 ]] && [[ "$OSTYPE" != "darwin"* ]]; then
