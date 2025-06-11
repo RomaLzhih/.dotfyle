@@ -49,7 +49,7 @@ if [[ ${kUpdate} == 1 ]]; then
 
     # NOTE: COPY file
     rsync -r --no-perms --no-owner --include="*/" --include=".*" "dotfyles/" "${HOME}/"
-    if [[${os} == "ubuntu" ]]; then
+    if [[ ${os} == "ubuntu" ]]; then
         # git clone --single-branch https://github.com/gpakosz/.tmux.git
         ln -s -f ${HOME}/.tmux/.tmux.conf ${HOME}/.tmux.conf
     else
