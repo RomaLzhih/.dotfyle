@@ -70,6 +70,9 @@ tmux_conf_new_pane_reconnect_ssh=false
 # to 'truecolor' or '24bit' or '$ tput colors' answering '16777216'
 # see https://github.com/termstandard/colors
 tmux_conf_24b_colour=auto
+# set-option -ga terminal-overrides ",xterm-256color:Tc"
+# set -g default-terminal "tmux-256color"
+# set -ag terminal-overrides ",xterm-256color:RGB"
 
 
 # -- theming -------------------------------------------------------------------
@@ -399,8 +402,8 @@ set -s set-clipboard on
 set -gu prefix2
 unbind C-a
 unbind C-b
-set -g prefix C-a
-bind C-a send-prefix
+set -g prefix C-g
+bind C-g send-prefix
 
 unbind C-c
 bind C-l next-window
