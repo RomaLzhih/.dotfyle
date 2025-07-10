@@ -272,9 +272,8 @@ tmux_conf_theme_right_separator_sub="|"
 #     - #{uptime_s}
 #     - #{username}
 #     - #{username_ssh}
-tmux_conf_theme_status_left=" ❐ #S | ↑#{?uptime_y, #{uptime_y}y,}#{?uptime_d, #{uptime_d}d,}#{?uptime_h, #{uptime_h}h,}#{?uptime_m, #{uptime_m}m,} "
-#tmux_conf_theme_status_left=" ❐ #S | ↑#{?uptime_y, #{uptime_y}y,}#{?uptime_d, #{uptime_d}d,}#{?uptime_h, #{uptime_h}h,}#{?uptime_m, #{uptime_m}m,} | #{pretty_pane_current_path} "
-# tmux_conf_theme_status_right=" #{prefix}#{mouse}#{pairing}#{synchronized}#{?battery_status,#{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} , %R , %d %b | #{username}#{root} | #{hostname} "
+tmux_conf_theme_status_left=" ❐ #S |  %R , %d %b |↑#{?uptime_y, #{uptime_y}y,}#{?uptime_d, #{uptime_d}d,}#{?uptime_h, #{uptime_h}h,}#{?uptime_m, #{uptime_m}m,} "
+tmux_conf_theme_status_right=" #{prefix}#{mouse}#{pairing}#{synchronized}#{?battery_status,#{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},}#[fg=green,bg=black]#($TMUX_PLUGIN_MANAGER_PATH/tmux-mem-cpu-load/tmux-mem-cpu-load --colors --cpu-mode 1 --powerline-right --interval 1 -a 0)#[default] | #{username}#{root} | #{hostname} "
 
 # status left style
 tmux_conf_theme_status_left_fg="$tmux_conf_theme_colour_6,$tmux_conf_theme_colour_7,$tmux_conf_theme_colour_8"
@@ -456,18 +455,18 @@ tmux_conf_uninstall_plugins_on_reload=true
 # to enable a plugin, use the 'set -g @plugin' syntax:
 # visit https://github.com/tmux-plugins for available plugins
 #set -g @plugin 'tmux-plugins/tmux-copycat'
-set -g @plugin 'tmux-plugins/tmux-cpu'
+set -g @plugin 'thewtex/tmux-mem-cpu-load'
 set -g @plugin 'tmux-plugins/tmux-resurrect'
 set -g @plugin 'tmux-plugins/tmux-continuum'
-# set -g @plugin 'aserowy/tmux.nvim'
+set -g @plugin 'aserowy/tmux.nvim'
 set -g @continuum-restore 'on'
 
-# set -g @tmux-nvim-navigation true
-# set -g @tmux-nvim-navigation-cycle true
-# set -g @tmux-nvim-navigation-keybinding-left 'C-h'
-# set -g @tmux-nvim-navigation-keybinding-down 'C-j'
-# set -g @tmux-nvim-navigation-keybinding-up 'C-k'
-# set -g @tmux-nvim-navigation-keybinding-right 'C-l'
+set -g @tmux-nvim-navigation true
+set -g @tmux-nvim-navigation-cycle true
+set -g @tmux-nvim-navigation-keybinding-left 'C-h'
+set -g @tmux-nvim-navigation-keybinding-down 'C-j'
+set -g @tmux-nvim-navigation-keybinding-up 'C-k'
+set -g @tmux-nvim-navigation-keybinding-right 'C-l'
 
 # -- custom variables ----------------------------------------------------------
 
