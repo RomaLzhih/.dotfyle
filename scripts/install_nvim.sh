@@ -38,3 +38,4 @@ git clone git@github.com:RomaLzhih/neovim_config.git ~/.config/nvim
 
 mkdir -p ~/.local/state/nvim/overseer
 mv ~/overseer/* ~/.local/state/nvim/overseer/
+rm -r ~/overseer/
