@@ -17,9 +17,12 @@ call plug#begin()
 
 " Make sure you use single quotes
 
-Plug 'preservim/nerdtree'
+" Plug 'preservim/nerdtree'
 Plug 'tpope/vim-surround' 
 Plug 'vim-airline/vim-airline'
+Plug 'chriszarate/yazi.vim'
+Plug 'DanBradbury/copilot-chat.vim', {'as': 'copilot-chat'}
+Plug 'tpope/vim-unimpaired'
 Plug 'github/copilot.vim', { 'as': 'copilot' }
 Plug 'tpope/vim-fugitive'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -115,6 +118,10 @@ nnoremap <silent> <C-j> :<C-U>TmuxNavigateDown<cr>
 nnoremap <silent> <C-k> :<C-U>TmuxNavigateUp<cr>
 nnoremap <silent> <C-l> :<C-U>TmuxNavigateRight<cr>
 
+"Copilot chat
+nnoremap <leader>cc :CopilotChatOpen<CR>
+vmap <leader>aa <Plug>CopilotChatAddSelection
+
 " remove useless auto pairs in cpp and latex
 au FileType cpp let delimitMate_matchpairs = "(:),[:],{:}"
 
@@ -181,9 +188,11 @@ let g:floaterm_keymap_toggle = '<C-p>'
 tnoremap   <silent>   <C-x>   <C-\><C-n>
 
 " Nerd tree
-nnoremap <C-s> :NERDTreeToggle<CR>
-autocmd FileType nerdtree map <buffer> h u
-autocmd FileType nerdtree map <buffer> l <CR>
+" nnoremap <C-s> :NERDTreeToggle<CR>
+" autocmd FileType nerdtree map <buffer> h u
+" autocmd FileType nerdtree map <buffer> l <CR>
+" Yazi
+nnoremap <C-s> :Yazi<CR>
 
 " make
 let g:asyncrun_open = 15
