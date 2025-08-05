@@ -49,12 +49,12 @@ if [[ ${kUpdate} == 1 ]]; then
 
     # NOTE: COPY file
     rsync -r --no-perms --no-owner --include="*/" --include=".*" "dotfyles/" "${HOME}/"
-    if [[ ${os} == "ubuntu" ]] || [[ "$OSTYPE" == "darwin"* ]]; then
-        # git clone --single-branch https://github.com/gpakosz/.tmux.git
-        ln -s -f ${HOME}/.tmux/.tmux.conf ${HOME}/.tmux.conf
-    else
-        rm ${HOME}/.tmux.conf.local
-    fi
+    # if [[ ${os} == "ubuntu" ]] || [[ "$OSTYPE" == "darwin"* ]]; then
+    #     # git clone --single-branch https://github.com/gpakosz/.tmux.git
+    #     ln -s -f ${HOME}/.tmux/.tmux.conf ${HOME}/.tmux.conf
+    # else
+    #     rm ${HOME}/.tmux.conf.local
+    # fi
 
     # NOTE: neovim
     if [[ ${kUpdateVim} == 1 ]] && [[ "$OSTYPE" != "darwin"* ]]; then
