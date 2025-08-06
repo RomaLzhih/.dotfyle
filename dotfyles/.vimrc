@@ -19,6 +19,7 @@ call plug#begin()
 
 " Plug 'preservim/nerdtree'
 Plug 'tpope/vim-surround' 
+Plug 'sheerun/vim-polyglot'
 Plug 'vim-airline/vim-airline'
 Plug 'chriszarate/yazi.vim'
 Plug 'DanBradbury/copilot-chat.vim', {'as': 'copilot-chat'}
@@ -188,6 +189,13 @@ let g:cpp_concepts_highlight = 1
 let g:cpp_function_highlight = 1
 let g:cpp_attributes_highlight = 1
 let g:cpp_member_highlight = 1
+let g:cpp_simple_highlight = 1
+
+let g:cpp_function_highlight = 1
+let g:cpp_attributes_highlight = 1
+let g:cpp_member_highlight = 1
+let g:cpp_type_name_highlight = 1
+let g:cpp_operator_highlight = 1
 let g:cpp_simple_highlight = 1
 
 " float term
