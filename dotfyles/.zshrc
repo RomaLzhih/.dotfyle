@@ -31,8 +31,6 @@ if [ -d "$HOME/bin" ]; then
 PATH="$HOME/bin:$PATH"
 fi
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
 export PATH="${HOME}/.local/bin:${PATH}"
 export PATH="${HOME}/.local/share/nvim/mason/bin:${PATH}"
 export PATH="${HOME}/neovim/bin:${PATH}"
@@ -54,23 +52,56 @@ function ya() {
 }
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
+    # mac stuffs
+    export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
+
     pokemon-colorscripts --no-title -s -r | fastfetch -c $HOME/.config/fastfetch/config-pokemon.jsonc --logo-type file-raw --logo-height 10 --logo-width 5 --logo -
 else
-# Get the distribution name
-DISTRO=$(grep '^ID=' /etc/os-release | cut -d '=' -f 2 | tr -d '"')
-# Run commands based on the distribution
-if [[ "$DISTRO" == "ubuntu" ]]; then
-    # fastfetch -c $HOME/.config/fastfetch/config-compact.jsonc
-    # pokemon-colorscripts --no-title -s -r #without fastfetch
-    pokemon-colorscripts --no-title -s -r | fastfetch -c $HOME/.config/fastfetch/config-pokemon.jsonc --logo-type file-raw --logo-height 10 --logo-width 5 --logo -
-elif [[ "$DISTRO" == "arch" ]]; then
-    pokemon-colorscripts --no-title -s -r | fastfetch -c $HOME/.config/fastfetch/config-pokemon.jsonc --logo-type file-raw --logo-height 10 --logo-width 5 --logo -
-elif [[ "$DISTRO" == "rocky" ]]; then
-else
-fi
+    # Get the distribution name
+    DISTRO=$(grep '^ID=' /etc/os-release | cut -d '=' -f 2 | tr -d '"')
+    # Run commands based on the distribution
+    if [[ "$DISTRO" == "ubuntu" ]]; then
+	pokemon-colorscripts --no-title -s -r | fastfetch -c $HOME/.config/fastfetch/config-pokemon.jsonc --logo-type file-raw --logo-height 10 --logo-width 5 --logo -
+    elif [[ "$DISTRO" == "arch" ]]; then
+	pokemon-colorscripts --no-title -s -r | fastfetch -c $HOME/.config/fastfetch/config-pokemon.jsonc --logo-type file-raw --logo-height 10 --logo-width 5 --logo -
+    elif [[ "$DISTRO" == "rocky" ]]; then
+    else
+    fi
 fi
 
 # Automatically set the highest Python version
 HIGHEST_PYTHON=$(ls /usr/bin/python3* | grep -Eo 'python3\.[0-9]+' | sort -V | tail -1)
 alias python="/usr/bin/$HIGHEST_PYTHON"
 alias python3="/usr/bin/$HIGHEST_PYTHON"
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+eval "$(fzf --zsh)"
+export FZF_DEFAULT_OPTS="
+  --cycle
+  --prompt='❯ '
+  --pointer='▶'
+  --marker='✓'
+  --ansi
+  --tabstop=2
+  --border 'rounded'
+  --bind 'tab:toggle+up'
+  --bind 'shift-tab:toggle+down'
+  --bind 'ctrl-space:toggle'
+  --bind 'ctrl-a:select-all'
+  --bind 'ctrl-d:deselect-all'
+  --bind 'ctrl-t:toggle-all'
+  --bind 'ctrl-y:execute-silent(echo {} | xclip -selection clipboard)'
+  --bind 'ctrl-o:execute(code {})'
+  --bind 'ctrl-e:execute(echo {} | xargs -o vim)'
+  --bind 'alt-up:preview-up'
+  --bind 'alt-down:preview-down'
+  --bind 'ctrl-/:toggle-preview'
+  --bind 'ctrl-u:preview-page-up'
+  --bind 'ctrl-f:preview-page-down'
+"
+export FZF_CTRL_R_OPTS="
+  --color header:italic
+  --border 'rounded'
+  --header 'Press CTRL-Y to copy command into clipboard'"
+
+

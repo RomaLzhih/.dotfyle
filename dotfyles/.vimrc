@@ -20,6 +20,7 @@ call plug#begin()
 " Plug 'preservim/nerdtree'
 Plug 'tpope/vim-surround' 
 Plug 'sheerun/vim-polyglot'
+Plug 'jiangmiao/auto-pairs'
 Plug 'vim-airline/vim-airline'
 Plug 'chriszarate/yazi.vim'
 Plug 'DanBradbury/copilot-chat.vim', {'as': 'copilot-chat'}
@@ -108,6 +109,12 @@ set guioptions-=r  " Remove the right scrollbar
 set guioptions-=m  " Remove the menu bar
 set guioptions-=T  " Remove the toolbar
 endif
+
+" auto pairs
+augroup latex_markdown_autopairs
+  autocmd!
+  autocmd FileType tex,latex,markdown let b:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"', "`":"`", '```':'```', '"""':'"""', "'''":"'''", '$':'$'}
+augroup END
 
 " better escape
 let g:better_escape_shortcut = ['jk', 'jj']
