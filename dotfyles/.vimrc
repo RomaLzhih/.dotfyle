@@ -179,6 +179,7 @@ if has('win32') || has('win64')
 else
     " fzf
     nnoremap <C-f> :GFiles <CR>
+    nnoremap ? :BLines 
     nnoremap <Leader>ff :Files <CR> 
     nnoremap <Leader>fw :Rg 
     nnoremap <Leader>th :Colors<CR>
@@ -245,7 +246,7 @@ augroup local-asyncrun
 augroup END
 autocmd FileType cpp nnoremap <Leader>mk :call MakeCommand()<CR>
 autocmd FileType cpp nnoremap <Leader>ma :call SetMakeArgument()<CR>
-nnoremap <Leader>ru :AsyncRun -mode=term -pos=floaterm ./build/
+nnoremap <Leader>ru :AsyncRun -mode=term -pos=bottom 
 
 
 " easy motion
@@ -291,6 +292,7 @@ set shiftwidth=4
 set softtabstop=4
 set expandtab
 set noshiftround
+set mouse=a
 
 " Cursor motion
 set scrolloff=3
