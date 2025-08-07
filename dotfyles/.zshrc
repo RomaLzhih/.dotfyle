@@ -31,6 +31,7 @@ if [ -d "$HOME/bin" ]; then
 PATH="$HOME/bin:$PATH"
 fi
 
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 export PATH="${HOME}/.local/bin:${PATH}"
 export PATH="${HOME}/.local/share/nvim/mason/bin:${PATH}"
 export PATH="${HOME}/neovim/bin:${PATH}"
@@ -54,6 +55,7 @@ function ya() {
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # mac stuffs
     export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
+    eval "$(fzf --zsh)"
 
     pokemon-colorscripts --no-title -s -r | fastfetch -c $HOME/.config/fastfetch/config-pokemon.jsonc --logo-type file-raw --logo-height 10 --logo-width 5 --logo -
 else
@@ -74,8 +76,6 @@ HIGHEST_PYTHON=$(ls /usr/bin/python3* | grep -Eo 'python3\.[0-9]+' | sort -V | t
 alias python="/usr/bin/$HIGHEST_PYTHON"
 alias python3="/usr/bin/$HIGHEST_PYTHON"
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-eval "$(fzf --zsh)"
 export FZF_DEFAULT_OPTS="
   --cycle
   --prompt='❯ '
