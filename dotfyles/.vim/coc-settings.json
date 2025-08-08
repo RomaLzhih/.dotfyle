@@ -5,7 +5,10 @@
         "json",
         "python",
         "markdown",
+        "cpp",
         "sh",
     ],
+    "diagnostic.virtualText": true,
+    "diagnostic.virtualTextCurrentLineOnly": true,
     "inlayHint.enable": false
 }

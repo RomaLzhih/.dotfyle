@@ -20,7 +20,6 @@ call plug#begin()
 " Plug 'preservim/nerdtree'
 Plug 'tpope/vim-surround' 
 Plug 'sheerun/vim-polyglot'
-Plug 'jiangmiao/auto-pairs'
 Plug 'vim-airline/vim-airline'
 Plug 'chriszarate/yazi.vim'
 Plug 'DanBradbury/copilot-chat.vim', {'as': 'copilot-chat'}
@@ -110,12 +109,6 @@ set guioptions-=m  " Remove the menu bar
 set guioptions-=T  " Remove the toolbar
 endif
 
-" auto pairs
-augroup latex_markdown_autopairs
-  autocmd!
-  autocmd FileType tex,latex,markdown let b:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"', "`":"`", '```':'```', '"""':'"""', "'''":"'''", '$':'$'}
-augroup END
-
 " better escape
 let g:better_escape_shortcut = ['jk', 'jj']
 
@@ -141,6 +134,8 @@ let g:copilot_no_tab_map = v:true
 
 " remove useless auto pairs in cpp and latex
 au FileType cpp let delimitMate_matchpairs = "(:),[:],{:}"
+au FileType tex let delimitMate_matchpairs = "(:),[:],{:},$:$"
+autocmd FileType markdown setlocal conceallevel=0
 
 " smooth scroll
 let g:smoothie_experimental_mappings = 1
@@ -179,7 +174,7 @@ if has('win32') || has('win64')
 else
     " fzf
     nnoremap <C-f> :GFiles <CR>
-    nnoremap ? :BLines 
+    nnoremap ? :BLines <CR> 
     nnoremap <Leader>ff :Files <CR> 
     nnoremap <Leader>fw :Rg 
     nnoremap <Leader>th :Colors<CR>
