@@ -12,7 +12,6 @@ zsh-autosuggestions
 git
 zsh-nvm
 zsh-syntax-highlighting
-zsh-vi-mode
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -21,11 +20,9 @@ HEADLINE_USER_PREFIX=' '
 HEADLINE_HOST_PREFIX=' '
 HEADLINE_PATH_PREFIX=' '
 HEADLINE_BRANCH_PREFIX=' '
-# Always starting with insert mode for each command line
-ZVM_LINE_INIT_MODE=$ZVM_MODE_INSERT
-ZVM_INSERT_MODE_CURSOR=$ZVM_CURSOR_BLINKING_BLOCK
-ZVM_NORMAL_MODE_CURSOR=$ZVM_CURSOR_BLOCK
-ZVM_VI_INSERT_ESCAPE_BINDKEY=jk
+bindkey -v
+bindkey '^E' autosuggest-accept
+bindkey '^e' autosuggest-accept
 
 if [ -d "$HOME/bin" ]; then
 PATH="$HOME/bin:$PATH"
