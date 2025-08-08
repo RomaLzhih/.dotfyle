@@ -49,6 +49,7 @@ Plug 'jdhao/better-escape.vim'
 Plug 'wellle/targets.vim'
 Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'skywind3000/asyncrun.vim'
+Plug 'skywind3000/asynctasks.vim'
 Plug 'bfrg/vim-cpp-modern'
 Plug 'ojroques/vim-oscyank', {'branch': 'main'}
 
@@ -229,27 +230,43 @@ nnoremap <leader>lg :call LazyGitFloaterm()<CR>
 " Yazi
 nnoremap <C-s> :Yazi<CR>
 
-" make
+" asynctasks
+function! s:fzf_sink(what)
+	let p1 = stridx(a:what, '<')
+	if p1 >= 0
+		let name = strpart(a:what, 0, p1)
+		let name = substitute(name, '^\s*\(.\{-}\)\s*$', '\1', '')
+		if name != ''
+			exec "AsyncTask ". fnameescape(name)
+		endif
+	endif
+endfunction
+
+function! s:fzf_task()
+	let rows = asynctasks#source(&columns * 48 / 100)
+	let source = []
+	for row in rows
+		let name = row[0]
+		let source += [name . '  ' . row[1] . '  : ' . row[2]]
+	endfor
+	let opts = { 'source': source, 'sink': function('s:fzf_sink'),
+				\ 'options': '+m --nth 1 --inline-info --tac' }
+	if exists('g:fzf_layout')
+		for key in keys(g:fzf_layout)
+			let opts[key] = deepcopy(g:fzf_layout[key])
+		endfor
+	endif
+	call fzf#run(opts)
+endfunction
+
+command! -nargs=0 AsyncTaskFzf call s:fzf_task()
 let g:asyncrun_open = 15
-let g:make_argument=''
-function! SetMakeArgument()
-    let g:make_argument = input('Make argument: ')
-endfunction
-function! MakeCommand()
-    if g:make_argument == ''
-        call SetMakeArgument()
-    endif
-    execute 'AsyncRun make -C build -j4 '. g:make_argument
-endfunction
-
-augroup local-asyncrun
-    au!
-    au User AsyncRunStop copen | wincmd p
-augroup END
-autocmd FileType cpp nnoremap <Leader>mk :call MakeCommand()<CR>
-autocmd FileType cpp nnoremap <Leader>ma :call SetMakeArgument()<CR>
-nnoremap <Leader>ru :AsyncRun -mode=term -pos=bottom 
-
+let g:asynctasks_term_reuse = 1
+let g:asynctasks_template = '~/.vim/task_template.ini'
+let g:asynctasks_term_pos = 'bottom'
+nnoremap <Leader>ob :AsyncTaskFzf<CR>
+nnoremap <Leader>ol :AsyncTaskLast<CR>
+nnoremap <Leader>ru :AsyncTaskEdit<CR>
 
 " easy motion
 let g:EasyMotion_smartcase = 1
@@ -265,8 +282,8 @@ map  T <Plug>(easymotion-Tl)
 nmap s <Plug>(easymotion-overwin-f2)
 map  / <Plug>(easymotion-sn)
 omap / <Plug>(easymotion-tn)
-map  n <Plug>(easymotion-next)
-map  N <Plug>(easymotion-prev)
+" map  n <Plug>(easymotion-next)
+" map  N <Plug>(easymotion-prev)
 
 " -------------------------------VIM CONFIG---------------------------------
 " Swap file
@@ -277,7 +294,6 @@ set modelines=0
 
 " Show line numbers
 set number
-set clipboard=unnamedplus
 
 " Show file stats
 set ruler
@@ -518,13 +534,13 @@ set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 " Show all diagnostics.
 nnoremap <silent><nowait> <space>sbd  :<C-u>CocList diagnostics<cr>
 " Manage extensions.
-nnoremap <silent><nowait> <space>coce  :<C-u>CocList extensions<cr>
+" nnoremap <silent><nowait> <space>coce  :<C-u>CocList extensions<cr>
 " Show commands.
 " nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
 " Find symbol of current document.
-nnoremap <silent><nowait> <Leader>ol  :<C-u>CocList outline<cr>
+" nnoremap <silent><nowait> <Leader>ol  :<C-u>CocList outline<cr>
 " Search workspace symbols.
-nnoremap <silent><nowait> <space>sym  :<C-u>CocList -I symbols<cr>
+" nnoremap <silent><nowait> <space>sym  :<C-u>CocList -I symbols<cr>
 
 " -----------------------------STARTIFY-----------------------------------
 let g:startify_commands = [
