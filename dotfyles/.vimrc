@@ -19,6 +19,7 @@ call plug#begin()
 
 " Plug 'preservim/nerdtree'
 Plug 'tpope/vim-surround' 
+Plug 'tpope/vim-obsession' 
 Plug 'sheerun/vim-polyglot'
 Plug 'jiangmiao/auto-pairs'
 Plug 'vim-airline/vim-airline'
@@ -546,6 +547,7 @@ nnoremap <silent><nowait> <space>sbd  :<C-u>CocList diagnostics<cr>
 let g:startify_commands = [
             \ {'g': ['Git status', 'Git']},
             \ {'f': ['Files', 'GFiles ${PWD}']},
+            \ {'p': ['Previous session', 'source Session.vim']},
             \ {'s': ['Edit .vimrc', 'e $MYVIMRC']},
             \ ]
 let g:startify_lists = [
