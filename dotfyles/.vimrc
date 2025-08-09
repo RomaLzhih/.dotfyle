@@ -122,7 +122,7 @@ augroup END
 let g:better_escape_shortcut = ['jk', 'jj']
 
 "  goyo
-let g:goyo_width = 85
+let g:goyo_width = 95
 let g:goyo_height = 99
 let g:goyo_linenr = 1
 nnoremap <silent> <Leader>cb :Goyo<CR>
@@ -146,6 +146,9 @@ au FileType cpp let delimitMate_matchpairs = "(:),[:],{:}"
 
 " smooth scroll
 let g:smoothie_experimental_mappings = 1
+
+" cool total match conut
+let g:cool_total_matches = 1
 
 " vimtex
 if has('win32') || has('win64')
@@ -182,9 +185,9 @@ else
     " fzf
     let $FZF_DEFAULT_OPTS = '--bind tab:up,shift-tab:down --cycle'
 
-    nnoremap <C-f> :GFiles <CR>
+    nnoremap <C-f> :Files <CR>
     nnoremap ? :BLines <CR>
-    nnoremap <Leader>ff :Files <CR> 
+    nnoremap <Leader>gf :GFiles <CR> 
     nnoremap <Leader>fw :Rg 
     nnoremap <Leader>th :Colors<CR>
     nnoremap <Leader>bb :Buffers<CR>
@@ -217,6 +220,7 @@ let g:floaterm_keymap_next   = '<F3>'
 let g:floaterm_keymap_kill   = '<F4>'
 let g:floaterm_keymap_toggle = '<C-p>'
 tnoremap   <silent>   <C-x>   <C-\><C-n>
+
 " lazygit in floaterm
 function! LazyGitFloaterm()
     FloatermNew --height=0.9 --width=0.9 --wintype=float --position=center --autoclose=2 lazygit
@@ -224,10 +228,6 @@ endfunction
 nnoremap <leader>lg :call LazyGitFloaterm()<CR>
 
 
-" Nerd tree
-" nnoremap <C-s> :NERDTreeToggle<CR>
-" autocmd FileType nerdtree map <buffer> h u
-" autocmd FileType nerdtree map <buffer> l <CR>
 " Yazi
 nnoremap <C-s> :Yazi<CR>
 
@@ -275,7 +275,6 @@ let g:EasyMotion_do_mapping = 0
 autocmd User EasyMotionPromptBegin :let b:coc_diagnostic_disable = 1
 autocmd User EasyMotionPromptEnd :let b:coc_diagnostic_disable = 0
 
-" map <Leader> <Plug>(easymotion-prefix)
 map  f <Plug>(easymotion-fl)
 map  F <Plug>(easymotion-Fl)
 map  t <Plug>(easymotion-tl)
@@ -283,8 +282,6 @@ map  T <Plug>(easymotion-Tl)
 nmap s <Plug>(easymotion-overwin-f2)
 map  / <Plug>(easymotion-sn)
 omap / <Plug>(easymotion-tn)
-" map  n <Plug>(easymotion-next)
-" map  N <Plug>(easymotion-prev)
 
 " -------------------------------VIM CONFIG---------------------------------
 " Swap file
