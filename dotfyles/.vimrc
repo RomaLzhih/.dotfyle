@@ -50,6 +50,7 @@ Plug 'wellle/targets.vim'
 Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'skywind3000/asynctasks.vim'
+Plug 'liuchengxu/vim-which-key'
 Plug 'bfrg/vim-cpp-modern'
 Plug 'ojroques/vim-oscyank', {'branch': 'main'}
 
@@ -221,6 +222,9 @@ function! LazyGitFloaterm()
 endfunction
 nnoremap <leader>lg :call LazyGitFloaterm()<CR>
 
+" vim-which-key
+nnoremap <silent> <leader>      :<c-u>WhichKey '<Space>'<CR>
+nnoremap <silent> <localleader> :<c-u>WhichKey  ','<CR>
 
 " Yazi
 nnoremap <C-s> :Yazi<CR>
@@ -309,8 +313,8 @@ set mouse=a
 set scrolloff=3
 set backspace=indent,eol,start
 set belloff=all
-set timeoutlen=400
-set ttimeoutlen=400
+set timeoutlen=500
+set ttimeoutlen=500
 set matchpairs+=<:> " use % to jump between pairs
 runtime! macros/matchit.vim
 
