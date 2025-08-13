@@ -21,7 +21,6 @@ call plug#begin()
 Plug 'tpope/vim-surround' 
 Plug 'tpope/vim-obsession' 
 Plug 'sheerun/vim-polyglot'
-Plug 'jiangmiao/auto-pairs'
 Plug 'vim-airline/vim-airline'
 Plug 'chriszarate/yazi.vim'
 Plug 'DanBradbury/copilot-chat.vim', {'as': 'copilot-chat'}
@@ -75,6 +74,7 @@ filetype plugin indent on
 let mapleader = " "
 let maplocalleader = "\\"
 nnoremap <SPACE> <Nop>
+nnoremap <Leader>op :copen<CR>
 nnoremap <Leader>cl :cclose<CR>
 command! W write
 
@@ -112,12 +112,6 @@ set guioptions-=m  " Remove the menu bar
 set guioptions-=T  " Remove the toolbar
 endif
 
-" auto pairs
-augroup latex_markdown_autopairs
-  autocmd!
-  autocmd FileType tex,latex,markdown let b:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"', "`":"`", '```':'```', '"""':'"""', "'''":"'''", '$':'$'}
-augroup END
-
 " better escape
 let g:better_escape_shortcut = ['jk', 'jj']
 
@@ -142,7 +136,7 @@ imap <silent><script><expr> <C-e> copilot#Accept("\<CR>")
 let g:copilot_no_tab_map = v:true
 
 " remove useless auto pairs in cpp and latex
-au FileType cpp let delimitMate_matchpairs = "(:),[:],{:}"
+au FileType tex,cpp let delimitMate_matchpairs = "(:),[:],{:}"
 
 " smooth scroll
 let g:smoothie_experimental_mappings = 1
@@ -185,9 +179,9 @@ else
     " fzf
     let $FZF_DEFAULT_OPTS = '--bind tab:up,shift-tab:down --cycle'
 
-    nnoremap <C-f> :Files <CR>
+    nnoremap <C-f> :GFiles <CR>
     nnoremap ? :BLines <CR>
-    nnoremap <Leader>gf :GFiles <CR> 
+    nnoremap <Leader>ff :Files <CR> 
     nnoremap <Leader>fw :Rg 
     nnoremap <Leader>th :Colors<CR>
     nnoremap <Leader>bb :Buffers<CR>
