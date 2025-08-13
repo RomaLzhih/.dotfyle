@@ -360,9 +360,9 @@ highlight link PARAKeyword DiffChange
 
 " Color scheme (terminal)
 let g:gruvbox_bold = 0
-colorscheme gruvbox-material
-" colorscheme seoul256
-" set t_Co=256
+set termguicolors
+" colorscheme gruvbox-material
+colorscheme nord
 
 " latex
 autocmd FileType tex,bib let g:indentLine_setConceal = 0
