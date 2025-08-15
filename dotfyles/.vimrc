@@ -19,6 +19,9 @@ call plug#begin()
 
 " Plug 'preservim/nerdtree'
 Plug 'tpope/vim-surround' 
+Plug 'haya14busa/incsearch.vim'
+Plug 'haya14busa/incsearch-fuzzy.vim'
+Plug 'haya14busa/incsearch-easymotion.vim'
 Plug 'tpope/vim-obsession' 
 Plug 'sheerun/vim-polyglot'
 Plug 'vim-airline/vim-airline'
@@ -58,6 +61,7 @@ Plug 'ojroques/vim-oscyank', {'branch': 'main'}
 Plug 'sainnhe/gruvbox-material'
 Plug 'rose-pine/vim', {'as': 'rose-pine'}
 Plug 'nordtheme/vim', {'as': 'nord'}
+Plug 'lifepillar/vim-solarized8'
 
 " Initialize plugin system
 " - Automatically executes `filetype plugin indent on` and `syntax enable`.
@@ -100,8 +104,10 @@ nnoremap <Leader>x :Bclose<CR>
 nnoremap <Leader>bd :Bclose<CR>
 nnoremap <Leader>cl :cclose<CR>
 nnoremap <Leader>co :copen<CR>
+nnoremap <Leader>pp :cclose<CR>
+nnoremap <Leader>op :copen<CR>
+autocmd FileType qf nnoremap <buffer> q :q<CR>
 nnoremap <leader>c <Plug>OSCYankOperator
-nnoremap <leader>cc <leader>c_
 vnoremap <leader>c <Plug>OSCYankVisual
 
 " -----------------------------PLUGIN CONFIG-----------------------------------
@@ -130,8 +136,9 @@ nnoremap <silent> <C-k> :<C-U>TmuxNavigateUp<cr>
 nnoremap <silent> <C-l> :<C-U>TmuxNavigateRight<cr>
 
 "Copilot chat
-nnoremap <leader>cc :CopilotChatOpen<CR>
-vmap <leader>aa <Plug>CopilotChatAddSelection
+nnoremap <C-a> :CopilotChatOpen<CR>
+vnoremap <C-a> <Plug>CopilotChatAddSelection
+let g:copilot_reuse_active_chat = 1
 " Copilot
 imap <silent><script><expr> <C-e> copilot#Accept("\<CR>")
 let g:copilot_no_tab_map = v:true
@@ -209,6 +216,8 @@ let g:cpp_operator_highlight = 1
 let g:cpp_simple_highlight = 1
 
 " float term
+let g:floaterm_width = 0.618
+let g:floaterm_height = 0.618
 let g:floaterm_keymap_new    = '<F1>'
 let g:floaterm_keymap_prev   = '<F2>'
 let g:floaterm_keymap_next   = '<F3>'
@@ -278,8 +287,18 @@ map  F <Plug>(easymotion-Fl)
 map  t <Plug>(easymotion-tl)
 map  T <Plug>(easymotion-Tl)
 nmap s <Plug>(easymotion-overwin-f2)
-map  / <Plug>(easymotion-sn)
-omap / <Plug>(easymotion-tn)
+" map  / <Plug>(easymotion-sn)
+function! s:config_easyfuzzymotion(...) abort
+  return extend(copy({
+  \   'converters': [incsearch#config#fuzzyword#converter()],
+  \   'modules': [incsearch#config#easymotion#module({'overwin': 1})],
+  \   'keymap': {"\<CR>": '<Over>(easymotion)'},
+  \   'is_expr': 0,
+  \   'is_stay': 1
+  \ }), get(a:, 1, {}))
+endfunction
+
+noremap <silent><expr> / incsearch#go(<SID>config_easyfuzzymotion())
 
 " -------------------------------VIM CONFIG---------------------------------
 " Swap file
@@ -313,8 +332,8 @@ set mouse=a
 set scrolloff=3
 set backspace=indent,eol,start
 set belloff=all
-set timeoutlen=500
-set ttimeoutlen=500
+set timeoutlen=200
+set ttimeoutlen=200
 set matchpairs+=<:> " use % to jump between pairs
 runtime! macros/matchit.vim
 
@@ -365,8 +384,7 @@ highlight link PARAKeyword DiffChange
 " Color scheme (terminal)
 let g:gruvbox_bold = 0
 set termguicolors
-" colorscheme gruvbox-material
-colorscheme nord
+colorscheme solarized8
 
 " latex
 autocmd FileType tex,bib let g:indentLine_setConceal = 0
