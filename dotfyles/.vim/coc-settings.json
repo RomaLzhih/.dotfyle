@@ -9,6 +9,7 @@
         "sh",
         "latex",
     ],
+    "semanticTokens.enable": true,
     "diagnostic.virtualText": true,
     "diagnostic.virtualTextCurrentLineOnly": true,
     "inlayHint.enable": false,

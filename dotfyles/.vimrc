@@ -383,9 +383,20 @@ syntax match PARAKeyword /PARA:/
 highlight link PARAKeyword DiffChange
 
 " Color scheme (terminal)
+" gruvbox
 let g:gruvbox_bold = 0
+let g:gruvbox_material_lsp_kind_color = [
+      \ ["Variable", "Aqua"],
+      \ ]
+" nord
+augroup nord-theme-overrides
+  autocmd!
+  " Use 'nord7' as foreground color for Vim comment titles.
+  autocmd ColorScheme nord highlight Property guifg=#81a1c1
+augroup END
 set termguicolors
 colorscheme nord
+" colorscheme gruvbox-material
 
 " latex
 autocmd FileType tex,bib let g:indentLine_setConceal = 0
@@ -493,6 +504,9 @@ nmap <leader>il :CocCommand document.toggleInlayHint <CR>
 " Formatting selected code.
 xmap <leader>fm  <Plug>(coc-format)
 nmap <leader>fm  <Plug>(coc-format)
+nmap <leader>ic :call CocAction('showIncomingCalls') <CR>
+nmap <leader>oc :call CocAction('showOutgoingCalls') <CR>
+
 
 augroup mygroup
     autocmd!
@@ -537,6 +551,7 @@ omap . <Plug>(coc-range-select)
 
 " Add `:Format` command to format current buffer.
 command! -nargs=0 Format :call CocAction('format')
+command! -nargs=0 Inspect :CocCommand semanticTokens.inspect
 
 " Add `:Fold` command to fold current buffer.
 command! -nargs=? Fold :call     CocAction('fold', <f-args>)
@@ -557,10 +572,52 @@ nnoremap <silent><nowait> <space>sbd  :<C-u>CocList diagnostics<cr>
 " Show commands.
 " nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
 " Find symbol of current document.
-" nnoremap <silent><nowait> <Leader>ol  :<C-u>CocList outline<cr>
+nnoremap <silent><nowait> <Leader>ol  :<C-u>CocList outline<cr>
 " Search workspace symbols.
 " nnoremap <silent><nowait> <space>sym  :<C-u>CocList -I symbols<cr>
 
+let g:coc_default_semantic_highlight_groups = 0
+let hlMap = {
+            \ 'Namespace': 'Include',
+            \ 'Type': 'Type',
+            \ 'Class': 'StorageClass',
+            \ 'Enum': 'Class',
+            \ 'Interface': 'Type',
+            \ 'Struct': 'Structure',
+            \ 'TypeParameter': 'Parameter',
+            \ 'TypeTypeParameter': 'Type',
+            \ 'TypeType': 'Type',
+            \ 'TypeVariable': 'Variable',
+            \ 'TypeConcept': 'Constant',
+            \ 'TypeUnknown': 'Identifier',
+            \ 'TypeMethod': 'Function',
+            \ 'TypeClass': 'Type',
+            \ 'TypeProperty': 'Property',
+            \ 'TypeFunction': 'Function',
+            \ 'TypeMacro': 'Define',
+            \ 'TypeNamespace': 'Include',
+            \ 'Parameter': 'Parameter',
+            \ 'Variable': 'Variable',
+            \ 'Property': 'Property',
+            \ 'EnumMember': 'Constant',
+            \ 'Event': 'Keyword',
+            \ 'Function': 'Function',
+            \ 'Method': 'Function',
+            \ 'Macro': 'Define',
+            \ 'Keyword': 'Keyword',
+            \ 'Modifier': 'StorageClass',
+            \ 'Comment': 'Comment',
+            \ 'String': 'String',
+            \ 'Number': 'Number',
+            \ 'Boolean': 'Boolean',
+            \ 'Regexp': 'String',
+            \ 'Operator': 'Operator',
+            \ 'Decorator': 'Identifier',
+            \ 'Deprecated': 'CocDeprecatedHighlight'
+            \ }
+for [key, value] in items(hlMap)
+    execute 'hi default link CocSem'.key.' '.(value)
+endfor
 " -----------------------------STARTIFY-----------------------------------
 let g:startify_commands = [
             \ {'g': ['Git status', 'Git']},
