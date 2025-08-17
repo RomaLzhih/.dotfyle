@@ -50,11 +50,11 @@ Plug 'voldikss/vim-floaterm'
 Plug 'junegunn/goyo.vim'
 Plug 'jdhao/better-escape.vim'
 Plug 'wellle/targets.vim'
-Plug 'octol/vim-cpp-enhanced-highlight'
+" Plug 'octol/vim-cpp-enhanced-highlight'
+" Plug 'bfrg/vim-cpp-modern'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'skywind3000/asynctasks.vim'
 Plug 'liuchengxu/vim-which-key'
-Plug 'bfrg/vim-cpp-modern'
 Plug 'ojroques/vim-oscyank', {'branch': 'main'}
 
 " Plug 'morhetz/gruvbox' 
@@ -62,7 +62,8 @@ Plug 'sainnhe/gruvbox-material'
 Plug 'rose-pine/vim', {'as': 'rose-pine'}
 Plug 'nordtheme/vim', {'as': 'nord'}
 Plug 'lifepillar/vim-solarized8'
-
+Plug 'tomasr/molokai'
+Plug 'catppuccin/vim', { 'as': 'catppuccin' }
 " Initialize plugin system
 " - Automatically executes `filetype plugin indent on` and `syntax enable`.
 call plug#end()
@@ -79,6 +80,8 @@ filetype plugin indent on
 let mapleader = " "
 let maplocalleader = "\\"
 nnoremap <SPACE> <Nop>
+autocmd FileType qf wincmd J
+autocmd FileType qf resize 15
 nnoremap <Leader>op :copen<CR>
 nnoremap <Leader>cl :cclose<CR>
 command! W write
@@ -197,27 +200,27 @@ else
 endif
 
 " cpp highlight
-let g:cpp_class_scope_highlight = 1
-let g:cpp_member_variable_highlight = 1
-let g:cpp_class_decl_highlight = 1
-let g:cpp_posix_standard = 1
-let g:cpp_experimental_simple_template_highlight = 1
-let g:cpp_concepts_highlight = 1
-let g:cpp_function_highlight = 1
-let g:cpp_attributes_highlight = 1
-let g:cpp_member_highlight = 1
-let g:cpp_simple_highlight = 1
+" let g:cpp_class_scope_highlight = 1
+" let g:cpp_member_variable_highlight = 1
+" let g:cpp_class_decl_highlight = 1
+" let g:cpp_posix_standard = 1
+" let g:cpp_experimental_simple_template_highlight = 1
+" let g:cpp_concepts_highlight = 1
+" let g:cpp_function_highlight = 1
+" let g:cpp_attributes_highlight = 1
+" let g:cpp_member_highlight = 1
+" let g:cpp_simple_highlight = 1
 
-let g:cpp_function_highlight = 1
-let g:cpp_attributes_highlight = 1
-let g:cpp_member_highlight = 1
-let g:cpp_type_name_highlight = 1
-let g:cpp_operator_highlight = 1
-let g:cpp_simple_highlight = 1
+" let g:cpp_function_highlight = 1
+" let g:cpp_attributes_highlight = 1
+" let g:cpp_member_highlight = 1
+" let g:cpp_type_name_highlight = 1
+" let g:cpp_operator_highlight = 1
+" let g:cpp_simple_highlight = 1
 
 " float term
-let g:floaterm_width = 0.618
-let g:floaterm_height = 0.618
+let g:floaterm_width = 0.8
+let g:floaterm_height = 0.8
 let g:floaterm_keymap_new    = '<F1>'
 let g:floaterm_keymap_prev   = '<F2>'
 let g:floaterm_keymap_next   = '<F3>'
@@ -383,7 +386,9 @@ syntax match PARAKeyword /PARA:/
 highlight link PARAKeyword DiffChange
 
 " Color scheme (terminal)
-" gruvbox
+" molokai
+let g:molokai_original = 1
+" gruvbox-material
 let g:gruvbox_bold = 0
 let g:gruvbox_material_lsp_kind_color = [
       \ ["Variable", "Aqua"],
@@ -474,8 +479,8 @@ inoremap <silent><expr> <CR> coc#pum#visible() ? coc#_select_confirm() : "\<CR>"
 
 " Use `[g` and `]g` to navigate diagnostics
 " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
+nmap <silent> [d <Plug>(coc-diagnostic-prev)
+nmap <silent> ]d <Plug>(coc-diagnostic-next)
 " GoTo code navigation.
 nmap <silent> gd <Plug>(coc-definition)
 nnoremap <silent><nowait> <leader>pd  :call CocAction('jumpDefinition', v:false)<CR>
@@ -572,7 +577,7 @@ nnoremap <silent><nowait> <space>sbd  :<C-u>CocList diagnostics<cr>
 " Show commands.
 " nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
 " Find symbol of current document.
-nnoremap <silent><nowait> <Leader>ol  :<C-u>CocList outline<cr>
+nnoremap <silent><nowait> <Leader>out  :<C-u>CocList outline<cr>
 " Search workspace symbols.
 " nnoremap <silent><nowait> <space>sym  :<C-u>CocList -I symbols<cr>
 
