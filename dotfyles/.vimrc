@@ -95,8 +95,8 @@ vnoremap <C-e> $
 onoremap <C-e> $
 
 inoremap <C-h> <left>
-inoremap <C-j> <down>
-inoremap <C-k> <up>
+" inoremap <C-j> <down>
+" inoremap <C-k> <up>
 inoremap <C-l> <right>
 nnoremap <Tab> :bnext<CR>
 nnoremap <S-Tab> :bprevious<CR>
@@ -275,6 +275,7 @@ let g:asynctasks_term_pos = 'bottom'
 nnoremap <Leader>ob :AsyncTaskFzf<CR>
 nnoremap <Leader>ol :AsyncTaskLast<CR>
 nnoremap <Leader>ru :AsyncTaskEdit<CR>
+nnoremap <Leader>st :AsyncStop<CR>
 
 " easy motion
 let g:EasyMotion_smartcase = 1
@@ -287,7 +288,7 @@ map  F <Plug>(easymotion-Fl)
 map  t <Plug>(easymotion-tl)
 map  T <Plug>(easymotion-Tl)
 nmap s <Plug>(easymotion-overwin-f2)
-" map  / <Plug>(easymotion-sn)
+map  / <Plug>(easymotion-sn)
 function! s:config_easyfuzzymotion(...) abort
   return extend(copy({
   \   'converters': [incsearch#config#fuzzyword#converter()],
@@ -298,7 +299,7 @@ function! s:config_easyfuzzymotion(...) abort
   \ }), get(a:, 1, {}))
 endfunction
 
-noremap <silent><expr> / incsearch#go(<SID>config_easyfuzzymotion())
+noremap <silent><expr> <leader>/ incsearch#go(<SID>config_easyfuzzymotion())
 
 " -------------------------------VIM CONFIG---------------------------------
 " Swap file
@@ -384,7 +385,7 @@ highlight link PARAKeyword DiffChange
 " Color scheme (terminal)
 let g:gruvbox_bold = 0
 set termguicolors
-colorscheme solarized8
+colorscheme nord
 
 " latex
 autocmd FileType tex,bib let g:indentLine_setConceal = 0
@@ -439,8 +440,10 @@ inoremap <silent><expr> <C-x> coc#pum#visible() ? coc#pum#cancel() : "\<C-x>"
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 inoremap <silent><expr> <TAB>
       \ coc#pum#visible() ? coc#pum#next(1) :
-      \ CheckBackspace() ? "\<Tab>" :
       \ coc#refresh()
+let g:coc_snippet_prev = '<C-p>'
+let g:coc_snippet_next = '<C-n>'
+
 " inoremap <silent><expr> <TAB>
 "             \ coc#pum#visible() ? coc#pum#next(1):
 "             \ exists('b:_copilot.suggestions') ? copilot#Accept("\<CR>") :
@@ -514,6 +517,8 @@ xmap ic <Plug>(coc-classobj-i)
 omap ic <Plug>(coc-classobj-i)
 xmap ac <Plug>(coc-classobj-a)
 omap ac <Plug>(coc-classobj-a)
+xmap . <Plug>(coc-range-select)
+omap . <Plug>(coc-range-select)
 
 " " Remap <C-f> and <C-b> for scroll float windows/popups.
 " if has('nvim-0.4.0') || has('patch-8.2.0750')

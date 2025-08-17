@@ -1,5 +1,5 @@
 {
-    "suggest.maxCompleteItemCount": 7,
+    "suggest.maxCompleteItemCount": 10,
     "colors.enable": true,
     "coc.preferences.formatOnSaveFiletypes": [
         "json",
@@ -7,8 +7,9 @@
         "markdown",
         "cpp",
         "sh",
+        "latex",
     ],
     "diagnostic.virtualText": true,
     "diagnostic.virtualTextCurrentLineOnly": true,
-    "inlayHint.enable": false
+    "inlayHint.enable": false,
 }
