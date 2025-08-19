@@ -56,6 +56,7 @@ Plug 'skywind3000/asyncrun.vim'
 Plug 'skywind3000/asynctasks.vim'
 Plug 'liuchengxu/vim-which-key'
 Plug 'ojroques/vim-oscyank', {'branch': 'main'}
+Plug 'jalvesaq/Vim-R'
 
 " Plug 'morhetz/gruvbox' 
 Plug 'sainnhe/gruvbox-material'
@@ -64,6 +65,11 @@ Plug 'nordtheme/vim', {'as': 'nord'}
 Plug 'lifepillar/vim-solarized8'
 Plug 'tomasr/molokai'
 Plug 'catppuccin/vim', { 'as': 'catppuccin' }
+Plug 'morhetz/gruvbox'
+Plug 'joshdick/onedark.vim'
+Plug 'mhartington/oceanic-next'
+Plug 'sainnhe/everforest'
+Plug 'srcery-colors/srcery-vim'
 " Initialize plugin system
 " - Automatically executes `filetype plugin indent on` and `syntax enable`.
 call plug#end()
@@ -137,6 +143,11 @@ nnoremap <silent> <C-h> :<C-U>TmuxNavigateLeft<cr>
 nnoremap <silent> <C-j> :<C-U>TmuxNavigateDown<cr>
 nnoremap <silent> <C-k> :<C-U>TmuxNavigateUp<cr>
 nnoremap <silent> <C-l> :<C-U>TmuxNavigateRight<cr>
+
+tnoremap <silent> <C-h> <C-\><C-n><C-w>h
+tnoremap <silent> <C-j> <C-\><C-n><C-w>j
+tnoremap <silent> <C-k> <C-\><C-n><C-w>k
+tnoremap <silent> <C-l> <C-\><C-n><C-w>l
 
 "Copilot chat
 nnoremap <C-a> :CopilotChatOpen<CR>
@@ -329,6 +340,7 @@ set tabstop=4
 set shiftwidth=4
 set softtabstop=4
 set expandtab
+set nonumber
 set noshiftround
 set mouse=a
 
@@ -400,7 +412,7 @@ augroup nord-theme-overrides
   autocmd ColorScheme nord highlight Property guifg=#81a1c1
 augroup END
 set termguicolors
-colorscheme nord
+colorscheme gruvbox
 " colorscheme gruvbox-material
 
 " latex
