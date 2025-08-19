@@ -23,7 +23,6 @@ Plug 'haya14busa/incsearch.vim'
 Plug 'haya14busa/incsearch-fuzzy.vim'
 Plug 'haya14busa/incsearch-easymotion.vim'
 Plug 'tpope/vim-obsession' 
-Plug 'sheerun/vim-polyglot'
 Plug 'vim-airline/vim-airline'
 Plug 'chriszarate/yazi.vim'
 Plug 'DanBradbury/copilot-chat.vim', {'as': 'copilot-chat'}
@@ -38,6 +37,7 @@ Plug 'yggdroot/indentline'
 Plug 'psliwka/vim-smoothie'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'tpope/vim-commentary'
+Plug 'brooth/far.vim'
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 Plug 'easymotion/vim-easymotion'
 Plug 'mhinz/vim-startify'
@@ -56,7 +56,6 @@ Plug 'skywind3000/asyncrun.vim'
 Plug 'skywind3000/asynctasks.vim'
 Plug 'liuchengxu/vim-which-key'
 Plug 'ojroques/vim-oscyank', {'branch': 'main'}
-Plug 'jalvesaq/Vim-R'
 
 " Plug 'morhetz/gruvbox' 
 Plug 'sainnhe/gruvbox-material'
@@ -136,6 +135,9 @@ let g:goyo_width = 95
 let g:goyo_height = 99
 let g:goyo_linenr = 1
 nnoremap <silent> <Leader>cb :Goyo<CR>
+
+" Far 
+nnoremap <silent> <Leader>S :Farr<CR>
 
 " tmux navigator
 let g:tmux_navigator_no_mappings = 1
@@ -412,7 +414,7 @@ augroup nord-theme-overrides
   autocmd ColorScheme nord highlight Property guifg=#81a1c1
 augroup END
 set termguicolors
-colorscheme gruvbox
+colorscheme catppuccin-macchiato
 " colorscheme gruvbox-material
 
 " latex
