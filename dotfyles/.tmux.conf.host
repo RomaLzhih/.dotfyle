@@ -7,9 +7,9 @@ set -ag terminal-overrides ",xterm-256color:RGB"
 set -g default-terminal "${TERM}"
 set -as terminal-overrides ',*:Smulx=\E[4::%p1%dm'  # undercurl support
 set -as terminal-overrides ',*:Setulc=\E[58::2::%p1%{65536}%/%d::%p1%{256}%/%{255}%&%d::%p1%{255}%&%d%;m'  # underscore colours - needs tmux-3.0
-set-option -g automatic-rename on
-set-option -g automatic-rename-format "#{b:pane_current_path}"
-set-option -g automatic-rename-format "#(echo #{pane_current_path} | sed 's|^$HOME/||')"
+# set-option -g automatic-rename on
+# set-option -g automatic-rename-format "#{b:pane_current_path}"
+# set-option -g automatic-rename-format "#(echo #{pane_current_path} | sed 's|^$HOME/||')"
 
 set -g mouse on
 set -s set-clipboard on
@@ -21,12 +21,15 @@ set -g @plugin 'tmux-plugins/tmux-resurrect'
 set -g @plugin 'aserowy/tmux.nvim'
 set -g @plugin 'thewtex/tmux-mem-cpu-load'
 set -g @plugin 'MunifTanjim/tmux-mode-indicator'
+set -g @plugin 'MunifTanjim/tmux-suspend'
 # reconstruct for nvim
 # for vim
 set -g @resurrect-strategy-vim 'session'
 # for neovim
 set -g @resurrect-strategy-nvim 'session'
 
+# for suspend
+set -g @suspend_key 'F12'
 
 # rose pine
 set -g @rose_pine_variant 'main' # Options are 'main', 'moon' or 'dawn'
@@ -55,14 +58,13 @@ set -g @rose_pine_date_time_icon '󰃰' # Changes the default icon to the right 
 set -g @rose_pine_window_status_separator "  " # Changes the default icon that appears between window names
 
 #  cpu load
+#  set -g @rose_pine_status_left_prepend_section '#{tmux_mode_indicator}'
 set -g @rose_pine_status_left_prepend_section '#{tmux_mode_indicator}'
-# set -g @rose_pine_status_left_append_section 'It works'
 # set -g @rose_pine_status_right_prepend_section 'with normal text'
 # set -g @rose_pine_status_right_append_section 'too'
-set -g @rose_pine_status_right_prepend_section '  #[fg=black]#($TMUX_PLUGIN_MANAGER_PATH/tmux-mem-cpu-load/tmux-mem-cpu-load --colors --cpu-mode 1 --powerline-right --interval 1 -a 0)#[default] < '
+# set -g @rose_pine_status_right_prepend_section '  #[fg=black]#($TMUX_PLUGIN_MANAGER_PATH/tmux-mem-cpu-load/tmux-mem-cpu-load --colors --cpu-mode 1 --powerline-right --interval 1 -a 0)#[default] < '
 # set -g status-right '#[fg=black]#($TMUX_PLUGIN_MANAGER_PATH/tmux-mem-cpu-load/tmux-mem-cpu-load --colors --cpu-mode 1 --powerline-right --interval 1 -a 0)#[default]'
 #
-bind s choose-session
 # bind C-s set-option -g status
 # set-option -g status-bg default
 # set-option -g status-fg colour240
