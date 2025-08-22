@@ -117,6 +117,7 @@ nnoremap <Leader>op :copen<CR>
 autocmd FileType qf nnoremap <buffer> q :q<CR>
 nnoremap <leader>c <Plug>OSCYankOperator
 vnoremap <leader>c <Plug>OSCYankVisual
+nnoremap <leader>hc yyP<Plug>CommentaryLinej
 
 " -----------------------------PLUGIN CONFIG-----------------------------------
 if has("gui_running")
@@ -591,7 +592,7 @@ nnoremap <silent><nowait> <space>sbd  :<C-u>CocList diagnostics<cr>
 " Show commands.
 " nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
 " Find symbol of current document.
-nnoremap <silent><nowait> <Leader>out  :<C-u>CocList outline<cr>
+nnoremap <silent><nowait> <Leader>fu  :<C-u>CocList outline<cr>
 " Search workspace symbols.
 " nnoremap <silent><nowait> <space>sym  :<C-u>CocList -I symbols<cr>
 
@@ -620,10 +621,10 @@ let hlMap = {
             \ 'Property': 'Property',
             \ 'EnumMember': 'Constant',
             \ 'Event': 'Keyword',
+            \ 'Keyword': 'Keyword',
             \ 'Function': 'Function',
             \ 'Method': 'Function',
             \ 'Macro': 'Define',
-            \ 'Keyword': 'Keyword',
             \ 'Modifier': 'StorageClass',
             \ 'Comment': 'Comment',
             \ 'String': 'String',
