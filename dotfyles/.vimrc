@@ -415,7 +415,7 @@ augroup nord-theme-overrides
   autocmd ColorScheme nord highlight Property guifg=#81a1c1
 augroup END
 set termguicolors
-colorscheme catppuccin_macchiato
+colorscheme gruvbox
 " colorscheme gruvbox-material
 
 " latex
