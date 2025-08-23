@@ -28,6 +28,8 @@ set -g @resurrect-strategy-vim 'session'
 # for neovim
 set -g @resurrect-strategy-nvim 'session'
 
+# automatically update the number
+set -g renumber-windows on
 # for suspend
 set -g @suspend_key 'F12'
 
