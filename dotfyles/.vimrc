@@ -65,10 +65,14 @@ Plug 'lifepillar/vim-solarized8'
 Plug 'tomasr/molokai'
 Plug 'catppuccin/vim', { 'as': 'catppuccin' }
 Plug 'morhetz/gruvbox'
-Plug 'joshdick/onedark.vim'
 Plug 'mhartington/oceanic-next'
 Plug 'sainnhe/everforest'
 Plug 'srcery-colors/srcery-vim'
+Plug 'w0ng/vim-hybrid'
+Plug 'tomasiser/vim-code-dark'
+Plug 'drewtempelmeyer/palenight.vim'
+Plug 'lunacookies/vim-colors-xcode'
+Plug 'kaicataldo/material.vim'
 " Initialize plugin system
 " - Automatically executes `filetype plugin indent on` and `syntax enable`.
 call plug#end()
