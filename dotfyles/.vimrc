@@ -212,29 +212,11 @@ else
     nnoremap ? :BLines <CR>
     nnoremap <Leader>ff :Files <CR> 
     nnoremap <Leader>fw :Rg 
-    nnoremap <Leader>th :Colors<CR>
     nnoremap <Leader>bb :Buffers<CR>
     nnoremap <Leader>jp :Jumps<CR>
 endif
 
-" cpp highlight
-" let g:cpp_class_scope_highlight = 1
-" let g:cpp_member_variable_highlight = 1
-" let g:cpp_class_decl_highlight = 1
-" let g:cpp_posix_standard = 1
-" let g:cpp_experimental_simple_template_highlight = 1
-" let g:cpp_concepts_highlight = 1
-" let g:cpp_function_highlight = 1
-" let g:cpp_attributes_highlight = 1
-" let g:cpp_member_highlight = 1
-" let g:cpp_simple_highlight = 1
-
-" let g:cpp_function_highlight = 1
-" let g:cpp_attributes_highlight = 1
-" let g:cpp_member_highlight = 1
-" let g:cpp_type_name_highlight = 1
-" let g:cpp_operator_highlight = 1
-" let g:cpp_simple_highlight = 1
+nnoremap <Leader>th :call fzf#run({'source': getcompletion('', 'color'), 'sink': 'colorscheme'})<CR>
 
 " float term
 let g:floaterm_width = 0.8
