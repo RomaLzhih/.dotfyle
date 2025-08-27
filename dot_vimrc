@@ -237,7 +237,7 @@ nnoremap <leader>lg :call LazyGitFloaterm()<CR>
 
 " vim-which-key
 nnoremap <silent> <leader>      :<c-u>WhichKey '<Space>'<CR>
-nnoremap <silent> <localleader> :<c-u>WhichKey  ','<CR>
+nnoremap <silent> <localleader> :<c-u>WhichKey  '\'<CR>
 
 " Yazi
 nnoremap <C-s> :Yazi<CR>
