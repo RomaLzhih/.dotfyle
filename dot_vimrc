@@ -333,6 +333,7 @@ set expandtab
 set nonumber
 set noshiftround
 set mouse=a
+set clipboard=unnamedplus
 
 " Cursor motion
 set scrolloff=3
@@ -625,6 +626,7 @@ let hlMap = {
 for [key, value] in items(hlMap)
     execute 'hi default link CocSem'.key.' '.(value)
 endfor
+autocmd ColorScheme * highlight Comment cterm=italic gui=italic
 " -----------------------------STARTIFY-----------------------------------
 let g:startify_commands = [
             \ {'g': ['Git status', 'Git']},
