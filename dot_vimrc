@@ -402,6 +402,14 @@ augroup nord-theme-overrides
   " Use 'nord7' as foreground color for Vim comment titles.
   autocmd ColorScheme nord highlight Property guifg=#81a1c1
 augroup END
+let g:PaperColor_Theme_Options = {
+  \   'theme': {
+  \     'default.dark': {
+  \       'allow_bold' : 0
+  \     }
+  \   }
+  \ }
+
 set termguicolors
 colorscheme gruvbox
 " colorscheme gruvbox-material
