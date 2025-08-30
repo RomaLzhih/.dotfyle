@@ -214,6 +214,7 @@ else
     nnoremap <Leader>fj :Jumps<CR>
 endif
 
+" colorscheme picker
 nnoremap <Leader>th :call fzf#run({'source': getcompletion('', 'color'), 'sink': 'colorscheme'})<CR>
 
 " float term
@@ -223,7 +224,7 @@ let g:floaterm_keymap_new    = '<F1>'
 let g:floaterm_keymap_prev   = '<F2>'
 let g:floaterm_keymap_next   = '<F3>'
 let g:floaterm_keymap_kill   = '<F4>'
-let g:floaterm_keymap_toggle = '<C-i>'
+let g:floaterm_keymap_toggle = '<C-m>'
 tnoremap   <silent>   <C-x>   <C-\><C-n>
 
 " lazygit in floaterm
@@ -388,16 +389,6 @@ autocmd FileChangedShellPost *
 " -----------------------------------COLOR SCHEME-----------------------------------
 "  set highlight color
 set background=dark
-syntax match BugKeyword /BUG:/
-highlight link BugKeyword ErrorMsg
-syntax match NoteKeyword /NOTE:/
-highlight link NoteKeyword WarningMsg
-syntax match WarnKeyword /WARN:/
-highlight link WarnKeyword WarningMsg
-syntax match PerfKeyword /PERF:/
-highlight link PerfKeyword WarningMsg
-syntax match PARAKeyword /PARA:/
-highlight link PARAKeyword WarningMsg
 
 " Color scheme (terminal)
 " molokai
