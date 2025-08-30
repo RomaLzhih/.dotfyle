@@ -212,6 +212,7 @@ else
     nnoremap <Leader>fw :Rg 
     nnoremap <Leader>bb :Buffers<CR>
     nnoremap <Leader>fj :Jumps<CR>
+    nnoremap <Leader>fm :Marks<CR>
 endif
 
 " colorscheme picker
@@ -511,9 +512,6 @@ autocmd CursorHold * silent call CocActionAsync('highlight')
 " Symbol renaming.
 nmap <leader>rn <Plug>(coc-rename)
 nmap <leader>il :CocCommand document.toggleInlayHint <CR>
-" Formatting selected code.
-xmap <leader>fm  <Plug>(coc-format)
-nmap <leader>fm  <Plug>(coc-format)
 nmap <leader>ic :call CocAction('showIncomingCalls') <CR>
 nmap <leader>oc :call CocAction('showOutgoingCalls') <CR>
 
