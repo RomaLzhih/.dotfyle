@@ -23,6 +23,8 @@ HEADLINE_BRANCH_PREFIX=' '
 bindkey -v
 bindkey '^E' autosuggest-accept
 bindkey '^e' autosuggest-accept
+bindkey '^P' up-line-or-history
+bindkey '^N' down-line-or-history
 
 if [ -d "$HOME/bin" ]; then
 PATH="$HOME/bin:$PATH"
