@@ -211,7 +211,7 @@ else
     nnoremap <Leader>ff :Files <CR> 
     nnoremap <Leader>fw :Rg 
     nnoremap <Leader>bb :Buffers<CR>
-    nnoremap <Leader>jp :Jumps<CR>
+    nnoremap <Leader>fj :Jumps<CR>
 endif
 
 nnoremap <Leader>th :call fzf#run({'source': getcompletion('', 'color'), 'sink': 'colorscheme'})<CR>
@@ -223,7 +223,7 @@ let g:floaterm_keymap_new    = '<F1>'
 let g:floaterm_keymap_prev   = '<F2>'
 let g:floaterm_keymap_next   = '<F3>'
 let g:floaterm_keymap_kill   = '<F4>'
-let g:floaterm_keymap_toggle = '<C-p>'
+let g:floaterm_keymap_toggle = '<C-i>'
 tnoremap   <silent>   <C-x>   <C-\><C-n>
 
 " lazygit in floaterm
@@ -290,6 +290,9 @@ map  t <Plug>(easymotion-tl)
 map  T <Plug>(easymotion-Tl)
 nmap s <Plug>(easymotion-overwin-f2)
 " map  / <Plug>(easymotion-sn)
+
+let g:incsearch#smartcase = 1
+
 function! s:incsearch_config(...) abort
   return incsearch#util#deepextend(deepcopy({
   \   'modules': [incsearch#config#easymotion#module({'overwin': 1})],
@@ -297,7 +300,7 @@ function! s:incsearch_config(...) abort
   \     "\<CR>": '<Over>(easymotion)'
   \   },
   \   'is_expr': 0,
-  \   'smartcase': 1
+  \   'is_stay': 0
   \ }), get(a:, 1, {}))
 endfunction
 noremap <silent><expr> /  incsearch#go(<SID>incsearch_config())
@@ -308,7 +311,7 @@ function! s:config_easyfuzzymotion(...) abort
   \   'modules': [incsearch#config#easymotion#module({'overwin': 1})],
   \   'keymap': {"\<CR>": '<Over>(easymotion)'},
   \   'is_expr': 0,
-  \   'is_stay': 1
+  \   'is_stay': 0
   \ }), get(a:, 1, {}))
 endfunction
 
@@ -334,6 +337,7 @@ set encoding=utf-8
 " Whitespace
 set wrap
 " set textwidth=80
+set smartcase
 set formatoptions=tcqrn1
 set tabstop=4
 set shiftwidth=4
@@ -370,7 +374,6 @@ set showcmd
 " Searching
 set hlsearch
 set incsearch
-set smartcase
 set showmatch
 
 " Visualize tabs and newlines
