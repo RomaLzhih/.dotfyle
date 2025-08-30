@@ -27,11 +27,11 @@ Plug 'vim-airline/vim-airline'
 Plug 'chriszarate/yazi.vim'
 Plug 'DanBradbury/copilot-chat.vim', {'as': 'copilot-chat'}
 Plug 'tpope/vim-unimpaired'
+Plug 'junegunn/vim-peekaboo'
 Plug 'github/copilot.vim', { 'as': 'copilot' }
 Plug 'tpope/vim-fugitive'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-Plug 'kien/ctrlp.vim'
 Plug 'lervag/vimtex', { 'tag': 'v2.15' }
 Plug 'yggdroot/indentline'
 Plug 'psliwka/vim-smoothie'
@@ -48,7 +48,6 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'romainl/vim-cool'
 Plug 'voldikss/vim-floaterm'
 Plug 'junegunn/goyo.vim'
-Plug 'jdhao/better-escape.vim'
 Plug 'wellle/targets.vim'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'skywind3000/asynctasks.vim'
@@ -60,20 +59,18 @@ Plug 'sainnhe/gruvbox-material'
 Plug 'rose-pine/vim', {'as': 'rose-pine'}
 Plug 'nordtheme/vim', {'as': 'nord'}
 Plug 'lifepillar/vim-solarized8'
-Plug 'tomasr/molokai'
 Plug 'catppuccin/vim', { 'as': 'catppuccin' }
 Plug 'morhetz/gruvbox'
 Plug 'mhartington/oceanic-next'
 Plug 'sainnhe/everforest'
-Plug 'srcery-colors/srcery-vim'
 Plug 'w0ng/vim-hybrid'
 Plug 'NLKNguyen/papercolor-theme'
-Plug 'nanotech/jellybeans.vim'
 Plug 'junegunn/seoul256.vim'
 Plug 'tomasiser/vim-code-dark'
-Plug 'drewtempelmeyer/palenight.vim'
-Plug 'lunacookies/vim-colors-xcode'
-Plug 'kaicataldo/material.vim'
+Plug 'cocopon/iceberg.vim'
+Plug 'haishanh/night-owl.vim'
+Plug 'Rigellute/rigel'
+
 " Initialize plugin system
 " - Automatically executes `filetype plugin indent on` and `syntax enable`.
 call plug#end()
@@ -166,7 +163,7 @@ imap <silent><script><expr> <C-e> copilot#Accept("\<CR>")
 let g:copilot_no_tab_map = v:true
 
 " remove useless auto pairs in cpp and latex
-au FileType tex,cpp let delimitMate_matchpairs = "(:),[:],{:}"
+au FileType cpp let delimitMate_matchpairs = "(:),[:],{:}"
 
 " smooth scroll
 let g:smoothie_experimental_mappings = 1
@@ -292,7 +289,19 @@ map  F <Plug>(easymotion-Fl)
 map  t <Plug>(easymotion-tl)
 map  T <Plug>(easymotion-Tl)
 nmap s <Plug>(easymotion-overwin-f2)
-map  / <Plug>(easymotion-sn)
+" map  / <Plug>(easymotion-sn)
+function! s:incsearch_config(...) abort
+  return incsearch#util#deepextend(deepcopy({
+  \   'modules': [incsearch#config#easymotion#module({'overwin': 1})],
+  \   'keymap': {
+  \     "\<CR>": '<Over>(easymotion)'
+  \   },
+  \   'is_expr': 0,
+  \   'smartcase': 1
+  \ }), get(a:, 1, {}))
+endfunction
+noremap <silent><expr> /  incsearch#go(<SID>incsearch_config())
+
 function! s:config_easyfuzzymotion(...) abort
   return extend(copy({
   \   'converters': [incsearch#config#fuzzyword#converter()],
@@ -333,7 +342,7 @@ set expandtab
 set nonumber
 set noshiftround
 set mouse=a
-set clipboard=unnamedplus
+set clipboard=unnamed,unnamedplus
 
 " Cursor motion
 set scrolloff=3
@@ -341,7 +350,6 @@ set backspace=indent,eol,start
 set belloff=all
 set timeoutlen=200
 set ttimeoutlen=200
-set matchpairs+=<:> " use % to jump between pairs
 runtime! macros/matchit.vim
 
 " Allow hidden buffers
@@ -380,13 +388,13 @@ set background=dark
 syntax match BugKeyword /BUG:/
 highlight link BugKeyword ErrorMsg
 syntax match NoteKeyword /NOTE:/
-highlight link NoteKeyword DiffAdd
+highlight link NoteKeyword WarningMsg
 syntax match WarnKeyword /WARN:/
-highlight link WarnKeyword DiffText
+highlight link WarnKeyword WarningMsg
 syntax match PerfKeyword /PERF:/
-highlight link PerfKeyword DiffText
+highlight link PerfKeyword WarningMsg
 syntax match PARAKeyword /PARA:/
-highlight link PARAKeyword DiffChange
+highlight link PARAKeyword WarningMsg
 
 " Color scheme (terminal)
 " molokai
@@ -402,14 +410,6 @@ augroup nord-theme-overrides
   " Use 'nord7' as foreground color for Vim comment titles.
   autocmd ColorScheme nord highlight Property guifg=#81a1c1
 augroup END
-let g:PaperColor_Theme_Options = {
-  \   'theme': {
-  \     'default.dark': {
-  \       'allow_bold' : 0
-  \     }
-  \   }
-  \ }
-
 set termguicolors
 colorscheme gruvbox
 " colorscheme gruvbox-material
@@ -634,7 +634,6 @@ let hlMap = {
 for [key, value] in items(hlMap)
     execute 'hi default link CocSem'.key.' '.(value)
 endfor
-autocmd ColorScheme * highlight Comment cterm=italic gui=italic
 " -----------------------------STARTIFY-----------------------------------
 let g:startify_commands = [
             \ {'g': ['Git status', 'Git']},
