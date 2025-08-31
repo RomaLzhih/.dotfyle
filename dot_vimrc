@@ -404,14 +404,12 @@ let g:gruvbox_material_lsp_kind_color = [
 " nord
 augroup nord-theme-overrides
   autocmd!
-  " Use 'nord7' as foreground color for Vim comment titles.
   autocmd ColorScheme nord highlight Property guifg=#81a1c1
 augroup END
 
 " paper color 
-augroup nord-theme-overrides
+augroup papercolor-theme-overrides
   autocmd!
-  " Use 'nord7' as foreground color for Vim comment titles.
   autocmd ColorScheme PaperColor highlight Function guifg=#d7875f
 augroup END
 
