@@ -416,7 +416,7 @@ augroup END
 set termguicolors
 colorscheme gruvbox
 
-nnoremap <leader>ts :let saved_colorscheme=get(g:, 'colors_name', 'default')<CR>:let g:coc_default_semantic_highlight_group=1<CR>:source $MYVIMRC<CR>:let g:coc_default_semantic_highlight_group=0<CR>:source $MYVIMRC<CR>:execute 'colorscheme ' . saved_colorscheme<CR>
+nnoremap <leader>ts :let saved_colorscheme=get(g:, 'colors_name', 'default')<CR>:let g:coc_default_semantic_highlight_groups=0<CR>:source $MYVIMRC<CR>:let g:coc_default_semantic_highlight_groups=1<CR>:source $MYVIMRC<CR>:execute 'colorscheme ' . saved_colorscheme<CR>
 
 " latex
 autocmd FileType tex,bib let g:indentLine_setConceal = 0
