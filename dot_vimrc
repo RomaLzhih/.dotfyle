@@ -54,6 +54,9 @@ Plug 'skywind3000/asynctasks.vim'
 Plug 'liuchengxu/vim-which-key'
 Plug 'ojroques/vim-oscyank', {'branch': 'main'}
 Plug 'ryanoasis/vim-devicons'
+Plug 'tpope/vim-sleuth'
+Plug 'kshenoy/vim-signature'
+Plug 'tpope/vim-repeat'
 
 Plug 'sainnhe/gruvbox-material'
 Plug 'rose-pine/vim', {'as': 'rose-pine'}
@@ -70,6 +73,7 @@ Plug 'tomasiser/vim-code-dark'
 Plug 'cocopon/iceberg.vim'
 Plug 'haishanh/night-owl.vim'
 Plug 'Rigellute/rigel'
+Plug 'joshdick/onedark.vim'
 
 " Initialize plugin system
 " - Automatically executes `filetype plugin indent on` and `syntax enable`.
