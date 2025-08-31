@@ -405,6 +405,14 @@ augroup nord-theme-overrides
   " Use 'nord7' as foreground color for Vim comment titles.
   autocmd ColorScheme nord highlight Property guifg=#81a1c1
 augroup END
+
+" paper color 
+augroup nord-theme-overrides
+  autocmd!
+  " Use 'nord7' as foreground color for Vim comment titles.
+  autocmd ColorScheme nord highlight Function guifg=#d7875f
+augroup END
+
 set termguicolors
 colorscheme gruvbox
 " colorscheme gruvbox-material
@@ -476,11 +484,6 @@ let g:coc_snippet_next = '<C-n>'
 "     inoremap <silent><expr> <c-space> coc#refresh()
 " else
 " endif
-" Make <CR> auto-select the first completion item and notify coc.nvim to
-" format on enter, <cr> could be remapped by other vim plugin
-" inoremap <silent><expr> <CR> pumvisible() ? coc#_select_confirm() : "\<CR>"
-" inoremap <silent><expr> <CR> pumvisible() ? coc#_select_confirm()
-"             \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 inoremap <silent><expr> <CR> coc#pum#visible() ? coc#_select_confirm() : "\<CR>"
 
 " Use `[g` and `]g` to navigate diagnostics
