@@ -75,6 +75,74 @@ Plug 'Rigellute/rigel'
 " - Automatically executes `filetype plugin indent on` and `syntax enable`.
 call plug#end()
 
+" -------------------------------VIM CONFIG---------------------------------
+" Swap file
+set directory^=$HOME/.vim/swap//
+
+" Security
+set modelines=0
+
+" Show line numbers
+set number
+
+" Show file stats
+set ruler
+set relativenumber
+
+" Encoding
+set encoding=utf-8
+
+" Whitespace
+set wrap
+" set textwidth=80
+set ignorecase
+set smartcase
+set formatoptions=tcqrn1
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set expandtab
+set nonumber
+set noshiftround
+set mouse=a
+set clipboard=unnamed,unnamedplus
+
+" Cursor motion
+set scrolloff=3
+set backspace=indent,eol,start
+set belloff=all
+set timeoutlen=200
+set ttimeoutlen=200
+runtime! macros/matchit.vim
+
+" Allow hidden buffers
+set hidden
+
+" Rendering
+set ttyfast
+set guicursor+=a:blinkon0
+
+" Status bar
+set laststatus=2
+
+" Last line
+set showmode
+set showcmd
+
+
+" Searching
+set hlsearch
+set incsearch
+set showmatch
+
+" Visualize tabs and newlines
+set listchars=tab:▸\ ,eol:¬
+
+" auto read file when changed
+set autoread
+autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * if mode() != 'c' | checktime | endif
+autocmd FileChangedShellPost *
+            \ echohl WarningMsg | echo "File changed on disk. Buffer reloaded." | echohl None
 " ---------------------------------------MAPPING-----------------------------------
 " Turn on syntax highlighting
 syntax on
@@ -281,6 +349,7 @@ nnoremap <Leader>ru :AsyncTaskEdit<CR>
 nnoremap <Leader>st :AsyncStop<CR>
 
 " easy motion
+set smartcase
 let g:EasyMotion_smartcase = 1
 let g:EasyMotion_do_mapping = 0
 autocmd User EasyMotionPromptBegin :let b:coc_diagnostic_disable = 1
@@ -319,73 +388,6 @@ endfunction
 
 noremap <silent><expr> <leader>/ incsearch#go(<SID>config_easyfuzzymotion())
 
-" -------------------------------VIM CONFIG---------------------------------
-" Swap file
-set directory^=$HOME/.vim/swap//
-
-" Security
-set modelines=0
-
-" Show line numbers
-set number
-
-" Show file stats
-set ruler
-set relativenumber
-
-" Encoding
-set encoding=utf-8
-
-" Whitespace
-set wrap
-" set textwidth=80
-set smartcase
-set formatoptions=tcqrn1
-set tabstop=4
-set shiftwidth=4
-set softtabstop=4
-set expandtab
-set nonumber
-set noshiftround
-set mouse=a
-set clipboard=unnamed,unnamedplus
-
-" Cursor motion
-set scrolloff=3
-set backspace=indent,eol,start
-set belloff=all
-set timeoutlen=200
-set ttimeoutlen=200
-runtime! macros/matchit.vim
-
-" Allow hidden buffers
-set hidden
-
-" Rendering
-set ttyfast
-set guicursor+=a:blinkon0
-
-" Status bar
-set laststatus=2
-
-" Last line
-set showmode
-set showcmd
-
-
-" Searching
-set hlsearch
-set incsearch
-set showmatch
-
-" Visualize tabs and newlines
-set listchars=tab:▸\ ,eol:¬
-
-" auto read file when changed
-set autoread
-autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * if mode() != 'c' | checktime | endif
-autocmd FileChangedShellPost *
-            \ echohl WarningMsg | echo "File changed on disk. Buffer reloaded." | echohl None
 
 " -----------------------------------COLOR SCHEME-----------------------------------
 "  set highlight color
@@ -415,7 +417,8 @@ augroup END
 
 set termguicolors
 colorscheme gruvbox
-" colorscheme gruvbox-material
+
+nnoremap <leader>ts :let saved_colorscheme=get(g:, 'colors_name', 'default')<CR>:let g:coc_default_semantic_highlight_group=0<CR>:source $MYVIMRC<CR>:let g:coc_default_semantic_highlight_group=1<CR>:source $MYVIMRC<CR>:execute 'colorscheme ' . saved_colorscheme<CR>
 
 " latex
 autocmd FileType tex,bib let g:indentLine_setConceal = 0
