@@ -410,7 +410,7 @@ augroup END
 augroup nord-theme-overrides
   autocmd!
   " Use 'nord7' as foreground color for Vim comment titles.
-  autocmd ColorScheme nord highlight Function guifg=#d7875f
+  autocmd ColorScheme PaperColor highlight Function guifg=#d7875f
 augroup END
 
 set termguicolors
