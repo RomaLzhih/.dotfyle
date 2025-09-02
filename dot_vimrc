@@ -57,7 +57,6 @@ Plug 'ryanoasis/vim-devicons'
 Plug 'tpope/vim-sleuth'
 Plug 'kshenoy/vim-signature'
 Plug 'tpope/vim-repeat'
-Plug 'tribela/vim-transparent'
 
 Plug 'sainnhe/gruvbox-material'
 Plug 'rose-pine/vim', {'as': 'rose-pine'}
