@@ -277,7 +277,7 @@ if has('win32') || has('win64')
     let g:ctrlp_cmd = 'CtrlP .'
 else
     " fzf
-    let $FZF_DEFAULT_OPTS = '--bind tab:up,shift-tab:down --cycle'
+    let $FZF_DEFAULT_OPTS = '--bind tab:up,shift-tab:down,ctrl-d:toggle,ctrl-a:toggle-all --cycle --multi'
 
     nnoremap <C-f> :GFiles <CR>
     nnoremap ? :BLines <CR>
