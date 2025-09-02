@@ -57,6 +57,7 @@ Plug 'ryanoasis/vim-devicons'
 Plug 'tpope/vim-sleuth'
 Plug 'kshenoy/vim-signature'
 Plug 'tpope/vim-repeat'
+Plug 'tribela/vim-transparent'
 
 Plug 'sainnhe/gruvbox-material'
 Plug 'rose-pine/vim', {'as': 'rose-pine'}
@@ -192,6 +193,7 @@ autocmd FileType qf nnoremap <buffer> q :q<CR>
 nnoremap <leader>c <Plug>OSCYankOperator
 vnoremap <leader>c <Plug>OSCYankVisual
 nnoremap <leader>hc yyP<Plug>CommentaryLinej
+nnoremap <leader>tp :TransparentToggle<CR>
 
 " -----------------------------PLUGIN CONFIG-----------------------------------
 if has("gui_running")
@@ -363,7 +365,7 @@ map  f <Plug>(easymotion-fl)
 map  F <Plug>(easymotion-Fl)
 map  t <Plug>(easymotion-tl)
 map  T <Plug>(easymotion-Tl)
-nmap s <Plug>(easymotion-overwin-f2)
+nmap S <Plug>(easymotion-overwin-f2)
 " map  / <Plug>(easymotion-sn)
 
 let g:incsearch#smartcase = 1
@@ -379,6 +381,7 @@ function! s:incsearch_config(...) abort
   \ }), get(a:, 1, {}))
 endfunction
 noremap <silent><expr> /  incsearch#go(<SID>incsearch_config())
+noremap <silent><expr> s  incsearch#go(<SID>incsearch_config())
 
 function! s:config_easyfuzzymotion(...) abort
   return extend(copy({
