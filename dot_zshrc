@@ -40,8 +40,8 @@ export PATH="${HOME}/go/bin:${PATH}"
 export GEMINI_API_KEY=$(cat "$HOME/.gemini_api_key")
 
 alias lg="lazygit"
-alias c++="clang++"
 alias oc="opencode"
+alias cz="chezmoi"
 
 function ya() {
     local tmp="$(mktemp -t "yazi-cwd.XXXXX")"
@@ -80,27 +80,25 @@ export EDITOR='vim'
 
 export FZF_DEFAULT_OPTS="
   --cycle
+  --multi
   --prompt='❯ '
   --pointer='▶'
   --marker='✓'
   --ansi
   --tabstop=2
   --border 'rounded'
-  --bind 'tab:toggle+up'
-  --bind 'shift-tab:toggle+down'
+  --bind 'tab:up'
+  --bind 'shift-tab:down'
+  --bind 'ctrl-j:up'
+  --bind 'ctrl-k:down'
   --bind 'ctrl-space:toggle'
   --bind 'ctrl-a:select-all'
   --bind 'ctrl-d:deselect-all'
   --bind 'ctrl-t:toggle-all'
   --bind 'ctrl-y:execute-silent(echo {} | xclip -selection clipboard)'
-  --bind 'ctrl-o:execute(code {})'
   --bind 'ctrl-e:execute(echo {} | xargs -o vim)'
-  --bind 'alt-up:preview-up'
-  --bind 'alt-down:preview-down'
-  --bind 'ctrl-/:toggle-preview'
-  --bind 'ctrl-u:preview-page-up'
-  --bind 'ctrl-f:preview-page-down'
 "
+
 export FZF_CTRL_R_OPTS="
   --color header:italic
   --border 'rounded'
