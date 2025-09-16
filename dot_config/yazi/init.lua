@@ -32,6 +32,11 @@ elseif ya.target_os() == "macos" then
 		key = "d",
 	})
 	table.insert(bookmarks, {
+		tag = "Download",
+		path = home_path .. path_sep .. "Downloads" .. path_sep,
+		key = "l",
+	})
+	table.insert(bookmarks, {
 		tag = "Home",
 		path = home_path .. path_sep,
 		key = "h",
