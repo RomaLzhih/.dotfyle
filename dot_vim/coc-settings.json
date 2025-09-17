@@ -1,0 +1,18 @@
+{
+    "suggest.maxCompleteItemCount": 10,
+    "colors.enable": true,
+    "coc.preferences.formatOnSaveFiletypes": [
+        "json",
+        "python",
+        "markdown",
+        "cpp",
+        "sh",
+        "r",
+        "rmd"
+    ],
+    "r.lsp.diagnostics": false,
+    "semanticTokens.enable": true,
+    "diagnostic.virtualText": false,
+    "diagnostic.virtualTextCurrentLineOnly": false,
+    "inlayHint.enable": false
+}
