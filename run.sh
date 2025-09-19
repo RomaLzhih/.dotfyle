@@ -48,13 +48,13 @@ if [[ ${kUpdate} == 1 ]]; then
     ./scripts/update_packages.sh "${os}"
 
     # NOTE: COPY file
-    rsync -r --no-perms --no-owner --include="*/" --include=".*" "dotfyles/" "${HOME}/"
-    if [[ ${os} == "ubuntu" ]] || [[ "$OSTYPE" == "darwin"* ]]; then
-        rm ${HOME}/.tmux.conf
-        mv ${HOME}/.tmux.conf.host ${HOME}/.tmux.conf
-    else
-        rm ${HOME}/.tmux.conf.host
-    fi
+    # rsync -r --no-perms --no-owner --include="*/" --include=".*" "dotfyles/" "${HOME}/"
+    # if [[ ${os} == "ubuntu" ]] || [[ "$OSTYPE" == "darwin"* ]]; then
+    #     rm ${HOME}/.tmux.conf
+    #     mv ${HOME}/.tmux.conf.host ${HOME}/.tmux.conf
+    # else
+    #     rm ${HOME}/.tmux.conf.host
+    # fi
 
     # NOTE: neovim
     if [[ ${kUpdateVim} == 1 ]] && [[ "$OSTYPE" != "darwin"* ]]; then
