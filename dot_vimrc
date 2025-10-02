@@ -180,8 +180,34 @@ inoremap <C-h> <left>
 " inoremap <C-j> <down>
 " inoremap <C-k> <up>
 inoremap <C-l> <right>
-nnoremap <Tab> :bnext<CR>
-nnoremap <S-Tab> :bprevious<CR>
+" Skip quickfix buffer when switching
+function! SwitchBuffer(direction)
+  let start_buf = bufnr('%')
+  let buf = start_buf
+  
+  while 1
+    if a:direction == 'next'
+      bnext
+    else
+      bprevious
+    endif
+    
+    let buf = bufnr('%')
+    
+    " Stop if we're not in quickfix or location list
+    if &buftype != 'quickfix'
+      break
+    endif
+    
+    " Prevent infinite loop if all buffers are quickfix
+    if buf == start_buf
+      break
+    endif
+  endwhile
+endfunction
+
+nnoremap <Tab> :call SwitchBuffer('next')<CR>
+nnoremap <S-Tab> :call SwitchBuffer('prev')<CR>
 nnoremap <Leader>x :Bclose<CR>
 nnoremap <Leader>bd :Bclose<CR>
 nnoremap <Leader>cl :cclose<CR>
@@ -420,6 +446,7 @@ augroup END
 
 set termguicolors
 colorscheme gruvbox
+" colorscheme solarized8
 
 nnoremap <leader>ts :let saved_colorscheme=get(g:, 'colors_name', 'default')<CR>:let g:coc_default_semantic_highlight_groups=0<CR>:source $MYVIMRC<CR>:let g:coc_default_semantic_highlight_groups=1<CR>:source $MYVIMRC<CR>:execute 'colorscheme ' . saved_colorscheme<CR>
 
