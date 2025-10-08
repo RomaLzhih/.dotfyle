@@ -253,11 +253,57 @@ tnoremap <silent> <C-j> <C-\><C-n><C-w>j
 tnoremap <silent> <C-k> <C-\><C-n><C-w>k
 tnoremap <silent> <C-l> <C-\><C-n><C-w>l
 
-"Copilot chat
-nnoremap <C-a> :CopilotChatOpen<CR>
+" Copilot chat
+nnoremap <C-a> :CopilotChatToggle<CR>
 vnoremap <C-a> <Plug>CopilotChatAddSelection
 let g:copilot_reuse_active_chat = 1
-" Copilot
+
+" Copilot Terminal Toggle for Vim
+" Toggle a terminal running GitHub Copilot CLI on the right side
+let g:copilot_term_buf = -1
+let g:copilot_term_win = -1
+
+function! s:ToggleCopilotTerminal()
+    " Check if the terminal buffer exists
+    if g:copilot_term_buf != -1 && bufexists(g:copilot_term_buf)
+        " Terminal buffer exists, check if it's visible
+        let l:term_win = bufwinnr(g:copilot_term_buf)
+        
+        if l:term_win != -1
+            " Terminal is visible, hide it
+            execute l:term_win . 'wincmd w'
+            hide
+            wincmd p
+            let g:copilot_term_win = -1
+        else
+            " Terminal is hidden, show it
+            let l:term_width = &columns / 2
+            execute 'vertical rightbelow ' . l:term_width . 'split'
+            execute 'buffer ' . g:copilot_term_buf
+            let g:copilot_term_win = win_getid()
+        endif
+    else
+        " Terminal doesn't exist, create it for the first time
+        let l:term_width = &columns / 2
+        execute 'vertical rightbelow ' . l:term_width . 'split'
+        
+        let g:copilot_term_buf = term_start('copilot', {
+            \ 'term_name': 'Copilot Terminal',
+            \ 'term_finish': 'close',
+            \ 'curwin': 1,
+            \ 'vertical': 1
+            \ })
+        
+        let g:copilot_term_win = win_getid()
+    endif
+endfunction
+
+command! ToggleCopilotTerm call s:ToggleCopilotTerminal()
+nnoremap <leader>aa :ToggleCopilotTerm<CR>
+tnoremap <leader>aa <C-w>:ToggleCopilotTerm<CR>
+
+
+" Copilot cmp
 imap <silent><script><expr> <C-e> copilot#Accept("\<CR>")
 let g:copilot_no_tab_map = v:true
 
