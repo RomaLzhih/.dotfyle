@@ -39,6 +39,8 @@ export PATH="${HOME}/.cargo/bin:${PATH}"
 export PATH="${HOME}/go/bin:${PATH}"
 export GEMINI_API_KEY=$(cat "$HOME/.gemini_api_key")
 
+eval "$(zoxide init zsh)"
+
 alias lg="lazygit"
 alias oc="opencode"
 alias cz="chezmoi"
