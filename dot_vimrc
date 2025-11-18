@@ -281,6 +281,8 @@ function! s:ToggleCopilotTerminal()
             execute 'vertical rightbelow ' . l:term_width . 'split'
             execute 'buffer ' . g:copilot_term_buf
             let g:copilot_term_win = win_getid()
+            " Force disable line numbers when showing the terminal
+            setlocal nonumber norelativenumber
         endif
     else
         " Terminal doesn't exist, create it for the first time
@@ -295,13 +297,21 @@ function! s:ToggleCopilotTerminal()
             \ })
         
         let g:copilot_term_win = win_getid()
+        " Force disable line numbers when creating the terminal
+        setlocal nonumber norelativenumber
     endif
 endfunction
+
+" Autocommand to ensure line numbers stay off in the terminal buffer
+augroup CopilotTerminalSettings
+    autocmd!
+    autocmd BufEnter * if exists('g:copilot_term_buf') && bufnr('%') == g:copilot_term_buf | setlocal nonumber norelativenumber | endif
+    autocmd BufWinEnter * if exists('g:copilot_term_buf') && bufnr('%') == g:copilot_term_buf | setlocal nonumber norelativenumber | endif
+augroup END
 
 command! ToggleCopilotTerm call s:ToggleCopilotTerminal()
 nnoremap <leader>aa :ToggleCopilotTerm<CR>
 tnoremap <leader>aa <C-w>:ToggleCopilotTerm<CR>
-
 
 " Copilot cmp
 imap <silent><script><expr> <C-e> copilot#Accept("\<CR>")
@@ -361,7 +371,28 @@ else
 endif
 
 " colorscheme picker
-nnoremap <Leader>th :call fzf#run({'source': getcompletion('', 'color'), 'sink': 'colorscheme'})<CR>
+" Function to provide the list of available color schemes to fzf
+function! s:list_colorschemes()
+  return getcompletion('', 'color')
+endfunction
+
+" Function to apply the selected color scheme
+function! s:set_colorscheme(scheme)
+  exec 'colorscheme ' . fnameescape(a:scheme)
+endfunction
+
+" Main function to configure and run fzf for changing color schemes
+function! FzfColorschemes()
+  call fzf#run(fzf#wrap({
+			\ 'source':  s:list_colorschemes(),
+			\ 'sink':    function('s:set_colorscheme'),
+			\ 'options': '--prompt="Color Schemes> " --preview="colorscheme {}" --preview-window=up:40%:hidden',
+			\ 'down':    '40%'
+			\ }))
+endfunction
+
+" The non-recursive mapping in normal mode
+nnoremap <Leader>th :call FzfColorschemes()<CR>
 
 " float term
 let g:floaterm_width = 0.8
@@ -387,35 +418,29 @@ nnoremap <silent> <leader>      :<c-u>WhichKey '<Space>'<CR>
 nnoremap <C-s> :Yazi<CR>
 
 " asynctasks
-function! s:fzf_sink(what)
-	let p1 = stridx(a:what, '<')
-	if p1 >= 0
-		let name = strpart(a:what, 0, p1)
-		let name = substitute(name, '^\s*\(.\{-}\)\s*$', '\1', '')
-		if name != ''
-			exec "AsyncTask ". fnameescape(name)
-		endif
-	endif
-endfunction
-
-function! s:fzf_task()
+function! s:list_async_tasks()
 	let rows = asynctasks#source(&columns * 48 / 100)
 	let source = []
 	for row in rows
-		let name = row[0]
-		let source += [name . '  ' . row[1] . '  : ' . row[2]]
+		let source += [printf('%s  %s  : %s', row[0], row[1], row[2])]
 	endfor
-	let opts = { 'source': source, 'sink': function('s:fzf_sink'),
-				\ 'options': '+m --nth 1 --inline-info --tac' }
-	if exists('g:fzf_layout')
-		for key in keys(g:fzf_layout)
-			let opts[key] = deepcopy(g:fzf_layout[key])
-		endfor
-	endif
-	call fzf#run(opts)
+	return source
 endfunction
 
-command! -nargs=0 AsyncTaskFzf call s:fzf_task()
+function! s:fzf_sink(line)
+	" Extract the task name, which is the first part of the string
+	let task_name = split(a:line, '  ')[0]
+	if !empty(task_name)
+		exec "AsyncTask" fnameescape(task_name)
+	endif
+endfunction
+
+command! -nargs=0 AsyncTaskFzf call fzf#run(fzf#wrap({
+			\ 'source': s:list_async_tasks(),
+			\ 'sink': function('s:fzf_sink'),
+			\ 'options': '+m --nth 1 --inline-info --tac'
+			\ }))
+
 let g:asyncrun_open = 15
 let g:asynctasks_term_reuse = 1
 let g:asynctasks_template = '~/.vim/task_template.ini'
