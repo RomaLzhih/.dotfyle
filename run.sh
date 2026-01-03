@@ -66,6 +66,11 @@ if [[ ${kUpdate} == 1 ]]; then
     # NOTE: cargo related stuffs
     cargo install-update -a
 
+    if command -v yazi &>/dev/null; then
+        echo "yazi is available. Updating all plugins..."
+        ya pkg upgrade
+    fi
+
     source "${HOME}/.zshrc"
     tmux source "${HOME}/.tmux.conf"
 fi
