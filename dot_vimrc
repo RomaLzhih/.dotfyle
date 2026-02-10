@@ -57,6 +57,7 @@ Plug 'ryanoasis/vim-devicons'
 Plug 'tpope/vim-sleuth'
 Plug 'kshenoy/vim-signature'
 Plug 'tpope/vim-repeat'
+Plug 'jlanzarotta/bufexplorer'
 
 Plug 'sainnhe/gruvbox-material'
 Plug 'rose-pine/vim', {'as': 'rose-pine'}
@@ -88,6 +89,7 @@ set modelines=0
 
 " Show line numbers
 set number
+set nu
 
 " Show file stats
 set ruler
@@ -106,7 +108,7 @@ set tabstop=4
 set shiftwidth=4
 set softtabstop=4
 set expandtab
-set nonumber
+" set nonumber
 set noshiftround
 set mouse=a
 set clipboard=unnamed,unnamedplus
