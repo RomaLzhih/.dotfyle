@@ -177,8 +177,8 @@ vnoremap <C-e> $
 onoremap <C-e> $
 
 inoremap <C-h> <left>
-" inoremap <C-j> <down>
-" inoremap <C-k> <up>
+inoremap <C-j> <down>
+inoremap <C-k> <up>
 inoremap <C-l> <right>
 " Skip quickfix buffer when switching
 function! SwitchBuffer(direction)
