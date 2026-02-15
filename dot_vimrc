@@ -392,6 +392,7 @@ function! FzfColorschemes()
 			\ 'down':    '40%'
 			\ }))
 endfunction
+let g:seoul256_background = 235
 
 " The non-recursive mapping in normal mode
 nnoremap <Leader>th :call FzfColorschemes()<CR>
