@@ -20,7 +20,7 @@ git checkout master
 git fetch
 git pull
 echo ">>>>> Installing the latest neovim..."
-git checkout release-0.11
+git checkout release-0.12
 git pull
 make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
 make install
