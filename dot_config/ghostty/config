@@ -1,0 +1,5 @@
+font-family = "UbuntuSansMono Nerd Font"
+font-size = 15
+cursor-style = block
+cursor-style-blink = false
+theme = Gruvbox Dark 
