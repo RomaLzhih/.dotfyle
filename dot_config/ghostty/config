@@ -4,3 +4,5 @@ cursor-style = block
 cursor-style-blink = false
 theme = Gruvbox Dark 
 shell-integration-features = ssh-env,ssh-terminfo
+clipboard-read = allow
+clipboard-write = allow
