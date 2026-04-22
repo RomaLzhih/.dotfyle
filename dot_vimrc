@@ -25,7 +25,7 @@ Plug 'haya14busa/incsearch-easymotion.vim'
 Plug 'tpope/vim-obsession' 
 Plug 'vim-airline/vim-airline'
 Plug 'chriszarate/yazi.vim'
-Plug 'DanBradbury/copilot-chat.vim', {'as': 'copilot-chat'}
+" Plug 'DanBradbury/copilot-chat.vim', {'as': 'copilot-chat'}
 Plug 'tpope/vim-unimpaired'
 Plug 'junegunn/vim-peekaboo'
 Plug 'github/copilot.vim', { 'as': 'copilot' }
@@ -256,9 +256,9 @@ tnoremap <silent> <C-k> <C-\><C-n><C-w>k
 tnoremap <silent> <C-l> <C-\><C-n><C-w>l
 
 " Copilot chat
-nnoremap <C-a> :CopilotChatToggle<CR>
-vnoremap <C-a> <Plug>CopilotChatAddSelection
-let g:copilot_reuse_active_chat = 1
+" nnoremap <C-a> :CopilotChatToggle<CR>
+" vnoremap <C-a> <Plug>CopilotChatAddSelection
+" let g:copilot_reuse_active_chat = 1
 
 " Copilot Terminal Toggle for Vim
 " Toggle a terminal running GitHub Copilot CLI on the right side
