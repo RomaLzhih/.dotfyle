@@ -1,15 +1,16 @@
 -- ~/.config/yazi/init.lua
 
 -- ya pkg add dedukun/relative-motions
+-- ya pkg add yazi-rs/plugins:full-border
+-- ya pkg add h-hg/yamb
+
 require("relative-motions"):setup({ show_numbers = "relative", show_motion = true, enter_mode = "first" })
 
--- ya pkg add yazi-rs/plugins:full-border
-require("full-border"):setup {
+require("full-border"):setup({
 	type = ui.Border.ROUNDED,
-}
+})
 
 -- Bookmarks
--- ya pack -a h-hg/yamb
 local bookmarks = {}
 local path_sep = package.config:sub(1, 1)
 local home_path = ya.target_family() == "windows" and os.getenv("USERPROFILE") or os.getenv("HOME")
