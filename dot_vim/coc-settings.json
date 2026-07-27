@@ -14,5 +14,14 @@
     "semanticTokens.enable": true,
     "diagnostic.virtualText": false,
     "diagnostic.virtualTextCurrentLineOnly": false,
-    "inlayHint.enable": false
+    "inlayHint.enable": false,
+    "clangd.disableFileStatus": true,
+    "semanticTokens.filetypes": [
+        "*"
+    ],
+    "notification.disabledProgressSources": [
+        "clangd",
+        "rust-analyzer"
+    ],
+    "suggest.maxCompleteItemCount": 10
 }

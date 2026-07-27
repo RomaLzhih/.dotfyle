@@ -1,3 +1,5 @@
+" source $LOCAL_ADMIN_SCRIPTS/master.vimrc
+
 " Don't try to be vi compatible
 set nocompatible
 
@@ -6,7 +8,7 @@ filetype off
 
 " https://github.com/junegunn/vim-plug
 " TODO: Load plugins here (pathogen or vundle)
-call plug#begin()
+call plug#begin('~/.vim/plugged')
 " The default plugin directory will be as follows:
 "   - Vim (Linux/macOS): '~/.vim/plugged'
 "   - Vim (Windows): '~/vimfiles/plugged'
@@ -58,6 +60,10 @@ Plug 'tpope/vim-sleuth'
 Plug 'kshenoy/vim-signature'
 Plug 'tpope/vim-repeat'
 Plug 'jlanzarotta/bufexplorer'
+Plug 'godlygeek/tabular'
+Plug 'preservim/vim-markdown'
+Plug 'MattesGroeger/vim-bookmarks'
+Plug 'mhinz/vim-signify'
 
 Plug 'sainnhe/gruvbox-material'
 Plug 'rose-pine/vim', {'as': 'rose-pine'}
@@ -113,6 +119,16 @@ set noshiftround
 set mouse=a
 set clipboard=unnamed,unnamedplus
 
+" Bracketed paste: make terminal pastes (e.g. Cmd+V) insert literally instead of
+" getting re-indented (staircase) or auto-closed by delimitMate. vim leaves these
+" empty under tmux/screen ($TERM=screen-256color), so enable them explicitly.
+if empty(&t_BE) && !has('gui_running')
+  let &t_BE = "\<Esc>[?2004h"
+  let &t_BD = "\<Esc>[?2004l"
+  let &t_PS = "\<Esc>[200~"
+  let &t_PE = "\<Esc>[201~"
+endif
+
 " Cursor motion
 set scrolloff=3
 set backspace=indent,eol,start
@@ -149,6 +165,9 @@ set autoread
 autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * if mode() != 'c' | checktime | endif
 autocmd FileChangedShellPost *
             \ echohl WarningMsg | echo "File changed on disk. Buffer reloaded." | echohl None
+
+" Re-equalize split windows when the terminal/vim is resized
+autocmd VimResized * wincmd =
 " ---------------------------------------MAPPING-----------------------------------
 " Turn on syntax highlighting
 syntax on
@@ -163,6 +182,10 @@ let maplocalleader = "\\"
 nnoremap <SPACE> <Nop>
 autocmd FileType qf wincmd J
 autocmd FileType qf resize 15
+" Quickfix display: don't wrap long entries (global 'set wrap' is on), and show
+" absolute line numbers instead of relative -- so the visible number is the entry
+" number (line N = entry N), matching the 1-9 jump maps (:cc N).
+autocmd FileType qf setlocal nowrap norelativenumber number
 nnoremap <Leader>op :copen<CR>
 nnoremap <Leader>cl :cclose<CR>
 command! W write
@@ -182,6 +205,11 @@ inoremap <C-h> <left>
 inoremap <C-j> <down>
 inoremap <C-k> <up>
 inoremap <C-l> <right>
+" Word-wise motion in insert mode: <C-f> = next word (like w), <C-d> = previous
+" word (like b). <C-o> runs one normal-mode command and returns to insert.
+" (Note: this overrides insert-mode <C-d> dedent; use <C-t>/<BS> to adjust indent.)
+inoremap <C-f> <C-o>w
+inoremap <C-d> <C-o>b
 " Skip quickfix buffer when switching
 function! SwitchBuffer(direction)
   let start_buf = bufnr('%')
@@ -219,6 +247,23 @@ nnoremap <Leader>op :copen<CR>
 autocmd FileType qf nnoremap <buffer> q :q<CR>
 nnoremap <leader>c <Plug>OSCYankOperator
 vnoremap <leader>c <Plug>OSCYankVisual
+" Make plain y sync to the system clipboard. This Vim is built without clipboard
+" support (-clipboard) and the devserver has no X display, so 'clipboard=unnamed'
+" is inert and y never reaches the local clipboard. Forward every yank to the
+" terminal's clipboard via OSC 52 (vim-oscyank). Gated on clipboard being
+" unavailable, so it's a no-op on a clipboard-capable Vim.
+if !has('nvim') && !has('clipboard_working')
+  let s:osc_yank_regs = ['', '+', '*']
+  function! s:OSCYankOnYank(event) abort
+    if a:event.operator ==# 'y' && index(s:osc_yank_regs, a:event.regname) != -1
+      call OSCYankRegister(a:event.regname)
+    endif
+  endfunction
+  augroup OSCYankOnYank
+    autocmd!
+    autocmd TextYankPost * call s:OSCYankOnYank(v:event)
+  augroup END
+endif
 nnoremap <leader>hc yyP<Plug>CommentaryLinej
 nnoremap <leader>tp :TransparentToggle<CR>
 
@@ -230,6 +275,9 @@ set guioptions-=r  " Remove the right scrollbar
 set guioptions-=m  " Remove the menu bar
 set guioptions-=T  " Remove the toolbar
 endif
+
+" markdown
+let g:vim_markdown_folding_disabled = 1
 
 " better escape
 let g:better_escape_shortcut = ['jk', 'jj']
@@ -348,6 +396,8 @@ let g:copilot_no_tab_map = v:true
 
 " air line
 let g:airline#extensions#tabline#enabled = 1
+" Show only the file name in the tabline (no abbreviated /b/a/d/ path prefix)
+let g:airline#extensions#tabline#formatter = 'unique_tail'
 let g:airline_left_sep='>'
 let g:airline#extensions#whitespace#enabled = 0
 au VimEnter * let [g:airline_section_y] = [airline#section#create([''])]
@@ -362,11 +412,16 @@ if has('win32') || has('win64')
 else
     " fzf
     let $FZF_DEFAULT_OPTS = '--bind tab:up,shift-tab:down,ctrl-d:toggle,ctrl-a:toggle-all --cycle --multi'
+    " Make :BLines match other fzf windows: default layout so the cursor starts
+    " at the bottom and <Tab> (bound to 'up') moves upward
+    let g:fzf_blines_options = ['--layout=default']
 
-    nnoremap <C-f> :GFiles <CR>
+    nnoremap <C-f> :Files <CR>
     nnoremap ? :BLines <CR>
     nnoremap <Leader>ff :Files <CR> 
-    nnoremap <Leader>fw :Rg 
+    nnoremap <Leader>gf :GFiles <CR> 
+    nnoremap <Leader>fw :RG<CR>
+    nnoremap <Leader>gw :Rg <C-R><C-W><CR>
     nnoremap <Leader>bb :Buffers<CR>
     nnoremap <Leader>fj :Jumps<CR>
     nnoremap <Leader>fm :Marks<CR>
@@ -493,6 +548,39 @@ endfunction
 
 noremap <silent><expr> <leader>/ incsearch#go(<SID>config_easyfuzzymotion())
 
+" bookmarks: store per project (not one global file), kept in a central folder
+" so project dirs stay clean. Change g:bookmark_dir to relocate; delete the
+" function below to use a plain ./.vim-bookmarks in each project instead.
+let g:bookmark_save_per_working_dir = 1
+" Close the bookmark quickfix list automatically after jumping to a bookmark.
+let g:bookmark_auto_close = 1
+let g:bookmark_dir = expand('$HOME/.local/state/vim/bookmarks')
+call mkdir(g:bookmark_dir, 'p')
+function! g:BMWorkDirFileLocation()
+    return g:bookmark_dir . '/' . substitute(getcwd(), '[\\/:]', '%', 'g') . '.vim-bookmarks'
+endfunction
+nmap <Leader>ha <Plug>BookmarkToggle
+nmap <Leader>hh <Plug>BookmarkShowAll
+nmap <Leader>hn <Plug>BookmarkNext
+nmap <Leader>hp <Plug>BookmarkPrev
+nmap <Leader>hc <Plug>BookmarkClear
+nmap <Leader>hx <Plug>BookmarkClearAll
+
+" In the bookmark quickfix list (opened by <Leader>hh), press 1-9 to jump
+" straight to that bookmark (:cc N). Scoped by the qf title so count-prefixed
+" motions still work in other quickfix lists (grep, errors, etc.).
+" The maps are cleared when the same qf buffer is reused for a non-bookmark list.
+function! s:BookmarkQfNumberMaps() abort
+  let l:is_bm = getqflist({'title': 1}).title =~# 'bm#location_list'
+  for n in range(1, 9)
+    if l:is_bm
+      execute printf('nnoremap <silent><buffer><nowait> %d :cc %d<CR>', n, n)
+    else
+      silent! execute printf('nunmap <buffer> %d', n)
+    endif
+  endfor
+endfunction
+autocmd FileType qf call s:BookmarkQfNumberMaps()
 
 " -----------------------------------COLOR SCHEME-----------------------------------
 "  set highlight color
@@ -516,6 +604,12 @@ augroup END
 augroup papercolor-theme-overrides
   autocmd!
   autocmd ColorScheme PaperColor highlight Function guifg=#d7875f
+augroup END
+
+" gruvbox
+augroup gruvbox-theme-overrides
+  autocmd!
+  autocmd ColorScheme gruvbox highlight Property guifg=#83a598
 augroup END
 
 set termguicolors
@@ -565,19 +659,60 @@ set shortmess+=c
 " Always show the signcolumn, otherwise it would shift the text each time
 " diagnostics appear/become resolved.
 if has("nvim-0.5.0") || has("patch-8.1.1564")
-    " Recently vim can merge signcolumn and number column into one
-    set signcolumn=number
+    " This vim build doesn't support the signcolumn=yes:N (multi-width) syntax,
+    " so keep a single always-on column and make VCS signs win the slot via
+    " g:signify_priority (otherwise placing a mark/bookmark on a changed line
+    " would hide that line's change sign).
+    set signcolumn=yes
 else
     set signcolumn=yes
 endif
+
+" --- vim-signify: VCS change signs from the real diff (replaces coc-git) ---
+" 'git' covers dotfile repos; the 'hg' backend drives Sapling (sl) working
+" copies like fbsource, so signs reflect `sl diff` -- not just session edits.
+let g:signify_vcs_list = ['git', 'hg']
+" Win the single signcolumn slot over vim-signature/vim-bookmarks (priority 10),
+" mirroring the previous coc-git git.signPriority = 11.
+let g:signify_priority = 11
+
+" New/untracked files show no diff by default (git/hg diff emit nothing), so no
+" signs appear. Route git+hg through a wrapper that renders an untracked file as
+" all-added -- coc-git parity. See ~/.vim/bin/sy-diff.sh
+let g:signify_vcs_cmds = {
+      \ 'git': expand('~/.vim/bin/sy-diff.sh') . ' git %f',
+      \ 'hg':  expand('~/.vim/bin/sy-diff.sh') . ' hg %f',
+      \ }
+
+" --- coc-git-style signs: coc-git's exact icons + a colored background block ---
+let g:signify_sign_add               = '+'
+let g:signify_sign_change            = '~'
+let g:signify_sign_delete            = '_'
+let g:signify_sign_delete_first_line = '‾'
+let g:signify_sign_change_delete     = '≃'
+let g:signify_sign_show_count        = 0   " no trailing hunk count, like coc-git
+
+" Dark icon on an accent-colored background (gruvbox palette). Wrapped in a
+" ColorScheme autocmd so it survives a :colorscheme reload.
+function! s:SignifyGitSignStyle() abort
+  highlight SignifySignAdd             guifg=#282828 guibg=#b8bb26 ctermfg=235 ctermbg=142
+  highlight SignifySignChange          guifg=#282828 guibg=#8ec07c ctermfg=235 ctermbg=108
+  highlight SignifySignChangeDelete    guifg=#282828 guibg=#d3869b ctermfg=235 ctermbg=175
+  highlight SignifySignDelete          guifg=#282828 guibg=#fb4934 ctermfg=235 ctermbg=167
+  highlight SignifySignDeleteFirstLine guifg=#282828 guibg=#fb4934 ctermfg=235 ctermbg=167
+endfunction
+augroup SignifyGitSignStyle
+  autocmd!
+  autocmd ColorScheme * call s:SignifyGitSignStyle()
+augroup END
+call s:SignifyGitSignStyle()
 " Use tab for trigger completion with characters ahead and navigate.
 " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
 " other plugin before putting this into your config.
 inoremap <silent><expr> <C-x> coc#pum#visible() ? coc#pum#cancel() : "\<C-x>"
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 inoremap <silent><expr> <TAB>
-      \ coc#pum#visible() ? coc#pum#next(1) :
-      \ coc#refresh()
+      \ coc#pum#visible() ? coc#pum#next(1) : "\<Tab>"
 let g:coc_snippet_prev = '<C-p>'
 let g:coc_snippet_next = '<C-n>'
 
@@ -593,19 +728,219 @@ let g:coc_snippet_next = '<C-n>'
 " endif
 inoremap <silent><expr> <CR> coc#pum#visible() ? coc#_select_confirm() : "\<CR>"
 
-" Use `[g` and `]g` to navigate diagnostics
+" ]d / [d jump to the next / previous git change block (vim-signify hunk).
+nmap <silent> ]d <plug>(signify-next-hunk)
+nmap <silent> [d <plug>(signify-prev-hunk)
+" Diagnostics moved to ]e / [e (was ]d / [d).
 " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
-nmap <silent> [d <Plug>(coc-diagnostic-prev)
-nmap <silent> ]d <Plug>(coc-diagnostic-next)
+nmap <silent> [e <Plug>(coc-diagnostic-prev)
+nmap <silent> ]e <Plug>(coc-diagnostic-next)
 " GoTo code navigation.
-nmap <silent> gd <Plug>(coc-definition)
-nnoremap <silent><nowait> <leader>pd  :call CocAction('jumpDefinition', v:false)<CR>
+" Robust go-to-definition. coc#util#jump() has an 'edit && bufloaded' fast-path
+" that runs `:b bufnr(name)` -- a name-based lookup that returns -1 for a file
+" already open under a different/symlinked name (common in fbsource), so coc's gd
+" fails to jump to an already-open OTHER file (same-file still works). This uses
+" CocAction('definitions') + :edit (the reliable path the peek popup uses) and
+" records the jumplist so <C-o> returns.
+function! s:GotoDefinition() abort
+  try
+    let l:defs = CocAction('definitions')
+  catch
+    return
+  endtry
+  " For 0 or multiple results, defer to coc (its picker / message).
+  if type(l:defs) != type([]) || len(l:defs) != 1
+    call CocActionAsync('jumpDefinition')
+    return
+  endif
+  let l:loc = l:defs[0]
+  let l:uri = get(l:loc, 'uri', get(l:loc, 'targetUri', ''))
+  let l:range = get(l:loc, 'range', get(l:loc, 'targetRange', {}))
+  if empty(l:uri) || empty(l:range)
+    call CocActionAsync('jumpDefinition')
+    return
+  endif
+  let l:file = substitute(l:uri, '^file://', '', '')
+  let l:file = substitute(l:file, '%\(\x\x\)', '\=nr2char(str2nr(submatch(1), 16))', 'g')
+  let l:line = get(l:range.start, 'line', 0) + 1
+  let l:char = get(l:range.start, 'character', 0)
+  if fnamemodify(l:file, ':p') ==# expand('%:p')
+    execute 'normal! ' . l:line . 'G'
+  else
+    execute 'edit +' . l:line . ' ' . fnameescape(l:file)
+  endif
+  let l:cur = getline(l:line)
+  let l:col = l:char + 1
+  if !empty(l:cur)
+    try | let l:col = coc#string#byte_index(l:cur, l:char) + 1 | catch | endtry
+  endif
+  call cursor(l:line, l:col)
+  normal! zz
+endfunction
+nnoremap <silent> gd :call <SID>GotoDefinition()<CR>
+nnoremap <silent><nowait> <leader>pd  :call <SID>PeekDefinition()<CR>
 nmap <silent> gt <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
+
+" Peek definition in a floating window without jumping. Scroll with j/k,
+" <C-d>/<C-u>, or gg/G; press o to jump to the location, q/<Esc> to close.
+" (Vim popups are read-only; use a split/preview if you need to edit there.)
+" bg-only current-line highlight for the peek popup. We do NOT use the popup's
+" 'cursorline' option: that uses PmenuSel (fg+bg) and would overwrite the line's
+" syntax/semantic-token colors. matchaddpos layers UNDER syntax, so only the
+" background changes and the tokens keep their colors.
+function! s:PeekHl() abort
+  " bg must contrast with the popup base (Pmenu = #504945); #7c6f64 is one shade
+  " lighter so the current line stands out while syntax foreground is preserved.
+  highlight PeekCursorLine guifg=NONE guibg=#7c6f64 gui=NONE ctermfg=NONE ctermbg=243 cterm=NONE
+endfunction
+augroup PeekCursorLineHl
+  autocmd!
+  autocmd ColorScheme * call s:PeekHl()
+augroup END
+call s:PeekHl()
+
+" Move the current-line highlight to wherever the cursor now is in the popup.
+" Only refresh when the cursor line actually changed -- avoids a redundant
+" clearmatches()/matchaddpos() (and its redraw) on every keypress, which is the
+" scrolling lag over a remote terminal.
+function! s:PeekMark(winid) abort
+  let l:cur = line('.', a:winid)
+  if get(s:, 'peek_marked_line', -1) ==# l:cur
+    return
+  endif
+  let s:peek_marked_line = l:cur
+  call win_execute(a:winid, 'silent! call clearmatches() | call matchaddpos("PeekCursorLine", [' . l:cur . '])')
+endfunction
+
+function! s:PeekFilter(winid, key) abort
+  if a:key ==# 'q' || a:key ==# "\<Esc>"
+    call popup_close(a:winid)
+    return 1
+  elseif a:key ==# 'o'
+    " Jump to the definition location: close the popup and open the target.
+    call popup_close(a:winid)
+    if get(s:, 'peek_file', '') !=# ''
+      if s:peek_file !=# expand('%:p') && filereadable(s:peek_file)
+        execute 'edit ' . fnameescape(s:peek_file)
+      endif
+      call cursor(s:peek_line, s:peek_col)
+      normal! zz
+    endif
+    return 1
+  elseif a:key ==# 'j' || a:key ==# "\<Down>"
+    call win_execute(a:winid, "normal! \<C-e>")
+  elseif a:key ==# 'k' || a:key ==# "\<Up>"
+    call win_execute(a:winid, "normal! \<C-y>")
+  elseif a:key ==# "\<C-d>" || a:key ==# "\<C-f>"
+    call win_execute(a:winid, "normal! \<C-d>")
+  elseif a:key ==# "\<C-u>" || a:key ==# "\<C-b>"
+    call win_execute(a:winid, "normal! \<C-u>")
+  elseif a:key ==# 'g'
+    call win_execute(a:winid, 'normal! gg')
+  elseif a:key ==# 'G'
+    call win_execute(a:winid, 'normal! G')
+  else
+    " Consume every other key so a stray keypress can never dismiss the float.
+    return 1
+  endif
+  " A movement happened: keep the bg-only current-line highlight on the cursor.
+  call s:PeekMark(a:winid)
+  return 1
+endfunction
+
+function! s:PeekDefinition() abort
+  try
+    let l:defs = CocAction('definitions')
+  catch
+    echohl WarningMsg | echom 'Peek: coc not ready' | echohl None
+    return
+  endtry
+  if type(l:defs) != type([]) || empty(l:defs)
+    echohl WarningMsg | echom 'Peek: no definition found' | echohl None
+    return
+  endif
+  let l:loc = l:defs[0]
+  let l:uri = get(l:loc, 'uri', get(l:loc, 'targetUri', ''))
+  let l:range = get(l:loc, 'range', get(l:loc, 'targetRange', {}))
+  if empty(l:uri) || empty(l:range)
+    echohl WarningMsg | echom 'Peek: malformed location' | echohl None
+    return
+  endif
+  let l:file = substitute(l:uri, '^file://', '', '')
+  let l:file = substitute(l:file, '%\(\x\x\)', '\=nr2char(str2nr(submatch(1), 16))', 'g')
+  " Read from the live buffer (unsaved edits) if open, else from disk.
+  let l:bnr = bufnr(l:file)
+  if l:bnr > 0 && bufloaded(l:bnr)
+    let l:all = getbufline(l:bnr, 1, '$')
+  elseif filereadable(l:file)
+    let l:all = readfile(l:file)
+  else
+    echohl WarningMsg | echom 'Peek: cannot read ' . l:file | echohl None
+    return
+  endif
+  " Show a bounded window around the definition (not the whole file). Highlighting
+  " a large whole-file buffer positioned deep re-parses syntax on the first jump
+  " into an un-highlighted region -- the visible lag that then caches away. A
+  " window keeps syntax instant while still allowing scrolling up (context above)
+  " and down (into the body).
+  let l:start = get(l:range.start, 'line', 0)
+  let l:before = 200
+  let l:after  = 500
+  let l:winstart = max([l:start - l:before, 0])
+  let l:winend   = min([l:start + l:after, len(l:all) - 1])
+  let l:content  = l:all[l:winstart : l:winend]
+  let l:def_in_popup = l:start - l:winstart + 1
+  let l:ft = &filetype
+  " Remember the target so the popup's `o` mapping can jump to it.
+  let s:peek_file = l:file
+  let s:peek_line = l:start + 1
+  let s:peek_col  = get(l:range.start, 'character', 0) + 1
+  " No 'cursorline': it paints the definition line with PmenuSel (a solid bar)
+  " and overrides its syntax highlighting; without it every line is highlighted.
+  " Size the popup to a fraction of the current window (not full screen) and
+  " center it. border (1 each side) + padding (1 each side) add 4 cols / 2 rows
+  " of chrome, subtracted from the target totals below.
+  let l:wpos = win_screenpos(0)
+  let l:pw   = winwidth(0)
+  let l:ph   = winheight(0)
+  let l:tw   = float2nr(l:pw * 0.80)
+  let l:th   = float2nr(l:ph * 0.60)
+  let l:cw   = max([40, l:tw - 4])
+  let l:ch   = max([3,  l:th - 2])
+  let l:winid = popup_create(l:content, {
+        \ 'line': l:wpos[0] + (l:ph - l:th) / 2,
+        \ 'col': l:wpos[1] + (l:pw - l:tw) / 2,
+        \ 'title': ' ' . fnamemodify(l:file, ':t') . ':' . (l:start + 1) . '  (o open, q quit) ',
+        \ 'border': [],
+        \ 'padding': [0, 1, 0, 1],
+        \ 'minheight': 3,
+        \ 'maxheight': l:ch,
+        \ 'minwidth': l:cw,
+        \ 'maxwidth': l:cw,
+        \ 'scrollbar': 1,
+        \ 'mapping': 0,
+        \ 'filtermode': 'n',
+        \ 'filter': function('s:PeekFilter'),
+        \ })
+  if l:winid > 0
+    " Open with the definition line at the top; earlier lines are now reachable
+    " by scrolling up (k / <C-u> / <C-b>), later lines by scrolling down.
+    call win_execute(l:winid, 'setlocal scrolloff=0')
+    call win_execute(l:winid, 'call cursor(' . l:def_in_popup . ', 1)')
+    call win_execute(l:winid, 'normal! zt')
+    if !empty(l:ft)
+      call win_execute(l:winid, 'setlocal filetype=' . l:ft)
+    endif
+    " Highlight the definition line (bg only; syntax/semantic tokens preserved).
+    let s:peek_marked_line = -1
+    call s:PeekMark(l:winid)
+  endif
+endfunction
 " Use K to show documentation in preview window.
 nnoremap <silent> K :call <SID>show_documentation()<CR>
-let g:coc_global_extensions = ['coc-clangd', 'coc-sh', 'coc-diagnostic', 'coc-highlight']
+let g:coc_global_extensions = ['coc-clangd', 'coc-sh', 'coc-diagnostic', 'coc-highlight', 'coc-rust-analyzer']
 
 " Hover
 function! s:show_documentation()
@@ -624,6 +959,8 @@ nmap <leader>rn <Plug>(coc-rename)
 nmap <leader>il :CocCommand document.toggleInlayHint <CR>
 nmap <leader>ic :call CocAction('showIncomingCalls') <CR>
 nmap <leader>oc :call CocAction('showOutgoingCalls') <CR>
+" Close coc tree panels (incoming/outgoing calls, outline) with q
+autocmd FileType coctree nnoremap <silent><buffer> q :close<CR>
 
 
 augroup mygroup
@@ -694,7 +1031,7 @@ nnoremap <silent><nowait> <Leader>fu  :<C-u>CocList outline<cr>
 " Search workspace symbols.
 " nnoremap <silent><nowait> <space>sym  :<C-u>CocList -I symbols<cr>
 
-let g:coc_default_semantic_highlight_groups = 0
+let g:coc_default_semantic_highlight_groups = 1
 let hlMap = {
             \ 'Namespace': 'Include',
             \ 'Type': 'Type',
@@ -736,11 +1073,35 @@ let hlMap = {
 for [key, value] in items(hlMap)
     execute 'hi default link CocSem'.key.' '.(value)
 endfor
+" -----------------------------SESSIONS-----------------------------------
+" Keep vim-obsession session files in one central folder instead of cluttering
+" each project dir. One file per project (named after its path); change
+" g:session_dir to relocate them.
+let g:session_dir = expand('$HOME/.local/state/vim/sessions')
+call mkdir(g:session_dir, 'p')
+
+function! s:ProjectSessionFile() abort
+    return g:session_dir . '/' . substitute(getcwd(), '[\\/:]', '%', 'g') . '.vim'
+endfunction
+
+" :Session[!]  start tracking into the central per-project file; when already
+"              tracking, :Session pauses and :Session! deletes (obsession behaviour)
+command! -bar -bang Session
+            \ execute exists('g:this_obsession')
+            \   ? 'Obsession<bang>'
+            \   : 'Obsession<bang> ' . fnameescape(<SID>ProjectSessionFile())
+
+" :SessionLoad  restore this project's saved session if present
+command! -bar SessionLoad
+            \ execute filereadable(<SID>ProjectSessionFile())
+            \   ? 'source ' . fnameescape(<SID>ProjectSessionFile())
+            \   : 'echo "No saved session for this project"'
+
 " -----------------------------STARTIFY-----------------------------------
 let g:startify_commands = [
             \ {'g': ['Git status', 'Git']},
             \ {'f': ['Files', 'GFiles ${PWD}']},
-            \ {'p': ['Previous session', 'source Session.vim']},
+            \ {'p': ['Previous session', 'SessionLoad']},
             \ {'s': ['Edit .vimrc', 'e $MYVIMRC']},
             \ ]
 let g:startify_lists = [
@@ -750,3 +1111,6 @@ let g:startify_lists = [
 let g:startify_change_to_dir = 0
 " let g:startify_custom_header = g:ascii + startify#fortune#boxed()
 let g:startify_files_number = 6
+
+
+
