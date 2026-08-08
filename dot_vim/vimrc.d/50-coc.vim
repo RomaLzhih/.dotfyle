@@ -33,7 +33,18 @@ endif
 " --- vim-signify: VCS change signs from the real diff (replaces coc-git) ---
 " 'git' covers dotfile repos; the 'hg' backend drives Sapling (sl) working
 " copies like fbsource, so signs reflect `sl diff` -- not just session edits.
-let g:signify_vcs_list = ['git', 'hg']
+" (Was `let g:signify_vcs_list = ['git', 'hg']`. That variable was removed upstream in
+" signify's async rewrite -- `grep -rn signify_vcs_list ~/.vim/plugged/vim-signify` hits
+" only doc/signify.txt:254, which says to use g:signify_skip instead -- so the old line
+" was inert. The real backend list is built at autoload/sy/repo.vim:677-690 from
+" g:signify_vcs_cmds, which repo.vim:666-670 has already extended with all 13 defaults,
+" then filtered by executable() and by g:signify_skip.vcs.allow/deny. It happened to
+" still be ['git','hg'] only because jj/svn/bzr/darcs/fossil/cvs/p4/... are not
+" installed on this box; installing any of them would silently add another spawned
+" backend per refresh. This makes the intent actually enforced.
+" Note repo.vim:681 applies executable() to the allow-list entries, which here resolve
+" to the sy-diff.sh wrapper path below, not to the git/hg binaries.)
+let g:signify_skip = { 'vcs': { 'allow': ['git', 'hg'] } }
 " Win the single signcolumn slot over vim-signature/vim-bookmarks (priority 10),
 " mirroring the previous coc-git git.signPriority = 11.
 let g:signify_priority = 11
@@ -53,6 +64,29 @@ let g:signify_sign_delete            = '_'
 let g:signify_sign_delete_first_line = '‾'
 let g:signify_sign_change_delete     = '≃'
 let g:signify_sign_show_count        = 0   " no trailing hunk count, like coc-git
+
+" Drop signify's CursorHoldI refresh, keep the normal-mode CursorHold one.
+" sy#set_buflocal_autocmds() (autoload/sy.vim:132-158) installs CursorHold AND
+" CursorHoldI unconditionally, so at updatetime=300 a 300ms pause *while in insert mode*
+" triggers a refresh too. On a &modified buffer that is not free: sy#repo#get_diff
+" branches at repo.vim:78-84 into s:initialize_buffer_job (repo.vim:474-487), which runs
+" s:write_buffer (repo.vim:44-70) -- getbufline(1,'$') + writefile() of the WHOLE buffer,
+" synchronously on the main thread -- before it can diff. Measured 1.6ms on
+" kernel/fork.c (3409 lines) and 6.8ms on kernel/bpf/verifier.c (20066 lines).
+" `autocmd! signify CursorHoldI` inside the User SignifyAutocmds hook is the documented
+" way to do this (doc/signify.txt:489); the hook fires at sy.vim:155-157 after the
+" buffer-local autocmds are installed.
+" Trade-off: signs (and airline's hunk counts) for lines you are typing no longer appear
+" 300ms into an insert-mode pause -- they land at the next normal-mode CursorHold, i.e.
+" ~300ms after <Esc>, or on write.
+" (In an augroup, per this config's convention: a BARE autocmd appends, so every
+"  `:source $MYVIMRC` would add another copy. `autocmd! signify CursorHoldI` is
+"  group-wide rather than buffer-local, and the hook re-fires per buffer, so one
+"  registration is enough.)
+augroup vimrc_signify
+  autocmd!
+  autocmd User SignifyAutocmds autocmd! signify CursorHoldI
+augroup END
 
 " Dark icon on an accent-colored background (gruvbox palette). Wrapped in a
 " ColorScheme autocmd so it survives a :colorscheme reload.
@@ -347,7 +381,7 @@ function! s:PeekDefinition() abort
 endfunction
 " Use K to show documentation in preview window.
 nnoremap <silent> K :call <SID>show_documentation()<CR>
-let g:coc_global_extensions = ['coc-clangd', 'coc-sh', 'coc-diagnostic', 'coc-highlight', 'coc-rust-analyzer']
+let g:coc_global_extensions = ['coc-clangd', 'coc-sh', 'coc-diagnostic', 'coc-highlight', 'coc-rust-analyzer', 'coc-yank']
 
 " Hover
 function! s:show_documentation()
@@ -363,7 +397,12 @@ endfunction
 " Augrouped so `:source $MYVIMRC` replaces rather than appends.
 augroup vimrc_coc_extra
   autocmd!
-  autocmd CursorHold * silent call CocActionAsync('highlight')
+  " Skipped on large buffers -- the counterpart of the mini.cursorword disable in
+  " the nvim config's BigCppTune. b:big_file is set by s:BigFileCheck() in
+  " 10-options.vim. Note the dispatch itself is async and measures at ~0.006ms;
+  " what this avoids is the server-side symbol lookup and the highlight application
+  " that follow, which are what scale with buffer size.
+  autocmd CursorHold * if !get(b:, 'big_file', 0) | silent call CocActionAsync('highlight') | endif
 augroup END
 " Symbol renaming.
 nmap <leader>rn <Plug>(coc-rename)
@@ -420,6 +459,13 @@ omap . <Plug>(coc-range-select)
 
 " Add `:Format` command to format current buffer.
 command! -nargs=0 Format :call CocAction('format')
+" <leader>fm formats (matching the nvim config's conform.nvim binding). This key
+" used to be fzf's :Marks in 30-plugin-config.vim, which moved to <leader>fk --
+" 50- is sourced after 30-, so leaving both would have silently shadowed :Marks.
+" Formatting goes through whatever LSP serves the buffer, so clangd picks up the
+" repo's .clang-format automatically.
+nnoremap <silent> <leader>fm :Format<CR>
+xmap     <silent> <leader>fm <Plug>(coc-format-selected)
 command! -nargs=0 Inspect :CocCommand semanticTokens.inspect
 
 " Add `:Fold` command to fold current buffer.
@@ -440,8 +486,49 @@ nnoremap <silent><nowait> <space>sbd  :<C-u>CocList diagnostics<cr>
 " nnoremap <silent><nowait> <space>coce  :<C-u>CocList extensions<cr>
 " Show commands.
 " nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
-" Find symbol of current document.
+" Find symbol of current document (one-shot fuzzy picker).
 nnoremap <silent><nowait> <Leader>fu  :<C-u>CocList outline<cr>
+" Yank ring: browse yank history and re-paste an older entry (the nvim config's
+" yanky.nvim equivalent). Persists across Vim instances. <CR> pastes after the
+" cursor; see :CocList yank for the other actions. vim-peekaboo still shows the
+" live registers on " and @ -- this is the history those registers overwrote.
+nnoremap <silent><nowait> <Leader>yk  :<C-u>CocList yank<cr>
+
+" Persistent outline sidebar -- the nvim config's outline.nvim equivalent, which
+" coc has built in as :CocOutline (it just was never mapped). <leader>fu above is
+" a one-shot picker; this is the cursor-following tree pane.
+"
+" Toggling: check for the window rather than relying on an error. The docs say
+" CocAction('hideOutline') "throws when it can't be closed", but measured on this
+" box it returns NORMALLY when no outline is open -- so a try/catch toggle never
+" reaches the show branch. Geometry and sort order live in
+" ~/.vim/coc-settings.json (outline.splitCommand / outline.sortBy / autoWidth).
+"
+" Caveat: coc's incoming/outgoing call trees share the 'coctree' filetype, so with
+" one of those open this hides the outline instead (a no-op if none is showing).
+"
+" nvim uses <A-q>/<A-e> for this; Alt keys are unreliable in terminal Vim (see
+" :help map-alt-keys -- Vim assumes ALT sets the 8th bit, and this is a
+" no-GUI build under tmux), so it is on <leader>ot instead ("outline toggle";
+" <leader>ol is :AsyncTaskLast in both this config and the nvim one).
+" `q` already closes it, via the FileType coctree mapping above.
+function! s:HasCocTree() abort
+  for l:w in range(1, winnr('$'))
+    if getbufvar(winbufnr(l:w), '&filetype') ==# 'coctree'
+      return 1
+    endif
+  endfor
+  return 0
+endfunction
+
+function! s:ToggleOutline() abort
+  if s:HasCocTree()
+    call CocAction('hideOutline')
+  else
+    call CocActionAsync('showOutline')
+  endif
+endfunction
+nnoremap <silent> <leader>ot :call <SID>ToggleOutline()<CR>
 " Search workspace symbols.
 " nnoremap <silent><nowait> <space>sym  :<C-u>CocList -I symbols<cr>
 

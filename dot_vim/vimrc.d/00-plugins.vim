@@ -33,7 +33,6 @@ Plug 'tpope/vim-surround'
 Plug 'haya14busa/incsearch.vim'
 Plug 'haya14busa/incsearch-fuzzy.vim'
 Plug 'haya14busa/incsearch-easymotion.vim'
-Plug 'tpope/vim-obsession' 
 Plug 'vim-airline/vim-airline'
 Plug 'chriszarate/yazi.vim'
 " Deferred (see 95-deferred-plugins.vim): ~100 default bracket maps, no autocmds,
@@ -78,6 +77,25 @@ Plug 'ryanoasis/vim-devicons'
 Plug 'tpope/vim-sleuth'
 Plug 'kshenoy/vim-signature'
 Plug 'tpope/vim-repeat'
+" Quickfix preview popup: press p on a quickfix entry to see it in a popup without
+" leaving the list (the nvim config's nvim-bqf equivalent). Mapped in 20-mappings.vim.
+"
+" This plugin is already lazy by construction -- it ships no plugin/ directory, only
+" autoload/ and after/ftplugin/qf.vim, so nothing is sourced until a quickfix window
+" exists (measured: qfpreview#Open is undefined at startup, and startup is unchanged
+" with or without the 'for'). The 'for' is kept as intent + insurance should it ever
+" grow a plugin/ file; it is NOT what makes it lazy. 'for' rather than 'on' because
+" plug.vim's s:lod_ft skips s:dobufread, avoiding the spurious `doautocmd BufRead`
+" that makes vim-lastplace jump the cursor.
+Plug 'bfrg/vim-qf-preview', { 'for': 'qf' }
+" Sticky context header: pins the enclosing function/if/loop lines at the top of the
+" window while scrolling -- the nvim config's nvim-treesitter-context equivalent.
+" Pure vimscript, indentation-based rather than tree-based, which for C/C++/Python/Lua
+" produces nearly the same header. Eager on purpose: it has to hook the scroll events
+" to be "sticky" at all. Settings (presenter, large-file gate) live in
+" 30-plugin-config.vim -- nvim disables it past 2000 lines for scroll jank on big C++
+" (lua/plugins/others.lua:224-232), and that gate is mirrored there.
+Plug 'wellle/context.vim'
 Plug 'jlanzarotta/bufexplorer'
 Plug 'preservim/vim-markdown'
 Plug 'MattesGroeger/vim-bookmarks'

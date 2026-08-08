@@ -44,6 +44,10 @@ augroup vimrc_mappings
   " absolute line numbers instead of relative -- so the visible number is the entry
   " number (line N = entry N), matching the 1-9 jump maps (:cc N).
   autocmd FileType qf setlocal nowrap norelativenumber number
+  " Preview the entry under the cursor in a popup (vim-qf-preview, lazy-loaded by
+  " the 'for': 'qf' trigger in 00-plugins.vim). Safe key: `p` in a quickfix window
+  " is nomodifiable, so it only ever errored before.
+  autocmd FileType qf nmap <buffer> p <plug>(qf-preview-open)
 augroup END
 " Quickfix list: op opens it, pp closes it (q also closes it from inside).
 nnoremap <Leader>op :copen<CR>
