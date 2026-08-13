@@ -192,8 +192,15 @@ nmap <silent> gr <Plug>(coc-references)
 " or indistinguishable from the scrollbar. Background only; the foreground is never
 " touched so syntax and semantic-token colours survive underneath.
 function! s:PeekHl() abort
+  " 'Normal', not 'Pmenu': popup_create() below passes highlight=Normal so the popup
+  " body reads as an ordinary buffer instead of a Pmenu-coloured slab (under gruvbox
+  " that default was #504945, close enough to Visual's #665c54 to look like a
+  " selection). The current-line marker therefore has to clear Normal's background,
+  " not Pmenu's -- against a Normal-backed popup, CursorLine is exactly the right
+  " answer and is what a real buffer would show. PmenuThumb/PmenuSbar stay in the
+  " list because the scrollbar still uses them.
   let l:avoid = []
-  for l:g in ['Pmenu', 'PmenuThumb', 'PmenuSbar']
+  for l:g in ['Normal', 'PmenuThumb', 'PmenuSbar']
     let l:aid = synIDtrans(hlID(l:g))
     if l:aid
       call add(l:avoid, [synIDattr(l:aid, 'bg#', 'gui'), synIDattr(l:aid, 'bg', 'cterm')])
@@ -353,6 +360,8 @@ function! s:PeekDefinition() abort
         \ 'title': ' ' . fnamemodify(l:file, ':t') . ':' . (l:start + 1) . '  (o open, q quit) ',
         \ 'border': [],
         \ 'padding': [0, 1, 0, 1],
+        \ 'highlight': 'Normal',
+        \ 'borderhighlight': ['Comment'],
         \ 'minheight': 3,
         \ 'maxheight': l:ch,
         \ 'minwidth': l:cw,
@@ -413,6 +422,12 @@ nmap <leader>oc :call CocAction('showOutgoingCalls') <CR>
 " NOTE: no `autocmd!` -- it would wipe the CursorHold entry above.
 augroup vimrc_coc_extra
   autocmd FileType coctree nnoremap <silent><buffer> q :close<CR>
+  " One symbol per line, in a narrow side split, so the global `set wrap`
+  " (10-options.vim) spills long signatures over the next few rows and breaks
+  " the tree's indentation. Set here rather than in 10-options.vim's nowrap
+  " list because coctree is a coc panel: unlike coc's hover/documentation
+  " windows, which are prose and must keep wrapping, this one is a record list.
+  autocmd FileType coctree setlocal nowrap
 augroup END
 
 
@@ -531,4 +546,3 @@ endfunction
 nnoremap <silent> <leader>ot :call <SID>ToggleOutline()<CR>
 " Search workspace symbols.
 " nnoremap <silent><nowait> <space>sym  :<C-u>CocList -I symbols<cr>
-

@@ -148,8 +148,34 @@ set autoread
 augroup vimrc_options
   autocmd!
   autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * if mode() != 'c' | checktime | endif
-  autocmd FileChangedShellPost *
-              \ echohl WarningMsg | echo "File changed on disk. Buffer reloaded." | echohl None
+  " `redraw` first, or this blocks on a hit-enter prompt every single reload: the
+  " autoread reload has already printed its own `"file" 4L, 20B` line, and a second
+  " message with cmdheight=1 is what triggers "Press ENTER". The redraw clears the
+  " pending message so only this one is left, and nothing has to be acknowledged.
+  " Measured alternatives that do NOT work: shortmess+=F still prompts (it does not
+  " suppress the reload's file info), and deferring the echo with timer_start()
+  " loses the message altogether.
+  autocmd FileChangedShellPost * redraw
+              \ | echohl WarningMsg | echo "File changed on disk. Buffer reloaded." | echohl None
   " Re-equalize split windows when the terminal/vim is resized
   autocmd VimResized * wincmd =
+augroup END
+
+" Utility/side windows hold one record per line, so the global `set wrap` above
+" turns them into ragged paragraphs where a single long entry spills over the
+" next few rows and line N is no longer entry N.
+" Deliberately an explicit filetype list rather than `if &buftype !=# ''`: coc's
+" hover and documentation windows are buftype=nofile too, and they hold prose
+" that must keep wrapping or it gets cut off at the right edge. Prose is also
+" why `help` and `gitcommit` are absent -- help is hand-wrapped to ~78 columns,
+" so nowrap only truncates it in a split narrower than that.
+" Quickfix is not listed -- 20-mappings.vim already gives it nowrap alongside
+" the absolute-number setting that the 1-9 bookmark jumps depend on.
+" No `autocmd!` here: this file's first vimrc_options block above owns the clear.
+augroup vimrc_options
+  autocmd FileType bufexplorer,startify,peekaboo,fugitive,git,netrw,vim-plug
+        \ setlocal nowrap
+  " Terminals (floaterm, yazi) draw TUIs sized to the exact window width, so a
+  " line that does overflow is corruption rather than content worth wrapping.
+  autocmd TerminalWinOpen * setlocal nowrap
 augroup END

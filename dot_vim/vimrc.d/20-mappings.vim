@@ -65,6 +65,33 @@ nnoremap <C-e> $
 vnoremap <C-e> $
 onoremap <C-e> $
 
+" Search for the visual selection with * / #. Vim has no Visual-mode * at all -- it
+" is a Normal-mode command only, so on a selection the key is simply unbound and
+" does nothing. This makes it search the selected text rather than the word under
+" the cursor, which is the useful half of :help star for multi-word or
+" punctuation-heavy text.
+" \V (very nomagic) plus escaping the delimiter and backslashes means the selection
+" matches literally, so `foo->bar[0]` or `a.b.c` are not treated as a regex.
+" Both register s AND the unnamed register are saved/restored: selecting and hitting
+" * must not clobber what you were about to put. Restoring s alone is not enough --
+" `let @s = ...` repoints the unnamed register at s (:help quote_quote), so @" ends
+" up holding s's contents rather than the yank you had. setreg() rather than `let`
+" so the register TYPE survives too, otherwise a linewise yank comes back charwise
+" and the next p pastes inline instead of on its own line.
+" `x` not `v`: Select mode should keep replacing the selection when you type.
+" NOTE: nvim has no visual * either (no LazyVim default, no plugin), so this is
+" vim-only for now; say the word and it can be mirrored there.
+function! s:VisualSearch(cmdtype) abort
+  let l:reg_s = [getreg('s'), getregtype('s')]
+  let l:reg_u = [getreg('"'), getregtype('"')]
+  normal! gv"sy
+  let @/ = '\V' . substitute(escape(@s, a:cmdtype . '\'), '\n', '\\n', 'g')
+  call setreg('s', l:reg_s[0], l:reg_s[1])
+  call setreg('"', l:reg_u[0], l:reg_u[1])
+endfunction
+xnoremap <silent> * :<C-U>call <SID>VisualSearch('/')<CR>/<C-R><C-R>=@/<CR><CR>
+xnoremap <silent> # :<C-U>call <SID>VisualSearch('?')<CR>?<C-R><C-R>=@/<CR><CR>
+
 inoremap <C-h> <left>
 inoremap <C-j> <down>
 inoremap <C-k> <up>
@@ -102,6 +129,46 @@ endfunction
 
 nnoremap <Tab> :call SwitchBuffer('next')<CR>
 nnoremap <S-Tab> :call SwitchBuffer('prev')<CR>
+
+" Tab pages. `gt`/`gT` would be the native keys, but gt is taken by coc
+" (`nmap gt <Plug>(coc-type-definition)` in 50-coc.vim), so tab-next has no key.
+" These take over vim-unimpaired's ]t/[t (:tnext/:tprevious, ctags navigation) --
+" unimpaired's s:Map() skips any lhs that is already mapped, and vimrc.d is sourced
+" before plugin/ files, so defining them here wins cleanly with no <Plug> juggling.
+" The displaced tag maps are still on ]<C-T>/[<C-T> (:ptnext/:ptprevious), and
+" :tnext/:tprevious remain as commands; with coc and semcode doing the symbol
+" lookups here, the ctags jumplist was not in use.
+" NOTE: this diverges from nvim, where ]t/[t are still unimpaired.nvim's tag maps
+" and there is no tab-switching key at all (<Tab> is bnext, same as here).
+" The count is applied by hand rather than with :tabnext. A bare `:3tabnext` means
+" "go to tab 3", not "3 tabs forward", and the relative `:tabnext +3` form does NOT
+" wrap -- it fails at the last tab, so ]t was a no-op there instead of returning to
+" the first. Modulo wraps in both directions and for counts larger than the tab count.
+function! s:TabGo(delta) abort
+  let l:total = tabpagenr('$')
+  if l:total > 1
+    execute ((tabpagenr() - 1 + a:delta) % l:total + l:total) % l:total + 1 . 'tabnext'
+  endif
+endfunction
+nnoremap <silent> ]t :<C-U>call <SID>TabGo(v:count1)<CR>
+nnoremap <silent> [t :<C-U>call <SID>TabGo(-v:count1)<CR>
+
+" Window resizing. Same keys and same +-2 step as the nvim side, where these are
+" LazyVim defaults (lazyvim/config/keymaps.lua:20-23). nvim ALSO has <A-h/j/k/l>
+" via tmux.nvim, but Alt is unusable in this terminal Vim -- see the note at
+" 50-coc.vim:510: no-GUI build under tmux, and :help map-alt-keys explains why
+" Vim cannot tell <A-x> from <Esc>x reliably.
+" Ctrl+arrow is safe here: both screen-256color and tmux-256color deliver
+" CSI 1;5 A/B/D/C intact, verified by feeding the raw sequences to Vim, and all
+" four are unmapped in this config. They also stay clear of <C-h/j/k/l>, which
+" vim-tmux-navigator owns for *moving* between splits.
+" A count multiplies the step (5<C-Up> = 10 lines); bare presses are exactly nvim's.
+" NB: unlike nvim's <A-hjkl>, these resize Vim splits only -- they do not spill
+" over into resizing the surrounding tmux pane.
+nnoremap <silent> <C-Up>    :<C-U>execute 'resize +'          . (v:count1 * 2)<CR>
+nnoremap <silent> <C-Down>  :<C-U>execute 'resize -'          . (v:count1 * 2)<CR>
+nnoremap <silent> <C-Left>  :<C-U>execute 'vertical resize -' . (v:count1 * 2)<CR>
+nnoremap <silent> <C-Right> :<C-U>execute 'vertical resize +' . (v:count1 * 2)<CR>
 nnoremap <Leader>x :Bclose<CR>
 nnoremap <Leader>bd :Bclose<CR>
 augroup vimrc_mappings

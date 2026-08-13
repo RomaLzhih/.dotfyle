@@ -40,6 +40,18 @@ tnoremap <silent> <C-j> <C-\><C-n><C-w>j
 tnoremap <silent> <C-k> <C-\><C-n><C-w>k
 tnoremap <silent> <C-l> <C-\><C-n><C-w>l
 
+" vim-visual-multi: hand <C-Up>/<C-Down> over to the window-resize maps in
+" 20-mappings.vim. VM claims both by default for Add Cursor Up/Down
+" (autoload/vm/maps/all.vim:162-163) and it is deferred to SafeState, so it loads
+" *after* vimrc.d and overwrites them -- unlike unimpaired, VM does not check
+" whether the key is already taken. g:VM_maps is merged over VM's defaults, so
+" naming these two moves them and leaves VM's other mappings, <C-n> included, alone.
+" nvim is no guide here: multicursors.nvim only binds <C-n> and keeps the rest
+" inside its hydra, so <Leader>mj/mk are vim-only (both are free on either side).
+let g:VM_maps = {}
+let g:VM_maps['Add Cursor Down'] = '<Leader>mj'
+let g:VM_maps['Add Cursor Up']   = '<Leader>mk'
+
 " Copilot chat
 " nnoremap <C-a> :CopilotChatToggle<CR>
 " vnoremap <C-a> <Plug>CopilotChatAddSelection
@@ -303,8 +315,17 @@ let g:airline_highlighting_cache = 1
 " list cannot. The 3ms is not worth it -- the real airline win is the two settings
 " above (~34ms of the ~37ms).
 let g:airline#extensions#tabline#enabled = 1
-" Show only the file name in the tabline (no abbreviated /b/a/d/ path prefix)
-let g:airline#extensions#tabline#formatter = 'unique_tail'
+" Tabline entries read "<filetype icon> parent/file.c" -- enough context to tell
+" apart the same filename in different directories without the abbreviated
+" /b/a/d/ prefix the default formatter produces. Implemented in
+" ~/.vim/autoload/airline/extensions/tabline/formatters/parentfile.vim (airline
+" resolves formatters by autoload path, so it cannot live in this file).
+" Devicons' own airline hook is switched off because it appends the glyph after
+" the name and would swap its formatter in for this one; parentfile.vim calls
+" WebDevIconsGetFileTypeSymbol() itself, once per buffer, exactly as the devicons
+" wrapper did -- so no extra cost over the previous setup.
+let g:airline#extensions#tabline#formatter = 'parentfile'
+let g:webdevicons_enable_airline_tabline = 0
 " Renders identically at 0 -- this is purely to stop work.
 " buffers#get() calls s:map_keys() as its FIRST action (buffers.vim:55), four lines
 " BEFORE its own s:current_tabline cache check at :59. s:map_keys reads
@@ -436,6 +457,16 @@ command! -bang HistoryCwd call fzf#run(fzf#wrap('historycwd', {
       \ 'options': ['--prompt', 'RecentHere> '],
       \ }, <bang>0))
 nnoremap <Leader>fr :HistoryCwd<CR>
+" Browse the : command-line history in fzf. <CR> runs the selected command,
+" <C-e> puts it on the command line to edit first -- both are fzf.vim's own
+" behaviour (autoload/fzf/vim.vim, s:history_sink), which also re-histadd()s the
+" entry so it stays at the top of the list. No wrapper needed: ':History:' with
+" the trailing colon is dispatched to fzf#vim#command_history() by
+" fzf.vim/plugin/fzf.vim:83. ':History/' is the same thing for search history.
+" <Leader>: is LazyVim's key for this across all three of its picker backends, so
+" it matches if the nvim side ever gains one -- lazyvim.json currently has
+" extras: [], so nvim has no command-history picker bound at the moment.
+nnoremap <Leader>: :History:<CR>
 nnoremap <Leader>fj :Jumps<CR>
 " Moved off <Leader>fm, which is now :Format in 50-coc.vim (k = marK).
 nnoremap <Leader>fk :Marks<CR>
@@ -615,12 +646,18 @@ nmap <Leader>hp <Plug>BookmarkPrev
 nmap <Leader>hc <Plug>BookmarkClear
 nmap <Leader>hx <Plug>BookmarkClearAll
 
-" In the bookmark quickfix list (opened by <Leader>hh), press 1-9 to jump
-" straight to that bookmark (:cc N). Scoped by the qf title so count-prefixed
-" motions still work in other quickfix lists (grep, errors, etc.).
-" The maps are cleared when the same qf buffer is reused for a non-bookmark list.
-function! s:BookmarkQfNumberMaps() abort
-  let l:is_bm = getqflist({'title': 1}).title =~# 'bm#location_list'
+" In the bookmark list (opened by <Leader>hh), the entry under the cursor can be
+" edited without jumping to it: 1-9 jump to that slot, `i` edits the annotation,
+" `dd` deletes the bookmark, `K`/`J` move it up/down the list.
+" Scoped by the qf title so count-prefixed motions still work in other quickfix
+" lists (grep, errors, etc.); the maps are cleared when the same qf buffer is
+" reused for a non-bookmark list.
+function! s:BookmarkQfIsList() abort
+  return getqflist({'title': 1}).title =~# 'bm#location_list'
+endfunction
+
+function! s:BookmarkQfMaps() abort
+  let l:is_bm = s:BookmarkQfIsList()
   for n in range(1, 9)
     if l:is_bm
       execute printf('nnoremap <silent><buffer><nowait> %d :cc %d<CR>', n, n)
@@ -628,9 +665,182 @@ function! s:BookmarkQfNumberMaps() abort
       silent! execute printf('nunmap <buffer> %d', n)
     endif
   endfor
+  if l:is_bm
+    nnoremap <silent><buffer><nowait> i  :call <SID>BookmarkQfAnnotate()<CR>
+    nnoremap <silent><buffer><nowait> dd :call <SID>BookmarkQfDelete()<CR>
+    nnoremap <silent><buffer><nowait> K  :call <SID>BookmarkQfMove(-1)<CR>
+    nnoremap <silent><buffer><nowait> J  :call <SID>BookmarkQfMove(1)<CR>
+    " <Plug>BookmarkShowAll has just filled the list in positional order; put it
+    " back into the user's order before the window is drawn.
+    call s:BookmarkQfRender()
+  else
+    for l:key in ['i', 'dd', 'K', 'J']
+      silent! execute 'nunmap <buffer> ' . l:key
+    endfor
+  endif
+endfunction
+
+" --- ordering ---------------------------------------------------------------
+" vim-bookmarks has no notion of order: bm#location_list() re-derives it every
+" time from (file path, line number), and bm#serialize() only ever writes
+" sign_idx/line_nr/content/annotation, so an extra field on a bookmark would be
+" dropped on the next save -- which happens constantly, since the plugin also
+" reloads from disk on every BufEnter. The order therefore lives in a side file
+" next to the per-project bookmark file, holding sign_idx values: the one
+" bookmark attribute that is both stable while you edit a file and round-tripped
+" by the plugin's own save format.
+" The file is advisory. Bookmarks missing from it (newly added ones) sort last
+" in the plugin's positional order, and entries whose bookmark is gone are
+" dropped, so deleting the file just restores plain positional order.
+function! s:BookmarkOrderFile() abort
+  return exists('*g:BMWorkDirFileLocation')
+        \ ? g:BMWorkDirFileLocation() . '.order'
+        \ : g:bookmark_dir . '/global.vim-bookmarks.order'
+endfunction
+
+function! s:BookmarkOrderGet() abort
+  if get(s:, 'bookmark_order_cwd', '') !=# getcwd()
+    let s:bookmark_order_cwd = getcwd()
+    let l:file = s:BookmarkOrderFile()
+    let s:bookmark_order = filereadable(l:file)
+          \ ? filter(map(readfile(l:file), 'str2nr(v:val)'), 'v:val > 0')
+          \ : []
+  endif
+  return s:bookmark_order
+endfunction
+
+function! s:BookmarkOrderPut(sign_idxs) abort
+  " Never persist an empty order. vim-bookmarks drops and reloads its whole
+  " model on every BufEnter, so a render that catches it mid-reload -- or in a
+  " directory whose bookmarks have not loaded yet -- would otherwise truncate
+  " the file and lose the ordering for good. There is nothing to record anyway,
+  " and stale sign_idx values in the file are ignored on read.
+  if empty(a:sign_idxs) || s:BookmarkOrderGet() ==# a:sign_idxs
+    return
+  endif
+  let s:bookmark_order = copy(a:sign_idxs)
+  call writefile(map(copy(a:sign_idxs), 'string(v:val)'), s:BookmarkOrderFile())
+endfunction
+
+" Every bookmark as {'file', 'bm', 'idx'}, in display order: the saved order
+" first, then anything it does not mention, in the plugin's positional order.
+" 'idx' is str2nr()'d because the plugin's own s:refresh_line_numbers() rebuilds
+" bookmarks from keys(), turning sign_idx into a string on any file you have
+" visited -- writing those verbatim would persist quoted junk that reads back
+" as 0 and silently drops the bookmark's slot on the next session.
+function! s:BookmarkEntries() abort
+  let l:by_idx = {}
+  let l:positional = []
+  for l:file in sort(bm#all_files())
+    for l:line_nr in sort(bm#all_lines(l:file), 'bm#compare_lines')
+      let l:bm = bm#get_bookmark_by_line(l:file, l:line_nr)
+      let l:idx = str2nr(l:bm.sign_idx)
+      let l:by_idx[l:idx] = {'file': l:file, 'bm': l:bm, 'idx': l:idx}
+      call add(l:positional, l:idx)
+    endfor
+  endfor
+  let l:entries = []
+  let l:taken = {}
+  for l:idx in s:BookmarkOrderGet() + l:positional
+    if has_key(l:by_idx, l:idx) && !has_key(l:taken, l:idx)
+      let l:taken[l:idx] = 1
+      call add(l:entries, l:by_idx[l:idx])
+    endif
+  endfor
+  return l:entries
+endfunction
+
+" Rewrite the list in place, keeping the same qf list and title so the 1-9 maps
+" and the bookmark-list detection keep working.
+function! s:BookmarkQfRender() abort
+  let l:entries = s:BookmarkEntries()
+  let l:lines = []
+  for l:entry in l:entries
+    let l:bm = l:entry.bm
+    let l:content = l:bm.annotation !=# ''
+          \ ? 'Annotation: ' . l:bm.annotation
+          \ : (l:bm.content !=# '' ? l:bm.content : 'empty line')
+    call add(l:lines, l:entry.file . ':' . l:bm.line_nr . ':' . l:content)
+  endfor
+  call setqflist([], 'r', {
+        \ 'lines': l:lines,
+        \ 'efm':   '%f:%l:%m',
+        \ 'title': ':cgetexpr bm#location_list()',
+        \ })
+  call s:BookmarkOrderPut(map(copy(l:entries), 'v:val.idx'))
+endfunction
+
+" Re-render after a change and persist. The explicit save matters: vim-bookmarks
+" only auto-saves on BufLeave/VimLeave but reloads from disk on every BufEnter,
+" so an edit made from a quickfix window -- which you can leave without ever
+" triggering BufLeave on a bookmarked file -- would otherwise be thrown away.
+function! s:BookmarkQfReload(...) abort
+  let l:want = a:0 ? a:1 : line('.')
+  call s:BookmarkQfRender()
+  call BookmarkSave(g:BMWorkDirFileLocation(), 1)
+  call cursor(max([1, min([l:want, line('$')])]), 1)
+endfunction
+
+function! s:BookmarkQfTarget() abort
+  let l:entries = s:BookmarkEntries()
+  if empty(l:entries) || len(l:entries) !=# line('$')
+    echohl WarningMsg | echo 'Bookmark list is out of date, reopen it with <Leader>hh' | echohl None
+    return {}
+  endif
+  return l:entries[line('.') - 1]
+endfunction
+
+function! s:BookmarkQfMove(delta) abort
+  let l:entries = s:BookmarkEntries()
+  if empty(l:entries) || len(l:entries) !=# line('$')
+    echohl WarningMsg | echo 'Bookmark list is out of date, reopen it with <Leader>hh' | echohl None
+    return
+  endif
+  let l:from = line('.') - 1
+  let l:to = l:from + a:delta
+  if l:to < 0 || l:to >= len(l:entries)
+    return
+  endif
+  let l:idxs = map(copy(l:entries), 'v:val.idx')
+  call insert(l:idxs, remove(l:idxs, l:from), l:to)
+  call s:BookmarkOrderPut(l:idxs)
+  call s:BookmarkQfReload(l:to + 1)
+endfunction
+
+function! s:BookmarkQfAnnotate() abort
+  let l:target = s:BookmarkQfTarget()
+  if empty(l:target)
+    return
+  endif
+  let l:bm = l:target.bm
+  let l:old = l:bm['annotation']
+  " In the console inputdialog() returns the pre-filled text on <Esc>, so an
+  " escape lands on the ==# l:old no-op below; C-u then <CR> clears the note.
+  let l:new = inputdialog((empty(l:old) ? 'Enter' : 'Edit') .' annotation: ', l:old)
+  redraw!
+  if l:new ==# l:old
+    return
+  endif
+  call bm#update_annotation(l:target.file, l:bm['sign_idx'], l:new)
+  " Annotated bookmarks use a different sign glyph, so re-place the sign.
+  call bm_sign#update_at(l:target.file, l:bm['sign_idx'], l:bm['line_nr'], l:new !=# '')
+  call s:BookmarkQfReload()
+  echo empty(l:new) ? 'Annotation removed' : 'Annotation updated: '. l:new
+endfunction
+
+function! s:BookmarkQfDelete() abort
+  let l:target = s:BookmarkQfTarget()
+  if empty(l:target)
+    return
+  endif
+  let l:bm = l:target.bm
+  call bm_sign#del(l:target.file, l:bm['sign_idx'])
+  call bm#del_bookmark_at_line(l:target.file, l:bm['line_nr'])
+  call s:BookmarkQfReload()
+  echo 'Bookmark removed'
 endfunction
 augroup vimrc_plugins
-  autocmd FileType qf call s:BookmarkQfNumberMaps()
+  autocmd FileType qf call s:BookmarkQfMaps()
 augroup END
 
 " NOTE: indentLine
