@@ -103,15 +103,17 @@ inoremap <C-f> <C-o>w
 inoremap <C-d> <C-o>b
 " Skip quickfix buffer when switching
 function! SwitchBuffer(direction)
-  " Never cycle buffers OUT of a special window -- the :Git tab, coc's trees, help,
-  " terminals. Those windows exist to show one thing, and cycling replaces what they
-  " show: fugitive's status buffer is buflisted, so :bnext lands on it and walks off
-  " it, and since it is bufhidden=delete leaving it destroys it outright, so the tab
-  " you opened for :Git ends up holding an ordinary file.
-  " 'winfixbuf' is the option that pins a buffer to a window, but it arrived in patch
-  " 9.1.0147 and this Vim is 9.1.0113 (exists('+winfixbuf') == 0), so the guard has
-  " to live here instead.
-  if &buftype !=# ''
+  " Don't cycle off a fugitive buffer. They are buflisted, so :bnext walks onto and
+  " off them like any file, and fugitive sets bufhidden=delete -- so leaving one does
+  " not hide the :Git split, it destroys it. gq is the way out, and it restores the
+  " window you came from.
+  " Keyed on b:fugitive_type (set to 'index' on the status buffer and 'temp' on the
+  " log/diff/show pagers) rather than &buftype, so this stays out of the way of
+  " quickfix, help, coc's trees and terminals -- and rather than &filetype, which
+  " would also catch an ordinary file that happens to be filetype=git.
+  " 'winfixbuf' would be the real mechanism, but it landed in patch 9.1.0147 and this
+  " Vim is 9.1.0113, so the guard lives here.
+  if exists('b:fugitive_type')
     return
   endif
   let start_buf = bufnr('%')
@@ -163,6 +165,13 @@ function! s:TabGo(delta) abort
 endfunction
 nnoremap <silent> ]t :<C-U>call <SID>TabGo(v:count1)<CR>
 nnoremap <silent> [t :<C-U>call <SID>TabGo(-v:count1)<CR>
+
+" Close the current tab. Guarded: :tabclose on the last remaining tab is E784, and
+" "close the tab" should never be a way to quit Vim by accident, so say so instead.
+" NOTE: diverges from nvim, where closing a tab is LazyVim's <leader><tab>d
+" (lazyvim/config/keymaps.lua:211) -- <leader>tc is unused on both sides.
+nnoremap <silent> <Leader>tc :<C-U>if tabpagenr('$') > 1 <Bar> tabclose <Bar>
+      \ else <Bar> echo 'Only one tab' <Bar> endif<CR>
 
 " Window resizing. Same keys and same +-2 step as the nvim side, where these are
 " LazyVim defaults (lazyvim/config/keymaps.lua:20-23). nvim ALSO has <A-h/j/k/l>

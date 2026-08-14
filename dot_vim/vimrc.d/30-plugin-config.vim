@@ -468,33 +468,24 @@ nnoremap <Leader>fr :HistoryCwd<CR>
 " extras: [], so nvim has no command-history picker bound at the moment.
 nnoremap <Leader>: :History:<CR>
 
-" fugitive: open :Git in its own tab instead of the half-height split it uses by
-" default. `:tab` is a plain command modifier, so this keeps fugitive's :Git
-" entirely intact -- its completion, its bang, its subcommand dispatch -- rather
-" than wrapping or redefining it.
-" Subcommands that open no window (:Git add, :Git commit -m ...) are unaffected:
-" :help :tab is explicit that the modifier only applies "when it opens a new
-" window", so there is no stray empty tab.
-" Quitting needs nothing extra. fugitive's own gq does `bdelete` on the status and
-" pager buffers (autoload/fugitive.vim:2718,3390); with the buffer alone in its
-" tab, deleting it closes the window and so the tab goes with it -- verified for
-" both :tab Git and :tab Git log.
-" getcmdpos() == 4 pins this to `Git` typed at the very start of the command line,
-" so `:vert Git`, `:Git` inside a larger command, and the word Git in any argument
-" are all left alone. Abbreviations only fire on typed input, so mappings and
-" scripts that run :Git -- including fugitive's own -- are unaffected too.
-cnoreabbrev <expr> Git (getcmdtype() ==# ':' && getcmdpos() == 4) ? 'tab Git' : 'Git'
-
-" Keep that tab showing only the Git buffer. SwitchBuffer() in 20-mappings.vim
-" already refuses to cycle out of any special window, which covers <Tab>/<S-Tab>;
-" unimpaired's b-family is the other way out, so disable it buffer-locally here.
-" It has to be buffer-local: these are global maps and the point is to lose them
-" only inside fugitive's windows.
-" This is emulation, not enforcement. 'winfixbuf' is the real thing and it landed
-" in patch 9.1.0147 -- this Vim is 9.1.0113 -- so an explicit :b/:e/:bnext typed by
-" hand still switches, and there is no way to stop it short of upgrading. Losing
-" the buffer that way is destructive rather than merely annoying, because fugitive
-" sets bufhidden=delete on it.
+" fugitive: :Git is left exactly as the plugin ships it -- the half-height split.
+" (Earlier revisions forced it into its own tab with `:tab Git`, then into the
+" current window with the `:0Git` count that s:StatusCommand branches on at
+" autoload/fugitive.vim:4222. Both are one cnoreabbrev away if either is wanted
+" again; neither is in effect.)
+"
+" What IS customised is that you cannot cycle a buffer over the top of it.
+" fugitive sets bufhidden=delete on these buffers, so switching away destroys the
+" split rather than hiding it, and the b-family below is the counterpart to the
+" guard in SwitchBuffer() (20-mappings.vim) that covers <Tab>/<S-Tab>. gq remains
+" the way out. Buffer-local because these are global maps and the point is to lose
+" them only inside fugitive's windows.
+" Guarded on &buftype rather than b:fugitive_type: at FileType time fugitive has
+" already set buftype=nowrite, but the pagers set their filetype BEFORE the rest of
+" their buffer setup, so a b: variable is not reliably there yet. buftype is also
+" what distinguishes these from an ordinary file that happens to be filetype=git.
+" This is emulation, not enforcement -- 'winfixbuf' arrived in patch 9.1.0147 and
+" this Vim is 9.1.0113 -- so an explicit :b/:e/:bnext still switches.
 " Placed after the augroup that owns this file's `autocmd!`, or it would be wiped.
 augroup vimrc_plugins
   autocmd FileType fugitive,git,fugitiveblame

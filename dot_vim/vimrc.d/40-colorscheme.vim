@@ -131,9 +131,16 @@ endfunction
 " everforest only cover comments, so the options above cannot be the whole answer.
 " Sweep every group after the theme has loaded.
 " Rewrites the attribute lists only: `:highlight {group} gui=... cterm=...` leaves
-" guifg/guibg/guisp untouched, so colours survive. Groups defined as links are
-" skipped implicitly -- synIDtrans() resolves them to their target, which is itself
-" in the list and gets fixed once.
+" guifg/guibg/guisp untouched, so colours survive.
+"
+" Linked groups MUST be skipped rather than rewritten. synIDtrans() resolves a link
+" to its target, so a group linked to a bold one reports bold here -- but running
+" :highlight on it SEVERS the link and leaves a standalone group with no colours at
+" all, which then falls back to Normal. koehler is the case that exposed this: it
+" does `hi! link Conditional Statement` (also Repeat/Keyword/Label/Operator/
+" Exception) over a bold Statement, so `if` and `while` rendered white.
+" Skipping is sufficient, not merely safe: the link target is itself in this list and
+" gets stripped on its own, after which the link inherits the result.
 let s:text_attributes =
       \ ['bold', 'italic', 'underline', 'undercurl', 'strikethrough', 'reverse', 'standout']
 
@@ -145,8 +152,10 @@ let s:text_attributes =
 " pair of checks below.
 function! s:StripUnwantedAttributes() abort
   for l:group in getcompletion('', 'highlight')
-    let l:id = synIDtrans(hlID(l:group))
-    if l:id == 0
+    let l:raw = hlID(l:group)
+    let l:id  = synIDtrans(l:raw)
+    " l:id != l:raw means this group is a link -- leave it alone, see above.
+    if l:id == 0 || l:id != l:raw
       continue
     endif
     let l:it = synIDattr(l:id, 'italic', 'gui') ==# '1'
