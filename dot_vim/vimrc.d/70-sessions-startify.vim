@@ -49,6 +49,39 @@ let g:startify_session_persistence = 1
 " the previous project's buffers into it.
 let g:startify_session_delete_buffers = 1
 
+" Auto-load this project's session when Vim is started bare in a directory that
+" has one, so `:Session` only ever has to be run once per project.
+" g:startify_session_autoload is NOT the way to do this: it only sources a literal
+" Session.vim in the cwd (startify plugin/startify.vim:38), whereas these sessions
+" live in one central folder under cwd-derived names.
+" Runs before startify's own VimEnter -- this file is sourced from the vimrc, its
+" plugin/ file afterwards, and autocommands for an event fire in definition order.
+" Startify then finds a real buffer loaded and skips its start screen on its own
+" (its guard at plugin/startify.vim:37 requires a single empty unnamed line), so
+" the two do not fight and the start screen still appears when there is no session.
+" Set g:vimrc_session_autoload = 0 to go back to loading by hand with :SessionLoad.
+function! s:SessionAutoload() abort
+  " argc(): `vim foo.c` asked for something specific, don't override it.
+  " v:this_session: already non-empty for `vim -S ...`, so don't load twice.
+  if !get(g:, 'vimrc_session_autoload', 1) || argc() || !empty(v:this_session)
+    return
+  endif
+  " Same "is this still the empty scratch buffer" test startify uses, so piped
+  " input (vim -) or anything that already populated a buffer is left alone.
+  if line('$') != 1 || !empty(getline(1)) || !empty(bufname('%'))
+    return
+  endif
+  let l:name = s:ProjectSessionName()
+  if filereadable(g:startify_session_dir . '/' . l:name)
+    execute 'SLoad ' . fnameescape(l:name)
+  endif
+endfunction
+
+augroup vimrc_sessions
+  autocmd!
+  autocmd VimEnter * ++once call s:SessionAutoload()
+augroup END
+
 " -----------------------------STARTIFY-----------------------------------
 " 'w' (save) is new since vim-obsession was dropped. Obsession tracked continuously
 " once started, so the start screen only ever needed a "load" entry. startify only

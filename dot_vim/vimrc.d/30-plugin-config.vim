@@ -467,6 +467,44 @@ nnoremap <Leader>fr :HistoryCwd<CR>
 " it matches if the nvim side ever gains one -- lazyvim.json currently has
 " extras: [], so nvim has no command-history picker bound at the moment.
 nnoremap <Leader>: :History:<CR>
+
+" fugitive: open :Git in its own tab instead of the half-height split it uses by
+" default. `:tab` is a plain command modifier, so this keeps fugitive's :Git
+" entirely intact -- its completion, its bang, its subcommand dispatch -- rather
+" than wrapping or redefining it.
+" Subcommands that open no window (:Git add, :Git commit -m ...) are unaffected:
+" :help :tab is explicit that the modifier only applies "when it opens a new
+" window", so there is no stray empty tab.
+" Quitting needs nothing extra. fugitive's own gq does `bdelete` on the status and
+" pager buffers (autoload/fugitive.vim:2718,3390); with the buffer alone in its
+" tab, deleting it closes the window and so the tab goes with it -- verified for
+" both :tab Git and :tab Git log.
+" getcmdpos() == 4 pins this to `Git` typed at the very start of the command line,
+" so `:vert Git`, `:Git` inside a larger command, and the word Git in any argument
+" are all left alone. Abbreviations only fire on typed input, so mappings and
+" scripts that run :Git -- including fugitive's own -- are unaffected too.
+cnoreabbrev <expr> Git (getcmdtype() ==# ':' && getcmdpos() == 4) ? 'tab Git' : 'Git'
+
+" Keep that tab showing only the Git buffer. SwitchBuffer() in 20-mappings.vim
+" already refuses to cycle out of any special window, which covers <Tab>/<S-Tab>;
+" unimpaired's b-family is the other way out, so disable it buffer-locally here.
+" It has to be buffer-local: these are global maps and the point is to lose them
+" only inside fugitive's windows.
+" This is emulation, not enforcement. 'winfixbuf' is the real thing and it landed
+" in patch 9.1.0147 -- this Vim is 9.1.0113 -- so an explicit :b/:e/:bnext typed by
+" hand still switches, and there is no way to stop it short of upgrading. Losing
+" the buffer that way is destructive rather than merely annoying, because fugitive
+" sets bufhidden=delete on it.
+" Placed after the augroup that owns this file's `autocmd!`, or it would be wiped.
+augroup vimrc_plugins
+  autocmd FileType fugitive,git,fugitiveblame
+        \ if &buftype !=# '' |
+        \   for s:k in [']b', '[b', ']B', '[B'] |
+        \     execute 'nnoremap <buffer><nowait> ' . s:k . ' <Nop>' |
+        \   endfor |
+        \ endif
+augroup END
+
 nnoremap <Leader>fj :Jumps<CR>
 " Moved off <Leader>fm, which is now :Format in 50-coc.vim (k = marK).
 nnoremap <Leader>fk :Marks<CR>

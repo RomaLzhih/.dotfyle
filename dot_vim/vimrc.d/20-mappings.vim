@@ -103,6 +103,17 @@ inoremap <C-f> <C-o>w
 inoremap <C-d> <C-o>b
 " Skip quickfix buffer when switching
 function! SwitchBuffer(direction)
+  " Never cycle buffers OUT of a special window -- the :Git tab, coc's trees, help,
+  " terminals. Those windows exist to show one thing, and cycling replaces what they
+  " show: fugitive's status buffer is buflisted, so :bnext lands on it and walks off
+  " it, and since it is bufhidden=delete leaving it destroys it outright, so the tab
+  " you opened for :Git ends up holding an ordinary file.
+  " 'winfixbuf' is the option that pins a buffer to a window, but it arrived in patch
+  " 9.1.0147 and this Vim is 9.1.0113 (exists('+winfixbuf') == 0), so the guard has
+  " to live here instead.
+  if &buftype !=# ''
+    return
+  endif
   let start_buf = bufnr('%')
   let buf = start_buf
   
