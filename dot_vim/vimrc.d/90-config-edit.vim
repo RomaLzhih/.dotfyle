@@ -1,28 +1,10 @@
-" ============================================================================
-" 90-config-edit.vim
-" ----------------------------------------------------------------------------
-" Getting at the config now that ~/.vimrc is only a loader, so `:e $MYVIMRC`
-" no longer shows the settings themselves:
-"
-"   :Vimrc              fuzzy-pick a config file (fzf), or list them if no fzf
-"   :Vimrc coc          jump straight to 50-coc.vim -- <Tab> completes the names
-"   :VimrcGrep pattern  search every config file; hits land in the quickfix list
-"   :Vimrc!             open ~/.vimrc itself (the loader)
-"   <leader>ve          = :Vimrc
-"   <leader>vg          = :VimrcGrep
-"
-" `gf` also works on the filenames listed in ~/.vimrc, because 'path' below
-" includes the config directory.
-"
-" Sourced last so mapleader (20-) and fzf (00-) are already in place.
-" Script-local (s:) items are file-scoped: keep every s: function together with
-" its callers and <SID> mappings in this file.
-" ============================================================================
+" 90-config-edit.vim -- reach the config now that ~/.vimrc is only a loader.
+" :Vimrc [name] pick a config file (fzf) / :Vimrc! the loader / :VimrcGrep pat
+" <leader>ve = :Vimrc, <leader>vg = :VimrcGrep. Sourced late: needs mapleader + fzf.
 
 let s:vimrc_dir = expand('~/.vim/vimrc.d')
 
-" Guarded: a bare `set path+=` would append a duplicate entry on every
-" `:source $MYVIMRC`.
+" Guarded, or `:source $MYVIMRC` appends a duplicate 'path' entry every time.
 if stridx(&path, s:vimrc_dir) < 0
   execute 'set path+=' . fnameescape(s:vimrc_dir)
 endif
@@ -31,7 +13,7 @@ function! s:VimrcFiles() abort
   return sort(glob(s:vimrc_dir . '/*.vim', 0, 1))
 endfunction
 
-" Short, memorable names for completion: 50-coc.vim -> coc
+" Short completion names: 50-coc.vim -> coc
 function! s:VimrcComplete(lead, cmdline, pos) abort
   let l:names = map(s:VimrcFiles(), 'substitute(fnamemodify(v:val, ":t"), ''^\d\+-\|\.vim$'', "", "g")')
   return filter(l:names, 'v:val =~? a:lead')
@@ -39,7 +21,7 @@ endfunction
 
 function! s:VimrcEdit(arg, bang) abort
   if a:bang
-    " $MYVIMRC is unset when vim is started with -u, so fall back to the real path.
+    " $MYVIMRC is unset under `vim -u`, so fall back to the real path.
     execute 'edit ' . fnameescape(empty($MYVIMRC) ? expand('~/.vimrc') : expand($MYVIMRC))
     return
   endif
@@ -59,8 +41,7 @@ function! s:VimrcEdit(arg, bang) abort
   execute 'edit ' . fnameescape(l:hits[0])
 endfunction
 
-" vimgrep rather than fzf here: it feeds the quickfix list, which is already set
-" up (absolute numbers, no wrap, q to close) and needs no external tool.
+" vimgrep not fzf: feeds the quickfix list, which is already configured.
 function! s:VimrcGrep(pat) abort
   execute 'noautocmd vimgrep /' . escape(a:pat, '/') . '/j ' . fnameescape(s:vimrc_dir) . '/*.vim'
   if empty(getqflist())

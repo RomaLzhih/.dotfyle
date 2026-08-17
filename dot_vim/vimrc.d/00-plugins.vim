@@ -1,43 +1,19 @@
-" ============================================================================
-" 00-plugins.vim
-" ----------------------------------------------------------------------------
-" vim-plug block: the plugin list. Must be sourced first -- everything
-" else configures plugins registered here.
-" Sourced from ~/.vimrc. Script-local (s:) items are file-scoped: keep every
-" s: function together with its callers and <SID> mappings in this file.
-" ============================================================================
+" 00-plugins.vim -- the vim-plug list. Must be sourced first.
 
 " source $LOCAL_ADMIN_SCRIPTS/master.vimrc
 
-" Don't try to be vi compatible
 set nocompatible
-
-" Helps force plugins to load correctly when it is turned back on below
 filetype off
 
-" https://github.com/junegunn/vim-plug
-" TODO: Load plugins here (pathogen or vundle)
 call plug#begin('~/.vim/plugged')
-" The default plugin directory will be as follows:
-"   - Vim (Linux/macOS): '~/.vim/plugged'
-"   - Vim (Windows): '~/vimfiles/plugged'
-"   - Neovim (Linux/macOS/Windows): stdpath('data') . '/plugged'
-" You can specify a custom plugin directory by passing it as the argument
-"   - e.g. `call plug#begin('~/.vim/plugged')`
-"   - Avoid using standard Vim directory names like 'plugin'
 
-" Make sure you use single quotes
-
-" Plug 'preservim/nerdtree'
-Plug 'tpope/vim-surround' 
+Plug 'tpope/vim-surround'
 Plug 'haya14busa/incsearch.vim'
 Plug 'haya14busa/incsearch-fuzzy.vim'
 Plug 'haya14busa/incsearch-easymotion.vim'
 Plug 'vim-airline/vim-airline'
 Plug 'chriszarate/yazi.vim'
-" Deferred (see 95-deferred-plugins.vim): ~100 default bracket maps, no autocmds,
-" nothing in the config references it -- so there is no command or <Plug> to
-" trigger on. Loaded once Vim is idle instead.
+" Deferred: ~100 bracket maps, no autocmds, nothing here references it.
 Plug 'tpope/vim-unimpaired', { 'on': [] }
 Plug 'junegunn/vim-peekaboo'
 Plug 'github/copilot.vim', { 'as': 'copilot' }
@@ -50,12 +26,10 @@ Plug 'psliwka/vim-smoothie'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'tpope/vim-commentary'
 Plug 'brooth/far.vim'
-" Deferred: VM builds its own default maps (<C-n>, <C-Down>, the \\ family) in
-" vm#maps#default, so a <Plug> whitelist would silently drop most entry points.
+" Deferred: VM builds its own default maps, so a <Plug> whitelist would drop most.
 Plug 'mg979/vim-visual-multi', {'branch': 'master', 'on': []}
-" Deferred AND <Plug>-triggered: the five triggers make f/F/t/T/s correct even
-" during type-ahead; the deferred load covers the `/` incsearch path, which
-" reaches EasyMotion#go() without going through any <Plug> map.
+" Deferred AND <Plug>-triggered: triggers keep f/F/t/T correct during type-ahead;
+" the deferred load covers the `/` incsearch path, which bypasses every <Plug> map.
 Plug 'easymotion/vim-easymotion', { 'on': [
       \ '<Plug>(easymotion-fl)', '<Plug>(easymotion-Fl)',
       \ '<Plug>(easymotion-tl)', '<Plug>(easymotion-Tl)',
@@ -84,13 +58,10 @@ Plug 'preservim/vim-markdown'
 Plug 'MattesGroeger/vim-bookmarks'
 Plug 'mhinz/vim-signify'
 
-" Only the active scheme is loaded eagerly. The rest are registered {'on': []}:
-" installed and :PlugUpdate-able, but off 'runtimepath' until wanted, which keeps
-" 15 dirs out of every rtp scan at startup. The ColorSchemePre hook in
-" 30-plugin-config.vim puts the owning plugin back before Vim looks for
-" colors/<name>.vim, so plain `:colorscheme nord` and <leader>th still work.
-" Caveat: native `:colorscheme <Tab>` completion only lists loaded schemes (the
-" <leader>th picker lists all of them); `:help` for a lazy scheme needs it loaded.
+" Only the active scheme loads eagerly; the rest are {'on': []} to keep 15 dirs out
+" of the startup rtp scan. The ColorSchemePre hook in 30- loads one on demand, so
+" `:colorscheme nord` and <leader>th still work. Native <Tab> completion only lists
+" loaded schemes.
 Plug 'morhetz/gruvbox'
 Plug 'sainnhe/gruvbox-material', { 'on': [] }
 Plug 'rose-pine/vim', {'as': 'rose-pine', 'on': [] }
@@ -109,7 +80,5 @@ Plug 'srcery-colors/srcery-vim', {'on': []}
 Plug 'EdenEast/nightfox.nvim', {'on': []}
 Plug 'lunacookies/vim-colors-xcode', {'on': []}
 
-" Initialize plugin system
-" - Automatically executes `filetype plugin indent on` and `syntax enable`.
+" Also runs `filetype plugin indent on` and `syntax enable`.
 call plug#end()
-
