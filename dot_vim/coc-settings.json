@@ -28,14 +28,7 @@
   "inlayHint.enable": false,
   "notification.disabledProgressSources": ["clangd", "rust-analyzer"],
   "suggest.maxCompleteItemCount": 10,
-  // :CocInstall / :CocUpdate need this. There is no direct egress on this box --
-  // raw node DNS gets ENOTFOUND -- and coc's fetcher reads http.proxy rather than
-  // npm's config, which is why `npm view` works from a shell but :CocInstall fails
-  // with "getaddrinfo ENOTFOUND registry.npmjs.org". The nvim config solves the
-  // same problem by exporting HTTP_PROXY in lua/config/lazy.lua; this is narrower,
-  // since it applies to coc only and not to everything Vim spawns.
   // Devserver-specific: drop it if this config is ever used off a Meta host.
-  "http.proxy": "http://fwdproxy:8080",
   // Yank ring (<leader>yk -> :CocList yank). coc-yank defaults to ALSO feeding
   // yank history into the completion menu (yank.enableCompletion, up to
   // yank.limit=3 items at priority 90). With maxCompleteItemCount capped at 10
