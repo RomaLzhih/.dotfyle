@@ -267,17 +267,26 @@ function! s:PeekDefinition() abort
   let s:peek_file = l:file
   let s:peek_line = l:start + 1
   let s:peek_col  = get(l:range.start, 'character', 0) + 1
-  " 80%/60% of the current window, centred; border+padding cost 4 cols / 2 rows.
-  let l:wpos = win_screenpos(0)
-  let l:pw   = winwidth(0)
-  let l:ph   = winheight(0)
-  let l:tw   = float2nr(l:pw * 0.80)
-  let l:th   = float2nr(l:ph * 0.60)
-  let l:cw   = max([40, l:tw - 4])
-  let l:ch   = max([3,  l:th - 2])
+  " Sized against the SCREEN and centred on it, not against the current window.
+  " Peek is an overlay, but keying off winwidth() made it collapse exactly when
+  " you need it -- on a 200-column screen: 156 cols in a single window, but 76 in
+  " a vsplit and 48 in three columns, which is too narrow to read code in.
+  " Override with g:peek_width / g:peek_height (fractions of the screen).
+  " border + padding cost 4 cols / 2 rows, subtracted below.
+  let l:avail_w = &columns
+  let l:avail_h = &lines - &cmdheight - 1
+  let l:tw   = float2nr(l:avail_w * get(g:, 'peek_width', 0.9))
+  let l:th   = float2nr(l:avail_h * get(g:, 'peek_height', 0.7))
+  " The 40x3 floor is clamped to the screen, or it overflows a small terminal.
+  let l:cw   = min([max([40, l:tw - 4]), l:avail_w - 4])
+  let l:ch   = min([max([3,  l:th - 2]), l:avail_h - 2])
+  " Centre on the REAL extent (content + 2 border + 2 padding), not on the
+  " requested size -- they differ once the clamp above bites.
+  let l:full_w = l:cw + 4
+  let l:full_h = l:ch + 2
   let l:winid = popup_create(l:content, {
-        \ 'line': l:wpos[0] + (l:ph - l:th) / 2,
-        \ 'col': l:wpos[1] + (l:pw - l:tw) / 2,
+        \ 'line': max([1, (l:avail_h - l:full_h) / 2 + 1]),
+        \ 'col':  max([1, (l:avail_w - l:full_w) / 2 + 1]),
         \ 'title': ' ' . fnamemodify(l:file, ':t') . ':' . (l:start + 1) . '  (o open, q quit) ',
         \ 'border': [],
         \ 'padding': [0, 1, 0, 1],

@@ -61,6 +61,94 @@ augroup vimrc_plugins
   autocmd FileType cpp let delimitMate_matchpairs = "(:),[:],{:}"
 augroup END
 
+" Auto-close /* */ block comments. delimitMate cannot: 'delimitMate_matchpairs'
+" takes single (multi-byte) CHARACTERS, not sequences, so a '/*' pair is not
+" expressible. Hence a mapping on '*' that only fires directly after a '/'.
+" Everything else -- `a * b`, `int *p`, `**kwargs`, `a / *p` -- returns a plain
+" '*' because the preceding character is not '/'.
+" <C-g>U keeps the cursor move inside one undo block, so a single u removes the
+" whole '/**/' rather than leaving the closer behind.
+" NOTE: vim-only. nvim uses mini.pairs, which has no /* */ rule either.
+function! s:CloseBlockComment() abort
+  let l:line = getline('.')
+  let l:col  = col('.')
+  if l:col < 2 || l:line[l:col - 2] !=# '/'
+    return '*'
+  endif
+  " Already closed (delimitMate's own skip behaviour): don't stack a second one.
+  if l:line[l:col - 1 :] =~# '^\s*\*/'
+    return '*'
+  endif
+  " The typed '*' completes the '/*', then '*/' closes it: '/' + '**/' = '/**/'.
+  return "**/\<C-g>U\<Left>\<C-g>U\<Left>"
+endfunction
+
+augroup vimrc_plugins
+  autocmd FileType c,cpp,objc,objcpp,java,javascript,typescript,rust,go,css,scss,less,php
+        \ inoremap <buffer><expr> * <SID>CloseBlockComment()
+augroup END
+
+" ---- block comments: gbc / gb{motion} / visual gb ----
+" vim-commentary is line-wise only -- it applies 'commentstring' to each line, so
+" in C `gc` gives a separate /* */ per line rather than one wrapping block. It has
+" no block mode at all. These keys mirror nvim's Comment.nvim (gbc toggler, gb
+" opleader); both are unmapped here.
+" 'commentstring' alone is not enough: it is the block form only for c/cpp/css/html
+" and the LINE form for java/js/ts/rust/go, which do have /* */. Hence the table,
+" which wins over 'commentstring' where present.
+let g:vimrc_block_commentstring = {
+      \ 'java':            '/*%s*/',
+      \ 'javascript':      '/*%s*/',
+      \ 'javascriptreact': '/*%s*/',
+      \ 'typescript':      '/*%s*/',
+      \ 'typescriptreact': '/*%s*/',
+      \ 'rust':            '/*%s*/',
+      \ 'go':              '/*%s*/',
+      \ 'scss':            '/*%s*/',
+      \ 'less':            '/*%s*/',
+      \ 'php':             '/*%s*/',
+      \ 'lua':             '--[[%s]]',
+      \ }
+
+" [open, close], or [] when this filetype has no block comment (python, sh, vim).
+function! s:BlockDelims() abort
+  let l:cs = get(g:vimrc_block_commentstring, &filetype, &commentstring)
+  let l:parts = split(l:cs, '%s', 1)
+  if len(l:parts) != 2 || empty(trim(l:parts[0])) || empty(trim(l:parts[1]))
+    return []
+  endif
+  return [trim(l:parts[0]), trim(l:parts[1])]
+endfunction
+
+function! s:BlockComment(type) abort
+  let l:d = s:BlockDelims()
+  if empty(l:d)
+    echohl WarningMsg
+    echo 'No block comment for filetype ' . (empty(&filetype) ? '(none)' : &filetype)
+    echohl None
+    return
+  endif
+  let [l:open, l:close] = l:d
+  let [l:l1, l:l2] = a:type ==# 'v' ? [line("'<"), line("'>")] : [line("'["), line("']")]
+  " Escaped for a magic pattern; the replacement side needs a different set.
+  let l:eo = escape(l:open,  '\*.[]~^$/')
+  let l:ec = escape(l:close, '\*.[]~^$/')
+  let l:first = getline(l:l1)
+  let l:last  = getline(l:l2)
+  if l:first =~# '^\s*' . l:eo && l:last =~# l:ec . '\s*$'
+    call setline(l:l1, substitute(l:first, '^\(\s*\)' . l:eo . ' \=', '\1', ''))
+    " Re-read: on a single-line range the line above is the one being closed.
+    call setline(l:l2, substitute(getline(l:l2), ' \=' . l:ec . '\s*$', '', ''))
+  else
+    call setline(l:l1, substitute(l:first, '^\(\s*\)', '\1' . escape(l:open, '\&~') . ' ', ''))
+    call setline(l:l2, getline(l:l2) . ' ' . l:close)
+  endif
+endfunction
+
+nnoremap <silent> gb  :set operatorfunc=<SID>BlockComment<CR>g@
+nnoremap <silent> gbc :set operatorfunc=<SID>BlockComment<CR>g@_
+xnoremap <silent> gb  :<C-U>call <SID>BlockComment('v')<CR>
+
 " vim-signature: the periodic sign refresh was the most expensive thing on the idle
 " path -- 2.55ms of a 3.15ms CursorHold, and size-independent, so every buffer pays.
 " Marks still get signs; only the periodic reconciliation is lost, so a mark changed
