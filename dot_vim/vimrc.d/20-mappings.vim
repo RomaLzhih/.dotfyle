@@ -117,6 +117,15 @@ nnoremap <silent> [t :<C-U>call <SID>TabGo(-v:count1)<CR>
 nnoremap <silent> <Leader>tc :<C-U>if tabpagenr('$') > 1 <Bar> tabclose <Bar>
       \ else <Bar> echo 'Only one tab' <Bar> endif<CR>
 
+" Move the current line down/up. unimpaired ships this as ]e/[e, but 50- rebinds
+" those to coc diagnostics in NORMAL mode -- so today the move only exists in
+" VISUAL mode (x ]e/[e survive, the guard being mode-exact). nvim uses <A-j>/<A-k>,
+" unusable here. These get `.`-repeat for free: unimpaired's <Plug>s call
+" repeat#set() themselves. `<Plug>` in the rhs is applied even under `noremap`
+" (:help map.txt:87), but `nmap` is the honest spelling for a <Plug> target.
+nmap <silent> <Leader>j <Plug>(unimpaired-move-down)
+nmap <silent> <Leader>k <Plug>(unimpaired-move-up)
+
 " Window resize. Same keys and +-2 step as nvim (LazyVim defaults); nvim's
 " <A-hjkl> is unusable here because Alt is unreliable in terminal Vim.
 " Ctrl+arrow survives both screen-256color and tmux-256color, verified with the

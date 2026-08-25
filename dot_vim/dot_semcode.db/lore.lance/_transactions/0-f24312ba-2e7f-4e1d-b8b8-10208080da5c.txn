@@ -1,0 +1,7 @@
+$f24312ba-2e7f-4e1d-b8b8-10208080da5c²Õ%git_commit_sha ÿÿÿÿÿÿÿÿÿ*string8from ÿÿÿÿÿÿÿÿÿ*string8date ÿÿÿÿÿÿÿÿÿ*string8&date_timestamp ÿÿÿÿÿÿÿÿÿ*int648#
+message_id ÿÿÿÿÿÿÿÿÿ*string8&in_reply_to ÿÿÿÿÿÿÿÿÿ*string08 subject ÿÿÿÿÿÿÿÿÿ*string8%
+references ÿÿÿÿÿÿÿÿÿ*string08#
+recipients ÿÿÿÿÿÿÿÿÿ*string8body	 ÿÿÿÿÿÿÿÿÿ*string8 symbols
+ ÿÿÿÿÿÿÿÿÿ*string8"!
+lance.auto_cleanup.interval20"'
+lance.auto_cleanup.older_than14days

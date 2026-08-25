@@ -1,0 +1,3 @@
+$ee2d240b-d081-4bee-bd05-d2b279fe1054²name ÿÿÿÿÿÿÿÿÿ*string8"	file_path ÿÿÿÿÿÿÿÿÿ*string8&git_file_hash ÿÿÿÿÿÿÿÿÿ*string8line ÿÿÿÿÿÿÿÿÿ*int648kind ÿÿÿÿÿÿÿÿÿ*string8size ÿÿÿÿÿÿÿÿÿ*int6408fields ÿÿÿÿÿÿÿÿÿ*string8*definition_hash ÿÿÿÿÿÿÿÿÿ*string08 types ÿÿÿÿÿÿÿÿÿ*string08"!
+lance.auto_cleanup.interval20"'
+lance.auto_cleanup.older_than14days

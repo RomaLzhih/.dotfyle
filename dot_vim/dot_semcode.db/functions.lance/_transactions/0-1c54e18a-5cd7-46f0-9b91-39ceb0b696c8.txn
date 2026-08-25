@@ -1,0 +1,5 @@
+$1c54e18a-5cd7-46f0-9b91-39ceb0b696c8²°name ÿÿÿÿÿÿÿÿÿ*string8"	file_path ÿÿÿÿÿÿÿÿÿ*string8&git_file_hash ÿÿÿÿÿÿÿÿÿ*string8"
+line_start ÿÿÿÿÿÿÿÿÿ*int648 line_end ÿÿÿÿÿÿÿÿÿ*int648$return_type ÿÿÿÿÿÿÿÿÿ*string8#
+parameters ÿÿÿÿÿÿÿÿÿ*string8$	body_hash ÿÿÿÿÿÿÿÿÿ*string08 calls ÿÿÿÿÿÿÿÿÿ*string08 types	 ÿÿÿÿÿÿÿÿÿ*string08"!
+lance.auto_cleanup.interval20"'
+lance.auto_cleanup.older_than14days

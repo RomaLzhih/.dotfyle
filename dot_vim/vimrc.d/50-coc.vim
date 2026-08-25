@@ -359,6 +359,9 @@ nmap <leader>ca  <Plug>(coc-codeaction)
 nmap <leader>qf  <Plug>(coc-fix-current)
 
 " Function/class text objects. Needs documentSymbol support from the server.
+" NOTE: 55-textobjects.vim re-maps all four of these through a guard so they warn
+" instead of throwing in buffers with no documentSymbol provider. These four lines
+" are what it wraps; keep the kinds in sync if you change them.
 xmap if <Plug>(coc-funcobj-i)
 omap if <Plug>(coc-funcobj-i)
 xmap af <Plug>(coc-funcobj-a)

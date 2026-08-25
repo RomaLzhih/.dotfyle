@@ -473,8 +473,78 @@ endfunction
 nnoremap <leader>lg :call LazyGitFloaterm()<CR>
 
 " which-key
+" `[` and `]` are the busiest namespaces in this config -- ~44 normal-mode maps once
+" unimpaired loads at SafeState -- and were completely invisible until now. Two
+" things here are load-bearing:
+"
+"   - g:which_key_fallback_to_native_key defaults to 0 (plugin/which_key.vim:25),
+"     and at 0 an unmapped follow-key falls into which_key#error#undefined_key()
+"     and executes NOTHING. Mapping `]` with the default therefore silently kills
+"     every unmapped bracket BUILTIN -- ]] ][ ]# ]/ ]} ]) ]s ]z ]m -- which is most
+"     of what makes the namespace worth opening up. Proven in a pty: with 0, `]]`
+"     leaves the cursor where it started. 1 passes the key through.
+"   - with no dict registered the popup renders raw right-hand sides, so `]t` shows
+"     as `:<C-U>call <SNR>22_TabGo(v:count1)<CR>`. The dicts below label the keys
+"     worth knowing. s:create_runtime() (autoload/which_key.vim:156-170) MERGES the
+"     dict over the parsed native maps, so anything left out still appears, just
+"     unlabelled -- these lists do not have to stay exhaustive to stay correct.
+let g:which_key_fallback_to_native_key = 1
+
 nnoremap <silent> <leader>      :<c-u>WhichKey '<Space>'<CR>
+" Visual mode had no prompt at all, while owning <leader>c (OSC 52 yank) and
+" <leader>fm. :WhichKeyVisual is the x-mode entry point (plugin/which_key.vim:33).
+xnoremap <silent> <leader>      :<c-u>WhichKeyVisual '<Space>'<CR>
 " nnoremap <silent> <localleader> :<c-u>WhichKey  '\'<CR>
+nnoremap <silent> ]             :<c-u>WhichKey ']'<CR>
+nnoremap <silent> [             :<c-u>WhichKey '['<CR>
+
+" Keys are the character AFTER the prefix. Builtins are listed on purpose: they are
+" the whole reason for the native-key fallback above.
+call which_key#register(']', {
+      \ ']': 'section fwd (fn brace)',
+      \ '[': 'section end fwd',
+      \ '#': 'unmatched #if/#else/#endif',
+      \ '/': 'end of /* comment */',
+      \ '%': 'matchit fwd',
+      \ '}': 'unmatched }',
+      \ ')': 'unmatched )',
+      \ 'f': 'next function',
+      \ 'F': 'function end',
+      \ 'i': 'next line, same indent',
+      \ 'r': 'next symbol occurrence',
+      \ 'd': 'next git hunk',
+      \ 'e': 'next diagnostic',
+      \ 'b': 'next buffer',
+      \ 't': 'next tab',
+      \ 'q': 'next quickfix',
+      \ 'n': 'next conflict marker',
+      \ 'p': 'paste, indent-adjusted',
+      \ 'o': 'option on (yo* toggles)',
+      \ ' ': 'blank line below',
+      \ }, 'n')
+
+call which_key#register('[', {
+      \ '[': 'section back',
+      \ ']': 'section end back',
+      \ '#': 'unmatched #if/#else/#endif',
+      \ '/': 'start of /* comment */',
+      \ '%': 'matchit back',
+      \ '{': 'unmatched {',
+      \ '(': 'unmatched (',
+      \ 'f': 'prev function',
+      \ 'F': 'prev function end',
+      \ 'i': 'prev line, same indent',
+      \ 'r': 'prev symbol occurrence',
+      \ 'd': 'prev git hunk',
+      \ 'e': 'prev diagnostic',
+      \ 'b': 'prev buffer',
+      \ 't': 'prev tab',
+      \ 'q': 'prev quickfix',
+      \ 'n': 'prev conflict marker',
+      \ 'p': 'paste above, indent-adjusted',
+      \ 'o': 'option off (yo* toggles)',
+      \ ' ': 'blank line above',
+      \ }, 'n')
 
 " yazi
 nnoremap <C-s> :Yazi<CR>

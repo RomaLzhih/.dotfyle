@@ -17,6 +17,8 @@ Plugin manager: vim-plug. Companion Neovim config lives in `~/.config/nvim`.
 | `30-plugin-config.vim` | per-plugin settings (largest file): airline, fzf, context, bookmarks, asynctasks, easymotion, floaterm |
 | `40-colorscheme.vim` | theme choice + cross-theme highlight normalisation |
 | `50-coc.vim` | coc.nvim, `gd`, peek-definition popup, vim-signify signs |
+| `55-textobjects.vim` | `ao`/`io` structural objects, `]f`/`[f` motions, LSP-object guards |
+| `56-navigation.vim` | `]i`/`[i` + `ii`/`ai` indent, `]r`/`[r` occurrences, diff/patch maps |
 | `60-coc-semantic.vim` | theme-adaptive LSP semantic-token colours |
 | `70-sessions-startify.vim` | sessions and the start screen |
 | `90-config-edit.vim` | `:Vimrc`, `:VimrcGrep` |
@@ -60,7 +62,16 @@ uses `<A-…>`, this config picks something else.
 **Mirror the nvim config.** Look up the key in `~/.config/nvim` before binding
 anything here, and flag a collision rather than inventing a key. Deliberate
 divergences today: `]t`/`[t` (tabs here, unimpaired tags in nvim), `<Leader>tc`
-(nvim uses LazyVim's `<leader><tab>d`), visual `*`/`#`, `<Leader>:`.
+(nvim uses LazyVim's `<leader><tab>d`), visual `*`/`#`, `<Leader>:`, `]f`/`[f`
+(displaces unimpaired's directory nav), and `io` being linewise where mini.ai is charwise.
+
+**Check what nvim actually *runs*, not what its config says.** The `textobjects = {…}`
+block in `~/.config/nvim/lua/plugins/treesitter.lua` is **dead code** — it sits in the opts
+of the `nvim-treesitter` spec, whose `setup()` reads only `install_dir`, and nothing
+anywhere reads `opts.textobjects`. nvim's real text objects come from LazyVim's
+**mini.ai** (`lazyvim/plugins/coding.lua`): `af`/`if` function, `ac`/`ic` class, `ao`/`io`
+block/conditional/loop, `aa`/`ia` argument. Mirroring that dead block would have
+repointed a working `ac`/`ic` and added an `al`/`il` that exists in neither editor.
 
 ---
 
@@ -77,6 +88,24 @@ Leader is `<Space>`; localleader is `\`.
 `<leader>pd` peek popup · `<leader>rn` rename · `<leader>ca` code action ·
 `<leader>qf` fix · `<leader>fm` format · `<leader>ot` outline · `<leader>fu`
 symbols · `<leader>yk` yank ring · `]e`/`[e` diagnostics · `]d`/`[d` git hunks
+
+**Text objects** `af`/`if` function · `ac`/`ic` class · `ao`/`io` block/conditional/loop ·
+`ii`/`ai` indent block (`ai` adds the header line) · `aa`/`ia` argument (targets.vim) ·
+`.` grow selection. Do **not** add `al`/`il` — see §4.
+
+**Motions** `]f`/`[f` function, `]F`/`[F` its end · `]i`/`[i` next/prev line at the same
+indent · `]r`/`[r` next/prev occurrence of the symbol under the cursor · `]e`/`[e`
+diagnostics · `]d`/`[d` git hunks · `]t`/`[t` tabs · `]q`/`[q` quickfix · `]b`/`[b` buffers ·
+`]n`/`[n` conflict markers. Press `]` or `[` alone for the which-key menu.
+
+**Already there, easy to forget** — builtins: `]#`/`[#` unmatched `#if`/`#else`/`#endif` ·
+`]/`/`[/` ends of a `/* */` block · `]}`/`[{` and `])`/`[(` unmatched brace/paren ·
+`]%`/`[%` matchit · `g;`/`g,` changelist. unimpaired: `yos` spell, `yow` wrap, `yoh`
+hlsearch, `yon` number, `yor` relativenumber, `yol` list, `yod` diffthis · `]p`/`[p`
+indent-adjusted paste · `]<Space>`/`[<Space>` blank lines · `<Leader>j`/`<Leader>k` move
+line (`]e`/`[e` still move a *visual* selection).
+
+**In a diff/patch buffer** `]]`/`[[` next/prev file, `]d`/`[d` next/prev `@@` hunk.
 
 **Windows / tabs / buffers** `<C-h/j/k/l>` navigate (tmux-aware) · `<C-arrow>`
 resize · `<Tab>`/`<S-Tab>` cycle buffers · `]t`/`[t` tabs · `<leader>tc` close tab ·
@@ -120,6 +149,56 @@ startify buffer fails to restore (`E121: g:startify_header`).
 
 **Signs** come from vim-signify over git *and hg* (fbsource is Sapling), through
 `bin/sy-diff.sh` so untracked files show as all-added.
+
+**Structural text objects come from clangd's AST, not from a parser we wrote.** There is
+no treesitter in Vim 9.1, but `textDocument/selectionRange` returns the *ancestry* of the
+cursor, and that chain contains the enclosing block, conditional and loop as exact ranges.
+`CocAction('selectionRanges')` hands it to vimscript — measured 3.1 ms on a kernel `.c`,
+cheaper than the 14.8 ms `documentSymbols` round-trip `af`/`if` already pay. This is a
+*different* API from `selectSymbolRange`, which backs coc's funcobj/classobj: that one is
+`documentSymbol`-based, and LSP `SymbolKind` has no loop or conditional, so it can never
+produce these. The hand-written alternative was scoped at ~850 lines and still got
+do-while, dangling `else` and `list_for_each_entry` wrong — tree-sitter gets the last one
+wrong too. When there is no server, `ao`/`io` fall back to the enclosing `{…}`.
+
+**`al`/`il` is a trap.** targets.vim maps only the bare `i`/`a` as `<expr>` and consumes
+the following keys itself, so `l` is its *"last"* modifier, not an object. Binding `il`
+makes it a complete match and silently kills the whole `il(` / `al)` / `ilt` / `ila`
+family. `ao`/`io` are free of targets' triggers and modifiers and of every Vim builtin.
+
+**`]f`/`[f` are just `]]`/`[[`.** In kernel C the opening brace is in column 0, which is
+exactly what the section motions match, and they already honour counts and already push
+the jumplist, so `<C-o>` comes back. Not `]m`/`[m` — those are brace-based and Java-shaped,
+and in C they land inside the function on things like `while (1) {`. Keep these `noremap`:
+under `map` they would pick up each ftplugin's own `]]`, which sounds like an upgrade but
+means `]f` skips every method in a Python class (python.vim puts per-def motion on `]m`,
+not `]]`) and changes axis in Markdown. The buffer-local `]]` that `56-` sets in diff
+buffers is invisible to `]f` for the same reason — `noremap` does not re-map the rhs.
+
+**Mapping `[` and `]` for which-key needs `g:which_key_fallback_to_native_key = 1`.** It
+defaults to 0 (`plugin/which_key.vim:25`), and at 0 an unmapped follow-key hits
+`which_key#error#undefined_key()` and runs *nothing* — which silently kills every unmapped
+bracket builtin (`]]`, `][`, `]#`, `]/`, `]}`, `])`, `]s`, `]z`, `]m`). Registering a plain
+*string* description for such a key is safe: `s:handle_char_on_start` type-tests the value,
+and a string falls through to the `elseif g:which_key_fallback_to_native_key` branch, so the
+builtin still fires and still gets a label. Verified in a pty: `]]` → the col-0 brace, `]#`
+→ the `#else`. `s:create_runtime()` merges the registered dict *over* the parsed native
+maps, so the dicts in `30-` do not need to stay exhaustive to stay correct.
+
+**`]i`/`[i` is indentation, not syntax, and that is the point.** It needs no parser, so one
+implementation behaves the same in Python, YAML, JSON, Markdown lists, Makefiles and braced
+C. It skips blank lines and lone closing delimiters, so `}` is not a peer of the statements
+above it, and stops at the first line that dedents. It shadows the builtin `[i`/`]i`
+(keyword lookup through `'path'` includes) — but only in normal mode, since that builtin has
+no visual or operator form, and `:ilist`/`:isearch` still exist.
+
+**`]r`/`[r` uses the LSP, not a text search.** `CocAction('symbolRanges')` returns the
+documentHighlight ranges coc already computes on every `CursorHold` (`50-coc.vim:337`), so
+it matches the *symbol*, not the string — a `\<ret\>` search would hit every unrelated local
+plus comments and strings. Falls back to a whole-word search with no server, and either way
+saves and restores `@/` so it does not clobber the search you were in the middle of.
+Cost: vimtex owns `]r`/`[r` in `.tex` (next `\begin{frame}`) and yields to a pre-existing
+global map, so that motion is lost there.
 
 ---
 
@@ -176,6 +255,36 @@ Harness traps, all hit for real:
   that only checks resolved attributes reports a clean "0 bold, 0 italic" while
   links are already destroyed. Test against Vim's built-ins (`koehler`, `desert`,
   `elflord`, `industry`), which lean hardest on default links.
+
+Text objects and mappings add their own traps, all hit for real:
+
+- **`:normal!` bypasses omap/xmap.** A test written as `normal! daf` silently exercises
+  Vim's *builtins* and passes vacuously. Drop the bang. Also never bar-chain after
+  `:normal` — it swallows the rest of the line including the `|`.
+- **Assert into a named register.** `20-mappings.vim` lists the unnamed register in
+  `s:osc_yank_regs`, so a plain `yaf` in a test sprays OSC 52 escape bytes into stdout.
+  Use `"zy…` plus `getreg('z')` / `getregtype('z')` — the regtype is how you catch a
+  charwise/linewise mismatch.
+- **`maparg()` is the wrong probe for bracket keys.** It cannot see builtins (`]c` in
+  diff mode looks free but is not), and under `-es` it cannot see vim-unimpaired at all,
+  because `95-` defers it to `SafeState` and `-es` never gets there. A headless collision
+  audit reports every contested key as free. Force `plug#load('vim-unimpaired')` first.
+- **The jumplist dedups.** Testing a motion from line 1 shows no growth when line 1 is
+  already the top entry, which reads as "this motion doesn't set jumps". Start from a
+  line that is not already on the list, and assert on where `<C-o>` lands.
+- **Anything coc-backed needs a pty**, and the obvious readiness probe lies:
+  `exists('*CocAction')` and `g:did_coc_loaded` are both true under `-es` while the node
+  service never started, so calls throw `coc.nvim not ready`. Split the suite — `-es` for
+  builtins and pure vimscript, `script -qfc` with a `timer_start` delay for LSP paths.
+- **targets.vim's `ia`/`aa` is a silent no-op under `-es`** even though its siblings
+  (`ab`, `i(`, `iB`) work, because `targets#e()` reads keys with `getchar()`. A headless
+  `@parameter` suite goes green while proving nothing.
+- **which-key needs a pty too**, for the same `getchar()` reason. To check that a bracket
+  builtin survived, drive it with `script -qfc "vim -n -u ~/.vimrc -s keys.in file"` and a
+  keyfile of literal keystrokes, then assert on a variable you set from the keyfile.
+- **Check the fixture before believing a failure.** A `2]r` assertion here "failed" only
+  because two `kern.c` fixtures differed by one line; the code was right. Re-read the file
+  under test before changing code to satisfy a test.
 
 ---
 
