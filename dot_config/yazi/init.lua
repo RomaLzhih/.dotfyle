@@ -4,7 +4,7 @@
 -- ya pkg add yazi-rs/plugins:full-border
 -- ya pkg add h-hg/yamb
 
-require("relative-motions"):setup({ show_numbers = "relative", show_motion = true, enter_mode = "first" })
+-- require("relative-motions"):setup({ show_numbers = "relative", show_motion = true, enter_mode = "first" })
 
 require("full-border"):setup({
 	type = ui.Border.ROUNDED,
