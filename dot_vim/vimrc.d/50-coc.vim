@@ -7,8 +7,8 @@ set cmdheight=1
 set updatetime=300
 set shortmess+=c
 if has("nvim-0.5.0") || has("patch-8.1.1564")
-    " No signcolumn=yes:N in this build, so one always-on column; VCS signs win
-    " the slot via g:signify_priority below.
+    " No signcolumn=yes:N in this build, so one always-on column; marks and
+    " diagnostics win the slot over VCS signs via g:signify_priority below.
     set signcolumn=yes
 else
     set signcolumn=yes
@@ -19,8 +19,10 @@ endif
 " g:signify_vcs_list is dead upstream; g:signify_skip is the supported knob, and
 " without it the backend list is every installed VCS, not the two intended.
 let g:signify_skip = { 'vcs': { 'allow': ['git', 'hg'] } }
-" Beat vim-signature/vim-bookmarks (priority 10) to the single signcolumn slot.
-let g:signify_priority = 11
+" Stay below vim-signature marks, vim-bookmarks and coc diagnostics (all
+" priority 10) so they show on a changed line; a hunk sign is the least
+" informative thing that can occupy the single signcolumn slot.
+let g:signify_priority = 5
 
 " git/hg emit no diff for untracked files, so a wrapper renders them all-added,
 " matching coc-git. See ~/.vim/bin/sy-diff.sh
@@ -306,6 +308,15 @@ function! s:PeekDefinition() abort
     " the top; clamped for definitions near the start of the file.
     let l:above = min([get(g:, 'peek_context_above', 3), l:def_in_popup - 1])
     call win_execute(l:winid, 'setlocal scrolloff=0')
+" The popup wraps (popup_create defaults to wrap=1) but starts continuation lines
+" at column 0, so a long statement nested three levels deep reads as top-level --
+" the indentation looks broken. 'breakindent' carries the indent onto the wrap;
+" 'showbreak' keeps a continuation distinguishable from a real line at that
+" depth, and 'sbr' puts the marker before the carried indent rather than after.
+" 'linebreak' stops the split landing mid-identifier, as nvim does (which never
+" hits this because LazyVim sets nowrap).
+call win_execute(l:winid, 'setlocal breakindent linebreak '
+      \ . 'breakindentopt=sbr showbreak=' . escape(get(g:, 'peek_showbreak', '> '), ' \\|"'))
     call win_execute(l:winid, printf('call winrestview({"lnum": %d, "col": 0, "topline": %d})',
           \ l:def_in_popup, l:def_in_popup - l:above))
     if !empty(l:ft)
@@ -341,12 +352,86 @@ nmap <leader>rn <Plug>(coc-rename)
 nmap <leader>il :CocCommand document.toggleInlayHint <CR>
 nmap <leader>ic :call CocAction('showIncomingCalls') <CR>
 nmap <leader>oc :call CocAction('showOutgoingCalls') <CR>
+" ---- close a call tree after jumping to an entry ----
+" Call trees only. The outline shares the 'coctree' filetype but is a pinned
+" sidebar, so the two are told apart by their header line: 'INCOMING CALLS' /
+" 'OUTGOING CALLS' against 'OUTLINE ...'.
+" coc owns the tree's <CR>. It installs a buffer-local map over RPC carrying a
+" per-buffer id, 'local-<n>-n-<base64 of the key>', so the id is read back out
+" of the mapping and re-fired here rather than hardcoded -- <n> changes per
+" buffer. Armed from BufEnter, not FileType: coc has not registered the keymap
+" when FileType fires, and the tree takes focus as it opens, so BufEnter always
+" beats the first <CR>.
+function! s:CocTreeArmClose() abort
+  if &filetype !=# 'coctree' || get(b:, 'coctree_close_armed', 0)
+    return
+  endif
+  if getline(1) !~# '^\%(INCOMING\|OUTGOING\) CALLS'
+    return
+  endif
+  " maparg() hands back the rhs in key notation, so the separators are the literal
+  " text '<space>', not spaces:
+  "   :<C-U>call<space>coc#rpc#notify('doKeymap',<space>['local-2-n-...'])<CR>
+  " Hence a non-greedy gap rather than \s*. Single-quoted so the backslashes
+  " survive: a double-quoted Vim string drops unrecognised escapes.
+  let l:id = matchstr(get(maparg('<CR>', 'n', 0, 1), 'rhs', ''),
+        \ 'doKeymap''.\{-}\[''\zs[^'']\+')
+  if l:id ==# ''
+    return
+  endif
+  let b:coctree_cr_id = l:id
+  let b:coctree_close_armed = 1
+  nnoremap <silent><nowait><buffer> <CR> :call <SID>CocTreeJumpClose()<CR>
+endfunction
+
+" coc registers the tree's keymaps over RPC, so they are not there yet when
+" FileType fires -- and because the tree takes focus as it opens, BufEnter does
+" not come round a second time to catch them. Hence a retry, which also waits out
+" the header line being filled in. Stops as soon as it arms, when focus leaves
+" the tree, or after ~2s.
+function! s:CocTreeArmRetry(buf, tries, timer) abort
+  if bufnr('%') !=# a:buf || get(b:, 'coctree_close_armed', 0)
+    return
+  endif
+  call s:CocTreeArmClose()
+  if !get(b:, 'coctree_close_armed', 0) && a:tries < 20
+    call timer_start(100, function('s:CocTreeArmRetry', [a:buf, a:tries + 1]))
+  endif
+endfunction
+
+" The jump is asynchronous and lands in the other window (measured well under
+" 200ms), so the close waits for focus to actually leave the tree. Closing right
+" after the notify races it, and the location opens into the freed space instead.
+function! s:CocTreeJumpClose() abort
+  let l:tree = win_getid()
+  call coc#rpc#notify('doKeymap', [b:coctree_cr_id])
+  call timer_start(50, function('s:CocTreeCloseWhenLeft', [l:tree, 0]))
+endfunction
+
+function! s:CocTreeCloseWhenLeft(tree, tries, timer) abort
+  if win_getid() ==# a:tree
+    " still in the tree: the jump has not landed. ~2s of retries, then give up
+    " rather than close a window the user has gone back to on purpose.
+    if a:tries < 40
+      call timer_start(50, function('s:CocTreeCloseWhenLeft', [a:tree, a:tries + 1]))
+    endif
+    return
+  endif
+  let l:nr = win_id2win(a:tree)
+  if l:nr > 0
+    execute l:nr . 'close'
+  endif
+endfunction
+
 " NOTE: no `autocmd!` -- it would wipe the CursorHold entry above.
 augroup vimrc_coc_extra
   autocmd FileType coctree nnoremap <silent><buffer> q :close<CR>
   " One symbol per line in a narrow split, so wrapping breaks the tree indent.
   " Here rather than 10-'s nowrap list because coc's hover windows are prose.
   autocmd FileType coctree setlocal nowrap
+  autocmd BufEnter * call s:CocTreeArmClose()
+  autocmd FileType coctree call timer_start(100,
+        \ function('s:CocTreeArmRetry', [bufnr('%'), 0]))
 augroup END
 
 augroup mygroup

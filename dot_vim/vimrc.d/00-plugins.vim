@@ -77,7 +77,6 @@ Plug 'ku1ik/vim-monokai', { 'on': [] }
 Plug 'nanotech/jellybeans.vim', { 'on': [] }
 Plug 'embark-theme/vim', { 'as': 'embark', 'on': [] }
 Plug 'srcery-colors/srcery-vim', {'on': []}
-Plug 'EdenEast/nightfox.nvim', {'on': []}
 Plug 'lunacookies/vim-colors-xcode', {'on': []}
 
 " Also runs `filetype plugin indent on` and `syntax enable`.

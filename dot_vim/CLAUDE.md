@@ -142,8 +142,10 @@ plugins register their own `ColorScheme` handlers later and re-add italics
 `<leader>th` picker lists all.
 
 **Sessions** are one file per project in `~/.local/state/vim/sessions`, named from
-the cwd. `:Session` once per project; after that it loads on entry (VimEnter) and
-rewrites on exit. Persistence writes only at `VimLeavePre`, so a SIGKILL loses the
+the cwd. Nothing loads on entry: a bare start shows the start screen and `p` there runs
+`:SessionLoad` (`g:vimrc_session_autoload = 1` restores at VimEnter instead). A
+loaded session rewrites on exit; a bare run that did *not* load an existing
+session never overwrites it, only `w`/`:Session` does. Persistence writes only at `VimLeavePre`, so a SIGKILL loses the
 session's changes. The start screen is wiped before saving — a session containing a
 startify buffer fails to restore (`E121: g:startify_header`).
 

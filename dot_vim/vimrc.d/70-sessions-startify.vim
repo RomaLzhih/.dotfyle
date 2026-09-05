@@ -49,13 +49,15 @@ if !exists('g:startify_header')
   let g:startify_header = []
 endif
 
-" Auto-load this project's session when Vim starts bare, so :Session is a one-off.
-" g:startify_session_autoload can't do it: that only sources ./Session.vim.
-" Runs before startify's VimEnter, which then skips its start screen by itself.
-" Set g:vimrc_session_autoload = 0 to load by hand instead.
+" Optionally auto-load this project's session when Vim starts bare.
+" OFF by default: a bare start shows the start screen, and `p` there (:SessionLoad)
+" restores the session on request. Set g:vimrc_session_autoload = 1 to restore
+" on entry instead; that runs before startify's VimEnter, which then skips its
+" start screen by itself. g:startify_session_autoload can't do either: it only
+" sources ./Session.vim.
 function! s:SessionAutoload() abort
   " argc(): `vim foo.c` asked for something specific. v:this_session: `vim -S`.
-  if !get(g:, 'vimrc_session_autoload', 1) || argc() || !empty(v:this_session)
+  if !get(g:, 'vimrc_session_autoload', 0) || argc() || !empty(v:this_session)
     return
   endif
   " startify's own "still the empty scratch buffer" test; leaves `vim -` alone.
@@ -68,9 +70,61 @@ function! s:SessionAutoload() abort
   endif
 endfunction
 
+" Save this project's session on exit even when one was never created by hand.
+" startify's persistence only rewrites a session that is already ACTIVE: its
+" s:on_vimleavepre() gates on filewritable(v:this_session), so the first
+" :Session per project was always manual. Mirrors nvim, where LazyVim's
+" persistence.nvim is lazy on BufReadPre and likewise only records a project
+" once a real file has been opened there.
+" Set g:vimrc_session_autosave = 0 to go back to manual-first.
+function! s:SessionWorthSaving() abort
+  let l:real = 0
+  for l:b in getbufinfo({'buflisted': 1})
+    if empty(l:b.name) || !empty(getbufvar(l:b.bufnr, '&buftype'))
+      continue
+    endif
+    " Vim as git's editor: COMMIT_EDITMSG, MERGE_MSG and the rebase todo all sit
+    " under .git/. Saving then would replace a good project session with a
+    " one-file scratch -- `vim <file>` never autoloads, so v:this_session is
+    " empty and nothing else would stop it. Every `git commit` would clobber it.
+    if l:b.name =~# '/\.git/'
+          \ || getbufvar(l:b.bufnr, '&filetype') =~# '^git\%(commit\|rebase\)$'
+      return 0
+    endif
+    let l:real = 1
+  endfor
+  return l:real
+endfunction
+
+function! s:SessionAutosave() abort
+  " A live session is startify's job; doing it here too would just write twice.
+  if !get(g:, 'vimrc_session_autosave', 1) || !empty(v:this_session)
+    return
+  endif
+  " Only a Vim that started bare owns this project's session, the same test
+  " s:SessionAutoload() uses. `vim <file>` is a visit, not the project: letting
+  " it write would replace a five-file session with whatever single file you
+  " opened to glance at. Recorded at VimEnter because :args can change argc().
+  if !get(s:, 'started_bare', 0)
+    return
+  endif
+  " A session already exists and was NOT loaded this run (v:this_session is
+  " empty here). Without autoload that is the normal case, and writing now would
+  " replace the saved layout with whatever was opened since the start screen.
+  " Replacing it on purpose is `w` on the start screen or :Session.
+  if filereadable(g:startify_session_dir . '/' . s:ProjectSessionName())
+    return
+  endif
+  if s:SessionWorthSaving()
+    silent Session
+  endif
+endfunction
+
 augroup vimrc_sessions
   autocmd!
+  autocmd VimEnter * ++once let s:started_bare = argc() == 0
   autocmd VimEnter * ++once call s:SessionAutoload()
+  autocmd VimLeavePre * call s:SessionAutosave()
 augroup END
 
 " ---- start screen ----

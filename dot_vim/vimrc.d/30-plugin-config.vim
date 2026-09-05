@@ -402,6 +402,12 @@ augroup vimrc_plugins
 augroup END
 
 nnoremap <Leader>fj :Jumps<CR>
+" Same fzf command on a second key, by request. Note the cost: it makes
+" <Leader>j (unimpaired-move-down, 20-mappings.vim) a prefix, so that key now
+" waits out 'timeoutlen' -- 200ms, set in 10-options.vim -- before it moves a
+" line. Nothing else starts with <Leader>j. Drop whichever of the two you do
+" not use to get the immediate <Leader>j back.
+nnoremap <Leader>jp :Jumps<CR>
 " Moved off <Leader>fm, which is :Format in 50-coc.vim (k = marK).
 nnoremap <Leader>fk :Marks<CR>
 
@@ -467,8 +473,14 @@ let g:floaterm_keymap_kill   = '<F4>'
 let g:floaterm_keymap_toggle = '<C-g>'
 tnoremap   <silent>   <C-x>   <C-\><C-n>
 
+" --autoclose must be a STRING now: 'never'/'smart'/'always'. The old numeric API
+" survives only for the global g:floaterm_autoclose, which plugin/floaterm.vim:26-30
+" maps 0/1/2 onto at load time. A --autoclose= argument is stored verbatim
+" (cmdline.vim:31) and terminal.vim:60 tests it with ==# 'smart' / ==# 'always', so
+" '2' matched nothing and the close branch never ran -- lazygit exited on `q` and
+" left its dead terminal buffer on screen.
 function! LazyGitFloaterm()
-    FloatermNew --height=0.9 --width=0.9 --wintype=float --position=center --autoclose=2 lazygit
+    FloatermNew --height=0.9 --width=0.9 --wintype=float --position=center --autoclose=always lazygit
 endfunction
 nnoremap <leader>lg :call LazyGitFloaterm()<CR>
 
@@ -672,7 +684,7 @@ endfunction
 " vim-bookmarks has no order: the list is re-derived from (file, line) and
 " serialize() only writes sign_idx/line_nr/content/annotation, so an extra field
 " would be dropped -- the plugin reloads from disk on every BufEnter. The order
-" therefore lives in a side file of sign_idx values, the one attribute that is both
+" therefore lives in a side file of keys built from the attributes that are both
 " stable while editing and round-tripped by the plugin's save format.
 " Advisory: unlisted bookmarks sort last, dead entries are dropped, and deleting
 " the file just restores positional order.
@@ -682,54 +694,84 @@ function! s:BookmarkOrderFile() abort
         \ : g:bookmark_dir . '/global.vim-bookmarks.order'
 endfunction
 
+" The key is file + sign_idx, NOT sign_idx alone: sign_idx is unique only WITHIN
+" a file. g:bm_sign_index advances only when a sign is actually placed, and
+" s:add_missing_signs() places signs for the current buffer only -- so after a
+" restart the counter has never seen the bookmarks in files you have not opened,
+" and hands the next new bookmark an id another file is already using. Keying on
+" the bare id then collapsed every colliding bookmark onto one entry, so the list
+" stopped growing past however many ids happened to be unique. str2nr() because
+" the plugin's own refresh rebuilds from keys(): '9501' and 9501 must agree.
+function! s:BookmarkKey(file, sign_idx) abort
+  return a:file . "\t" . str2nr(a:sign_idx)
+endfunction
+
 function! s:BookmarkOrderGet() abort
   if get(s:, 'bookmark_order_cwd', '') !=# getcwd()
     let s:bookmark_order_cwd = getcwd()
     let l:file = s:BookmarkOrderFile()
+    " Legacy order files held bare sign_idx numbers, which are ambiguous across
+    " files. They carry no tab, so they drop out here -- one reset to positional.
     let s:bookmark_order = filereadable(l:file)
-          \ ? filter(map(readfile(l:file), 'str2nr(v:val)'), 'v:val > 0')
+          \ ? filter(readfile(l:file), 'v:val =~# "\t"')
           \ : []
   endif
   return s:bookmark_order
 endfunction
 
-function! s:BookmarkOrderPut(sign_idxs) abort
+function! s:BookmarkOrderPut(keys) abort
   " Never persist an empty order: the plugin drops and reloads its whole model on
   " every BufEnter, so a render catching it mid-reload would truncate the file.
-  if empty(a:sign_idxs) || s:BookmarkOrderGet() ==# a:sign_idxs
+  if empty(a:keys) || s:BookmarkOrderGet() ==# a:keys
     return
   endif
-  let s:bookmark_order = copy(a:sign_idxs)
-  call writefile(map(copy(a:sign_idxs), 'string(v:val)'), s:BookmarkOrderFile())
+  let s:bookmark_order = copy(a:keys)
+  call writefile(a:keys, s:BookmarkOrderFile())
 endfunction
 
 " Every bookmark as {'file','bm','idx'} in display order: saved order first, then
 " the rest positionally. str2nr() because the plugin's own refresh rebuilds from
 " keys(), turning sign_idx into a string that would persist as quoted junk.
 function! s:BookmarkEntries() abort
-  let l:by_idx = {}
+  let l:by_key = {}
   let l:positional = []
   for l:file in sort(bm#all_files())
     for l:line_nr in sort(bm#all_lines(l:file), 'bm#compare_lines')
       let l:bm = bm#get_bookmark_by_line(l:file, l:line_nr)
-      let l:idx = str2nr(l:bm.sign_idx)
-      let l:by_idx[l:idx] = {'file': l:file, 'bm': l:bm, 'idx': l:idx}
-      call add(l:positional, l:idx)
+      let l:key = s:BookmarkKey(l:file, l:bm.sign_idx)
+      let l:by_key[l:key] = {'file': l:file, 'bm': l:bm, 'key': l:key}
+      call add(l:positional, l:key)
     endfor
   endfor
   let l:entries = []
   let l:taken = {}
-  for l:idx in s:BookmarkOrderGet() + l:positional
-    if has_key(l:by_idx, l:idx) && !has_key(l:taken, l:idx)
-      let l:taken[l:idx] = 1
-      call add(l:entries, l:by_idx[l:idx])
+  for l:key in s:BookmarkOrderGet() + l:positional
+    if has_key(l:by_key, l:key) && !has_key(l:taken, l:key)
+      let l:taken[l:key] = 1
+      call add(l:entries, l:by_key[l:key])
     endif
   endfor
   return l:entries
 endfunction
 
 " Rewrite in place, keeping the qf list and title so 1-9 and detection still work.
+" Re-entry guard: setqflist() on a visible qf window re-fires FileType qf, which
+" lands back in s:BookmarkQfMaps() and calls this again. Reached from a mapping
+" rather than from inside an autocmd (K/J/dd) that nests until Vim aborts the
+" whole call with E952, so the reorder applied but always threw on the way out.
 function! s:BookmarkQfRender() abort
+  if get(s:, 'bookmark_rendering', 0)
+    return
+  endif
+  let s:bookmark_rendering = 1
+  try
+    call s:BookmarkQfRenderInner()
+  finally
+    let s:bookmark_rendering = 0
+  endtry
+endfunction
+
+function! s:BookmarkQfRenderInner() abort
   let l:entries = s:BookmarkEntries()
   let l:lines = []
   for l:entry in l:entries
@@ -744,7 +786,7 @@ function! s:BookmarkQfRender() abort
         \ 'efm':   '%f:%l:%m',
         \ 'title': ':cgetexpr bm#location_list()',
         \ })
-  call s:BookmarkOrderPut(map(copy(l:entries), 'v:val.idx'))
+  call s:BookmarkOrderPut(map(copy(l:entries), 'v:val.key'))
 endfunction
 
 " The explicit save matters: the plugin only auto-saves on BufLeave/VimLeave but
@@ -776,9 +818,9 @@ function! s:BookmarkQfMove(delta) abort
   if l:to < 0 || l:to >= len(l:entries)
     return
   endif
-  let l:idxs = map(copy(l:entries), 'v:val.idx')
-  call insert(l:idxs, remove(l:idxs, l:from), l:to)
-  call s:BookmarkOrderPut(l:idxs)
+  let l:keys = map(copy(l:entries), 'v:val.key')
+  call insert(l:keys, remove(l:keys, l:from), l:to)
+  call s:BookmarkOrderPut(l:keys)
   call s:BookmarkQfReload(l:to + 1)
 endfunction
 
@@ -846,8 +888,18 @@ augroup END
 " everywhere for the session once a .tex was opened. b:indentLine_enabled is checked
 " before indentLine touches 'conceallevel', so vimtex's conceal setup is still left
 " alone -- which was the point of the original line.
+" markdown is in that list for the opposite reason: 'conceallevel' must stay 0 so
+" vim-markdown leaves **bold**, `code` and [link](url) markup visible. indentLine
+" would set it to 2 on BufWinEnter, and s:SetConcealOption() saves the pre-existing
+" value first, so a bare FileType 'setlocal conceallevel=0' would only be recorded
+" and then overwritten. Nothing is lost: indentLine's guides are conceal-based and
+" cannot draw at level 0 anyway.
 augroup vimrc_plugins
-  autocmd FileType tex,bib let b:indentLine_enabled = 0
+  autocmd FileType tex,bib,markdown let b:indentLine_enabled = 0
+  " Still needed alongside the above: 'conceallevel' is window-local, so a 2 leaks
+  " in from whatever buffer the window showed before. Disabling indentLine only
+  " stops it being set, it cannot bring an inherited 2 back down.
+  autocmd FileType markdown setlocal conceallevel=0
 augroup END
 
 " ---- indent guides for TAB-indented files ----
