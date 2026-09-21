@@ -308,20 +308,31 @@ function! s:PeekDefinition() abort
     " the top; clamped for definitions near the start of the file.
     let l:above = min([get(g:, 'peek_context_above', 3), l:def_in_popup - 1])
     call win_execute(l:winid, 'setlocal scrolloff=0')
-" The popup wraps (popup_create defaults to wrap=1) but starts continuation lines
-" at column 0, so a long statement nested three levels deep reads as top-level --
-" the indentation looks broken. 'breakindent' carries the indent onto the wrap;
-" 'showbreak' keeps a continuation distinguishable from a real line at that
-" depth, and 'sbr' puts the marker before the carried indent rather than after.
-" 'linebreak' stops the split landing mid-identifier, as nvim does (which never
-" hits this because LazyVim sets nowrap).
-call win_execute(l:winid, 'setlocal breakindent linebreak '
-      \ . 'breakindentopt=sbr showbreak=' . escape(get(g:, 'peek_showbreak', '> '), ' \\|"'))
+    " The popup wraps (popup_create defaults to wrap=1) but starts continuation lines
+    " at column 0, so a long statement nested three levels deep reads as top-level --
+    " the indentation looks broken. 'breakindent' carries the indent onto the wrap;
+    " 'showbreak' keeps a continuation distinguishable from a real line at that
+    " depth, and 'sbr' puts the marker before the carried indent rather than after.
+    " 'linebreak' stops the split landing mid-identifier, as nvim does (which never
+    " hits this because LazyVim sets nowrap).
+    call win_execute(l:winid, 'setlocal breakindent linebreak '
+          \ . 'breakindentopt=sbr showbreak=' . escape(get(g:, 'peek_showbreak', '> '), ' \\|"'))
     call win_execute(l:winid, printf('call winrestview({"lnum": %d, "col": 0, "topline": %d})',
           \ l:def_in_popup, l:def_in_popup - l:above))
     if !empty(l:ft)
       call win_execute(l:winid, 'setlocal filetype=' . l:ft)
     endif
+    " Tab width comes from the buffer the definition lives in. A popup buffer starts
+    " at Vim's DEFAULTS, not the global values -- ts=8, not the ts=4 from 10- -- and
+    " sleuth skips buftype=popup, so a tab-indented file peeked at twice the width
+    " the editor shows it. After 'filetype', since an ftplugin may set 'tabstop'.
+    " An unloaded target falls back to the current buffer: almost always the same
+    " project, so the same style. noautocmd: OptionSet tabstop would run indentLine's
+    " setup in the popup (conceallevel=2, guides spaced by the popup's default sw=8)
+    " and context.vim's update.
+    let l:src = l:bnr > 0 && bufloaded(l:bnr) ? l:bnr : bufnr('%')
+    call win_execute(l:winid, 'noautocmd setlocal tabstop=' . getbufvar(l:src, '&tabstop')
+          \ . (exists('+vartabstop') ? ' vartabstop=' . getbufvar(l:src, '&vartabstop') : ''))
     let s:peek_marked_line = -1
     call s:PeekMark(l:winid)
   endif
