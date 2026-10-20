@@ -14,6 +14,10 @@ zsh-nvm
 zsh-syntax-highlighting
 )
 
+# We set the terminal/tab title ourselves (see the title hooks lower down), so
+# stop oh-my-zsh from overwriting it with the running command (e.g. "tmux new").
+DISABLE_AUTO_TITLE="true"
+
 source $ZSH/oh-my-zsh.sh
 
 HEADLINE_USER_PREFIX=' '
@@ -107,3 +111,120 @@ export FZF_CTRL_R_OPTS="
   --header 'Press CTRL-Y to copy command into clipboard'"
 
 
+
+# Mail account profiles for mutt
+alias mutt-personal="mutt -F ~/.config/mutt/personal.muttrc"
+alias mutt-gmail="mutt -F ~/.config/mutt/personal.muttrc"  # personal Gmail
+alias mutt-ucr="mutt -F ~/.config/mutt/muttrc"             # UCR (Google Workspace)
+
+# --- Daily tmux workspace ---------------------------------------------------
+# Layout: 0 yazi | 1 cal (this week, gcalcli) | 2 mail (mutt UCR left, personal right) | 3 zulip
+# claude is not auto-started; open it yourself in any extra window.
+#
+#   daily          build or re-attach the layout (idempotent)
+#   C-b G          same, from inside tmux
+#   C-b F          repair panes broken by sleep, right now
+#   (automatic)    sleepwatcher runs the same repair ~25s after every wake
+#
+# Forgot the keys? Run `daily-help`.
+alias daily="~/code/daily_workflow/daily-layout.sh"
+
+daily-help() {
+    cat <<'EOF'
+daily tmux workspace
+  layout    0 yazi | 1 cal (this week, gcalcli) | 2 mail (mutt UCR | mutt personal) | 3 zulip
+            claude is not auto-started; extra windows are left alone
+
+  daily         build or re-attach the layout (idempotent)
+  C-b G         same, from inside tmux
+  C-b F         repair panes broken by sleep, right now
+  automatic     sleepwatcher repairs ~25s after every wake
+
+  A repair announces "daily: repair done -- ..." when it finishes.
+
+  Repair restarts both mutt panes, zulip and cal every time, no health check --
+  a slept app looks healthy from outside, so checking it was unreliable.
+  yazi is never touched, and neither is a mutt pane with a compose open.
+
+  An app already running is adopted, never duplicated: start zulip-term or
+  mutt by hand and the next run tags that one instead of opening a second.
+
+  source    ~/code/daily_workflow    (scripts + CLAUDE.md notes)
+  log       ~/.cache/tmux-daily-repair.log
+  service   brew services list | grep sleepwatcher
+EOF
+}
+
+# --- tmux: name each window after the command being run, not the interpreter ---
+# Inside tmux $TERM is xterm-ghostty, so oh-my-zsh only sets the *pane* title (OSC 2);
+# the window name falls back to the process name (Python/node). Set it directly instead.
+if [[ -n "$TMUX" ]]; then
+    autoload -Uz add-zsh-hook
+
+    _tmux_name_preexec() {
+        local -a w=(${(z)1})          # split the typed command into words
+        local cmd=${w[1]:t}           # first word, path stripped: /opt/.../zulip-term -> zulip-term
+        tmux rename-window -- "${cmd:-zsh}"
+    }
+    _tmux_name_precmd() {
+        # back at the prompt: hand the name back to tmux's automatic rename
+        tmux set-window-option -q automatic-rename on
+    }
+
+    add-zsh-hook preexec _tmux_name_preexec
+    add-zsh-hook precmd  _tmux_name_precmd
+fi
+
+# --- Terminal tab title: home-relative path, or the ssh HOST while ssh'd ---
+# The title is applied through whichever mechanism survives a remote session, so
+# an ssh'd host stays pinned instead of being replaced by the remote's own
+# command titles:
+#   * kitty       -> an explicit tab title via `kitten @` (overrides window OSC)
+#   * inside tmux -> a pane user-option @tab_label the remote can't touch;
+#                    ~/.tmux.conf forwards it via set-titles-string "#{@tab_label}"
+#   * otherwise   -> a plain OSC 2 title (Ghostty, etc.)
+# Local:  /Users/ziyang/code/pb  ->  code/pb   (home itself shows "~")
+# SSH:    ssh [-p N] user@host    ->  ssh: user@host   (fixed for the session)
+autoload -Uz add-zsh-hook
+
+_term_apply_title() {
+    if [[ -n $TMUX ]]; then
+        [[ $1 == $_term_last_title ]] && return    # skip redundant work
+        _term_last_title=$1
+        tmux set -p @tab_label "$1" 2>/dev/null
+    elif [[ -n $KITTY_WINDOW_ID ]]; then
+        [[ $1 == $_term_last_title ]] && return
+        _term_last_title=$1
+        # kitten isn't always on PATH; fall back to the app bundle.
+        local kitten=${commands[kitten]:-/Applications/kitty.app/Contents/MacOS/kitten}
+        "$kitten" @ set-tab-title -- "$1" 2>/dev/null
+    else
+        print -n "\e]2;$1\a"                        # OSC 2 window/tab title
+    fi
+}
+
+_term_path_title() {
+    local rel=${PWD/#$HOME/\~}          # /Users/ziyang/code/pb -> ~/code/pb
+    _term_apply_title "${rel#\~/}"      # -> code/pb   (home itself stays "~")
+}
+
+_term_title_precmd() { _term_path_title }
+
+_term_title_preexec() {
+    local -a w=(${(z)1})               # split the typed command into words
+    if [[ ${w[1]:t} == ssh ]]; then
+        # First non-flag word after ssh, skipping flags that take a value.
+        local prev="" target="" x
+        for x in ${w[2,-1]}; do
+            if [[ $prev == -[bcDEeFIiJLlmOopQRSWwB] ]]; then prev=""; continue; fi
+            if [[ $x == -* ]]; then prev=$x; continue; fi
+            target=$x; break
+        done
+        _term_apply_title "ssh: ${target:-remote}"
+    else
+        _term_path_title              # keep the path shown while a command runs
+    fi
+}
+
+add-zsh-hook precmd  _term_title_precmd
+add-zsh-hook preexec _term_title_preexec
