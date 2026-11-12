@@ -78,8 +78,8 @@ Plug 'nanotech/jellybeans.vim', { 'on': [] }
 Plug 'embark-theme/vim', { 'as': 'embark', 'on': [] }
 Plug 'srcery-colors/srcery-vim', {'on': []}
 Plug 'lunacookies/vim-colors-xcode', {'on': []}
-" Own pack: coffee, graphite, tokyonight, vga, phosphor. It has no plugin/ dir, so
-" nothing of it runs until one of those is picked.
+" Own pack: swan-coffee, swan-graphite, swan-tokyonight, swan-budapest, swan-vga and
+" swan-phosphor. It has no plugin/ dir, so nothing of it runs until one is picked.
 Plug 'RomaLzhih/vim-broadsheet', { 'on': [] }
 
 " Also runs `filetype plugin indent on` and `syntax enable`.
