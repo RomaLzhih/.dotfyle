@@ -21,12 +21,15 @@ Plugin manager: vim-plug. Companion Neovim config lives in `~/.config/nvim`.
 | `56-navigation.vim` | `]i`/`[i` + `ii`/`ai` indent, `]r`/`[r` occurrences, diff/patch maps |
 | `60-coc-semantic.vim` | theme-adaptive LSP semantic-token colours |
 | `70-sessions-startify.vim` | sessions and the start screen |
+| `80-obsidian.vim` | Obsidian vault: search, quick switch, follow-link, checkbox toggle, frontmatter on write |
 | `90-config-edit.vim` | `:Vimrc`, `:VimrcGrep` |
 | `95-deferred-plugins.vim` | idle-time loading of `{'on': []}` plugins. **Must be last** |
 
 Also: `autoload/airline/extensions/tabline/formatters/parentfile.vim` (tabline
 format — must live at that path, airline resolves formatters by autoload name),
-`coc-settings.json`, `bin/sy-diff.sh` (signify wrapper for untracked files).
+`coc-settings.json`, `bin/sy-diff.sh` (signify wrapper for untracked files),
+`after/syntax/markdown.vim` (the hook for `80-`'s Obsidian syntax items — it must
+live at that path too, see §4).
 
 **Load order is load-bearing.** Plugins register before anything configures them;
 `mapleader` before the maps that use it; the theme before 50-/60-, whose resolvers
@@ -64,6 +67,7 @@ anything here, and flag a collision rather than inventing a key. Deliberate
 divergences today: `]t`/`[t` (tabs here, unimpaired tags in nvim), `<Leader>tc`
 (nvim uses LazyVim's `<leader><tab>d`), visual `*`/`#`, `<Leader>:`, `]f`/`[f`
 (displaces unimpaired's directory nav), and `io` being linewise where mini.ai is charwise.
+The Obsidian port in `80-` has its own list, in §4.
 
 **Check what nvim actually *runs*, not what its config says.** The `textobjects = {…}`
 block in `~/.config/nvim/lua/plugins/treesitter.lua` is **dead code** — it sits in the opts
@@ -115,12 +119,18 @@ resize · `<Tab>`/`<S-Tab>` cycle buffers · `]t`/`[t` tabs · `<leader>tc` clos
 next/prev · `<leader>hc`/`<leader>hx` clear. In the list: `1-9` jump, `i` annotate,
 `dd` delete, `K`/`J` reorder.
 
+**Obsidian** `<leader>id` live-grep the vault, from any cwd; `i` on the start screen does
+the same. In a vault note only:
+`<CR>` follow the link under the cursor, else toggle the checkbox · `gf` follow the link,
+else the builtin · `<leader>ch` toggle the checkbox · `:w` adds missing frontmatter.
+
 **Misc** `<leader>th` theme picker · `<leader>ve` edit config · `<leader>vg` grep
 config · `<C-s>` yazi · `<C-g>` floaterm · `<leader>lg` lazygit · `<leader>c` OSC 52
 yank · `*`/`#` in visual mode search the selection
 
 **Commands** `:Vimrc[!]` `:VimrcGrep` `:Session` `:SessionLoad` `:Format` `:Fold`
 `:OR` `:Inspect` `:SemCheck` `:HistoryCwd` `:AsyncTaskFzf` `:WQ` `:W`
+`:ObsidianSearch` `:ObsidianQuickSwitch` `:ObsidianNew`
 
 ---
 
@@ -201,6 +211,49 @@ plus comments and strings. Falls back to a whole-word search with no server, and
 saves and restores `@/` so it does not clobber the search you were in the middle of.
 Cost: vimtex owns `]r`/`[r` in `.tex` (next `\begin{frame}`) and yields to a pre-existing
 global map, so that motion is lost there.
+
+**Obsidian support is a port of what nvim uses, not a plugin.** obsidian.nvim is Lua, so
+`80-` reimplements the subset the nvim config exercises — `:ObsidianSearch`,
+`:ObsidianQuickSwitch`, `:ObsidianNew`, the three default buffer maps and the frontmatter
+written on save — on fzf.vim and ripgrep, under the same command names and keys. The vault
+is `g:obsidian_vault`, the same path as nvim's `workspaces`; where that directory is missing
+the commands warn and the autocmds return on their first test. No language server:
+markdown-oxide and marksman exist to resolve note-to-note links, and the vault has none —
+every `[[…]]` in it is an image embed. Not ported, for the same reason: dailies, templates,
+backlinks, tags, rename, paste-image, completion.
+
+Deliberate differences from nvim, each marked `DIVERGES` in the file: `:ObsidianNew Title`
+names the file `Title.md` (nvim's default is a Zettel id); a URL or an embed under the
+cursor opens on the desktop through `g:obsidian_open_cmd` (nvim only warns on a URL, and
+for an embed offers to create a note called `image.png`); frontmatter is only ever *added
+to* — the block if there is none, then whichever of `id`/`aliases`/`tags` is missing —
+where nvim re-serialises and re-sorts the whole block; links resolve by file name or path,
+Obsidian's own rule, not by frontmatter `id` or alias; a heading anchor keeps its non-ASCII
+characters; and `:ObsidianQuickSwitch arg` treats the argument as a starting query.
+
+**`<CR>` in a vault note edits text.** It is obsidian.nvim's `smart_action`: off a link it
+toggles the checkbox, and on a line that is not a task it *makes* one. nvim does the same
+on the same key. The cycle is `g:obsidian_checkboxes`, nvim's default `[ ] [~] [!] [>] [x]`;
+`[p]` and `[c]` are outside it and are left alone.
+
+**The Obsidian syntax items hang off `after/syntax/markdown.vim`, not a `Syntax` autocmd.**
+The autocmd passes every first test. Then one `:syntax enable` re-sources `synload.vim`,
+whose `au! Syntax *` re-registers the runtime's own handler *behind* ours; from then on ours
+runs first and the runtime's `syntax clear` wipes what it added. The runtime sources
+`after/syntax/` itself, last, so there is no order to lose. It is the registration-order
+rule the `syntaxset` block at the top of `20-` relies on, from the losing side.
+
+**`<leader>ch` only works typed at speed**, exactly like `<leader>ca` and `<leader>cb`.
+`<leader>c` is a complete map of its own (the OSC 52 operator), so once the which-key popup
+is up, `c` resolves to that and the next key becomes its motion. Measured in a pty: slow
+`<Space>` `c` `b` does not start Goyo, fast `<Space>cb` does. `<CR>` is the dependable key.
+
+**The start screen's `i` is the vault search**, nvim's dashboard key. startify binds its
+entries after its own keys, so the entry takes over the builtin `i` (`:enew` + insert;
+`<Insert>` still does that, and `e` opens the empty buffer) — what the `s` entry already
+does to the split marker, against the advice in startify's docs. `80-` appends the entry
+rather than `70-` listing it: it is only wanted where the vault exists, so a machine
+without one keeps the builtin, and `70-` is sourced before the vault is known.
 
 ---
 
@@ -287,6 +340,28 @@ Text objects and mappings add their own traps, all hit for real:
 - **Check the fixture before believing a failure.** A `2]r` assertion here "failed" only
   because two `kern.c` fixtures differed by one line; the code was right. Re-read the file
   under test before changing code to satisfy a test.
+
+`80-obsidian.vim` added more, all hit for real:
+
+- **Never point a test at the real vault.** `:w` there rewrites frontmatter and Dropbox
+  syncs it. `80-` reads its settings with `get()`, so a fixture is two flags:
+  `--cmd "let g:obsidian_vault='/path/to/fixture'"` and
+  `--cmd "let g:obsidian_open_cmd=['/path/to/log-args.sh']"` — the second keeps a followed
+  link from opening a browser.
+- **`:normal` cannot start with a space**, and `mapleader` is Space. `execute "normal
+  \<Space>ch"` therefore runs `ch` — nothing in column 1, a deleted character anywhere
+  else — and the failure reads as a broken mapping. Use `call feedkeys("\<Space>ch", 'tx')`.
+- **A `Syntax` autocmd is not tested until `:syntax enable` has run a second time.** See §4.
+- **More than ten `-c`/`--cmd` arguments is a hard error** ("Too many +command"). Put the
+  script in a file and `-S` it.
+- **`:edit! file` discards the *current* buffer's changes, not the target's.** A hidden,
+  modified target comes back with its edits. Reloading from disk is `:edit file`, then a
+  bare `:edit!`.
+- **fzf needs time that a `-s keyfile` cannot give it.** `script` forwards stdin, so pace
+  the keys: `( sleep 3; printf ':ObsidianSearch\r'; sleep 3; printf 'query'; sleep 3;
+  printf '\r'; … ) | script -qfc "…" /dev/null`, setting the size first with
+  `stty rows 50 cols 160`. With `--cmd 'let g:coc_start_at_startup=0'` the run also exits
+  on its own instead of hanging on coc's `node`.
 
 ---
 

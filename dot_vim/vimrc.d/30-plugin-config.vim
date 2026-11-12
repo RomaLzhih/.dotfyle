@@ -11,6 +11,10 @@ endif
 
 " markdown
 let g:vim_markdown_folding_disabled = 1
+" Highlight a leading `---` block as YAML. Without this the block's closing `---`
+" reads as a setext underline and turns the last key into a heading -- on every
+" Obsidian note (80-), and on any other Markdown that carries front matter.
+let g:vim_markdown_frontmatter = 1
 
 " goyo
 let g:goyo_width = 95

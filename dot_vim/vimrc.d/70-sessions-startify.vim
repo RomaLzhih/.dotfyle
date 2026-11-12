@@ -129,6 +129,7 @@ augroup END
 
 " ---- start screen ----
 " 'w' saves because startify, unlike obsession, only writes on :Session and exit.
+" 'i' (search the Obsidian vault) is appended by 80-obsidian.vim, where the vault exists.
 let g:startify_commands = [
             \ {'g': ['Git status', 'Git']},
             \ {'f': ['Files', 'GFiles ${PWD}']},
