@@ -151,6 +151,16 @@ plugins register their own `ColorScheme` handlers later and re-add italics
 `colors/<name>.vim`. Native `:colorscheme <Tab>` only lists loaded ones — the
 `<leader>th` picker lists all.
 
+**vim-broadsheet is the user's own theme pack** — `coffee`, `graphite`, `tokyonight`,
+`vga`, `phosphor`, from `RomaLzhih/vim-broadsheet`, which carries its own `CLAUDE.md`.
+Lazy like the rest, and it has no `plugin/`, so nothing of it runs until one is picked.
+`vga` and `phosphor` ship airline themes that `AirlineFollowColorscheme` picks up by
+name; the other three leave whatever airline theme was active. Two things in this config
+work against it, both known and both left alone: the sweep in `40-` removes the bold and
+the italics its prose themes use as hierarchy, and `s:SignifyGitSignStyle()` in `50-`
+repaints its sign colours with gruvbox's on every `ColorScheme` (the plugin's notes carry
+the one-line guard).
+
 **Sessions** are one file per project in `~/.local/state/vim/sessions`, named from
 the cwd. Nothing loads on entry: a bare start shows the start screen and `p` there runs
 `:SessionLoad` (`g:vimrc_session_autoload = 1` restores at VimEnter instead). A
@@ -362,6 +372,11 @@ Text objects and mappings add their own traps, all hit for real:
   printf '\r'; … ) | script -qfc "…" /dev/null`, setting the size first with
   `stty rows 50 cols 160`. With `--cmd 'let g:coc_start_at_startup=0'` the run also exits
   on its own instead of hanging on coc's `node`.
+- **`redir` around `:colorscheme` blames the theme for this config's noise.** `silent!`
+  hides an error from the screen, not from `redir`, so the `silent! unlet
+  g:indentLine_color_*` pair in `30-` shows up as two `E108` for every theme that does not
+  set those variables — koehler and nord as much as a new one. Compare against a theme
+  already installed before reading a captured message as the new theme's.
 
 ---
 

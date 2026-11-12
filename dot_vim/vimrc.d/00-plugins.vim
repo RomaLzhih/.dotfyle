@@ -58,7 +58,7 @@ Plug 'preservim/vim-markdown'
 Plug 'MattesGroeger/vim-bookmarks'
 Plug 'mhinz/vim-signify'
 
-" Only the active scheme loads eagerly; the rest are {'on': []} to keep 15 dirs out
+" Only the active scheme loads eagerly; the rest are {'on': []} to keep 16 dirs out
 " of the startup rtp scan. The ColorSchemePre hook in 30- loads one on demand, so
 " `:colorscheme nord` and <leader>th still work. Native <Tab> completion only lists
 " loaded schemes.
@@ -78,6 +78,9 @@ Plug 'nanotech/jellybeans.vim', { 'on': [] }
 Plug 'embark-theme/vim', { 'as': 'embark', 'on': [] }
 Plug 'srcery-colors/srcery-vim', {'on': []}
 Plug 'lunacookies/vim-colors-xcode', {'on': []}
+" Own pack: coffee, graphite, tokyonight, vga, phosphor. It has no plugin/ dir, so
+" nothing of it runs until one of those is picked.
+Plug 'RomaLzhih/vim-broadsheet', { 'on': [] }
 
 " Also runs `filetype plugin indent on` and `syntax enable`.
 call plug#end()
