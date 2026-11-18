@@ -152,13 +152,14 @@ plugins register their own `ColorScheme` handlers later and re-add italics
 `<leader>th` picker lists all.
 
 **vim-broadsheet is the user's own theme pack** — `swan-coffee`, `swan-graphite`,
-`swan-tokyonight`, `swan-budapest`, `swan-vga` and `swan-phosphor`, from
-`RomaLzhih/vim-broadsheet`, which carries its own `CLAUDE.md`. All six carry the `swan-`
-prefix. Lazy like the rest, and it has no `plugin/`, so nothing of it runs until one is
-picked. `swan-budapest`, `swan-vga` and `swan-phosphor` ship airline themes that
-`AirlineFollowColorscheme` picks up by name — as `swan_budapest` and so on, because
-airline spells the hyphen as an underscore — and swan-budapest's turns with
-`'background'`; the other three leave whatever airline theme was active. Two things in
+`swan-tokyonight`, `swan-budapest-summer`, `swan-budapest-winter`, `swan-vga` and
+`swan-phosphor`, from `RomaLzhih/vim-broadsheet`, which carries its own `CLAUDE.md`. All
+seven carry the `swan-` prefix. Lazy like the rest, and it has no `plugin/`, so nothing
+of it runs until one is picked. The two budapest themes, `swan-vga` and `swan-phosphor`
+ship airline themes that `AirlineFollowColorscheme` picks up by name — as
+`swan_budapest_summer` and so on, because airline spells the hyphen as an underscore —
+and the budapest pair's turn with `'background'`; the other three leave whatever
+airline theme was active. Two things in
 this config work against it, both known and both left alone: the sweep in `40-` removes
 the bold and the italics its prose themes use as hierarchy, and `s:SignifyGitSignStyle()`
 in `50-` repaints its sign colours with gruvbox's on every `ColorScheme` (the plugin's
