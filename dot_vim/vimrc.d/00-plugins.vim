@@ -58,11 +58,11 @@ Plug 'preservim/vim-markdown'
 Plug 'MattesGroeger/vim-bookmarks'
 Plug 'mhinz/vim-signify'
 
-" Only the active scheme loads eagerly; the rest are {'on': []} to keep 16 dirs out
-" of the startup rtp scan. The ColorSchemePre hook in 30- loads one on demand, so
-" `:colorscheme nord` and <leader>th still work. Native <Tab> completion only lists
-" loaded schemes.
-Plug 'morhetz/gruvbox'
+" Only the active scheme's plugin loads eagerly (vim-broadsheet, last below); the rest
+" are {'on': []} to keep 16 dirs out of the startup rtp scan. The ColorSchemePre hook
+" in 30- loads one on demand, so `:colorscheme nord` and <leader>th still work. Native
+" <Tab> completion only lists loaded schemes.
+Plug 'morhetz/gruvbox', { 'on': [] }
 Plug 'sainnhe/gruvbox-material', { 'on': [] }
 Plug 'rose-pine/vim', {'as': 'rose-pine', 'on': [] }
 Plug 'nordtheme/vim', {'as': 'nord', 'on': [] }
@@ -78,10 +78,11 @@ Plug 'nanotech/jellybeans.vim', { 'on': [] }
 Plug 'embark-theme/vim', { 'as': 'embark', 'on': [] }
 Plug 'srcery-colors/srcery-vim', {'on': []}
 Plug 'lunacookies/vim-colors-xcode', {'on': []}
-" Own pack: swan-coffee, swan-graphite, swan-tokyonight, swan-budapest-summer,
-" swan-budapest-winter, swan-vga and swan-phosphor. It has no plugin/ dir, so nothing
-" of it runs until one is picked.
-Plug 'RomaLzhih/vim-broadsheet', { 'on': [] }
+" Own pack, and the startup scheme's (swan-budapest-winter, set in 40-): swan-coffee,
+" swan-graphite, swan-tokyonight, swan-budapest-summer, swan-budapest-winter, swan-vga
+" and swan-phosphor. It has no plugin/ dir, so loading it eagerly only puts it on
+" 'runtimepath'; nothing of it runs until a scheme is applied.
+Plug 'RomaLzhih/vim-broadsheet'
 
 " Also runs `filetype plugin indent on` and `syntax enable`.
 call plug#end()

@@ -272,7 +272,9 @@ augroup END
 " Pinning the theme sets s:theme_in_vimrc, so airline skips its startup theme probe
 " and applies the palette once instead of twice. The AirlineFollowColorscheme
 " augroup in 40- restores runtime switching. THESE TWO MUST STAY TOGETHER.
-let g:airline_theme = 'gruvbox'
+" The pin names the startup scheme's own airline theme (40-); airline spells its
+" hyphens as underscores.
+let g:airline_theme = 'swan_budapest_winter'
 " Memoise highlight lookups: 332 calls/1472 synIDattr at startup, 189/456 with it.
 " Flushed on ColorScheme and :AirlineRefresh, so <leader>th stays correct.
 let g:airline_highlighting_cache = 1

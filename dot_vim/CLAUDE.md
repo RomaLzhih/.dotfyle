@@ -154,8 +154,12 @@ plugins register their own `ColorScheme` handlers later and re-add italics
 **vim-broadsheet is the user's own theme pack** — `swan-coffee`, `swan-graphite`,
 `swan-tokyonight`, `swan-budapest-summer`, `swan-budapest-winter`, `swan-vga` and
 `swan-phosphor`, from `RomaLzhih/vim-broadsheet`, which carries its own `CLAUDE.md`. All
-seven carry the `swan-` prefix. Lazy like the rest, and it has no `plugin/`, so nothing
-of it runs until one is picked. The two budapest themes, `swan-vga` and `swan-phosphor`
+seven carry the `swan-` prefix. `swan-budapest-winter` is the startup scheme (since
+2026-11-19, replacing gruvbox), so this is the one colourscheme plugin that loads
+eagerly; gruvbox is lazy with the rest. It has no `plugin/`, so loading it only puts it
+on 'runtimepath'. The startup scheme is named in three places that must agree: the
+`colorscheme` line in `40-`, the one colourscheme `Plug` in `00-` without `{'on': []}`,
+and `g:airline_theme` in `30-`. The two budapest themes, `swan-vga` and `swan-phosphor`
 ship airline themes that `AirlineFollowColorscheme` picks up by name — as
 `swan_budapest_summer` and so on, because airline spells the hyphen as an underscore —
 and the budapest pair's turn with `'background'`; the other three leave whatever

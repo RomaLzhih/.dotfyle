@@ -150,7 +150,10 @@ augroup vimrc_flatten_highlights
 augroup END
 
 set termguicolors
-colorscheme gruvbox
+" The startup scheme is named in three places that must agree: here, the one
+" colourscheme Plug in 00- without {'on': []}, and g:airline_theme in 30-.
+colorscheme swan-budapest-winter
+" colorscheme gruvbox
 " colorscheme solarized8
 
 " kill floaterm when only it and nerdtree remain
